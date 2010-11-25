@@ -28,8 +28,8 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
     <a name="showhalo" val="true"/>
     <a name="moveconnect" val="true"/>
     <a name="zoom" val="1.0"/>
-    <a name="gateUndefined" val="error"/>
-    <a name="simlimit" val="200"/>
+    <a name="gateUndefined" val="ignore"/>
+    <a name="simlimit" val="1000"/>
     <a name="simrand" val="0"/>
     <a name="radix" val="2"/>
     <a name="radix2" val="10signed"/>
@@ -37,8 +37,8 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
   </options>
   <mappings>
     <tool lib="0" map="Button2" name="Menu Tool"/>
-    <tool lib="0" map="Button3" name="Menu Tool"/>
     <tool lib="0" map="Ctrl Button1" name="Menu Tool"/>
+    <tool lib="0" map="Button3" name="Menu Tool"/>
   </mappings>
   <toolbar>
     <tool lib="0" name="Poke Tool"/>
@@ -68,17 +68,17 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
     <a name="label" val=""/>
     <a name="labelup" val="east"/>
     <a name="labelfont" val="SansSerif plain 12"/>
-    <wire from="(300,950)" to="(310,950)"/>
     <wire from="(160,610)" to="(160,1000)"/>
+    <wire from="(300,950)" to="(310,950)"/>
     <wire from="(240,940)" to="(260,940)"/>
     <wire from="(780,420)" to="(810,420)"/>
     <wire from="(680,400)" to="(710,400)"/>
-    <wire from="(640,490)" to="(690,490)"/>
-    <wire from="(380,610)" to="(440,610)"/>
     <wire from="(1040,430)" to="(1070,430)"/>
+    <wire from="(380,610)" to="(440,610)"/>
+    <wire from="(640,490)" to="(690,490)"/>
     <wire from="(800,780)" to="(1000,780)"/>
-    <wire from="(1080,790)" to="(1080,1020)"/>
     <wire from="(240,680)" to="(450,680)"/>
+    <wire from="(1080,790)" to="(1080,1020)"/>
     <wire from="(250,900)" to="(500,900)"/>
     <wire from="(700,610)" to="(750,610)"/>
     <wire from="(450,630)" to="(450,680)"/>
@@ -92,12 +92,12 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
     <wire from="(680,400)" to="(680,820)"/>
     <wire from="(1070,350)" to="(1070,430)"/>
     <wire from="(490,610)" to="(490,680)"/>
-    <wire from="(370,840)" to="(370,1020)"/>
     <wire from="(670,190)" to="(950,190)"/>
+    <wire from="(370,840)" to="(370,1020)"/>
     <wire from="(720,110)" to="(940,110)"/>
-    <wire from="(1030,820)" to="(1030,870)"/>
-    <wire from="(290,390)" to="(430,390)"/>
     <wire from="(650,500)" to="(690,500)"/>
+    <wire from="(290,390)" to="(430,390)"/>
+    <wire from="(1030,820)" to="(1030,870)"/>
     <wire from="(550,690)" to="(580,690)"/>
     <wire from="(250,960)" to="(260,960)"/>
     <wire from="(380,190)" to="(420,190)"/>
@@ -105,18 +105,18 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
     <wire from="(310,780)" to="(310,950)"/>
     <wire from="(180,90)" to="(180,120)"/>
     <wire from="(990,350)" to="(1070,350)"/>
-    <wire from="(190,80)" to="(190,120)"/>
-    <wire from="(800,780)" to="(800,870)"/>
     <wire from="(920,920)" to="(920,950)"/>
+    <wire from="(800,780)" to="(800,870)"/>
+    <wire from="(190,80)" to="(190,120)"/>
     <wire from="(290,190)" to="(290,390)"/>
     <wire from="(700,510)" to="(700,610)"/>
-    <wire from="(230,80)" to="(230,110)"/>
     <wire from="(200,140)" to="(200,190)"/>
+    <wire from="(230,80)" to="(230,110)"/>
     <wire from="(720,950)" to="(820,950)"/>
     <wire from="(950,40)" to="(950,100)"/>
     <wire from="(500,950)" to="(550,950)"/>
-    <wire from="(130,300)" to="(510,300)"/>
     <wire from="(290,190)" to="(380,190)"/>
+    <wire from="(130,300)" to="(510,300)"/>
     <wire from="(160,610)" to="(380,610)"/>
     <wire from="(720,410)" to="(720,440)"/>
     <wire from="(580,510)" to="(580,620)"/>
@@ -134,6 +134,7 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
     <wire from="(720,440)" to="(750,440)"/>
     <wire from="(550,390)" to="(580,390)"/>
     <wire from="(1010,510)" to="(1050,510)"/>
+    <wire from="(550,1000)" to="(630,1000)"/>
     <wire from="(130,520)" to="(430,520)"/>
     <wire from="(670,390)" to="(710,390)"/>
     <wire from="(420,70)" to="(420,190)"/>
@@ -172,46 +173,45 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
     <wire from="(950,120)" to="(950,190)"/>
     <wire from="(1010,190)" to="(1010,230)"/>
     <wire from="(1070,330)" to="(1070,350)"/>
-    <wire from="(1060,750)" to="(1060,900)"/>
     <wire from="(460,970)" to="(460,1000)"/>
-    <wire from="(1050,510)" to="(1050,540)"/>
+    <wire from="(1060,750)" to="(1060,900)"/>
     <wire from="(200,940)" to="(200,950)"/>
+    <wire from="(1050,510)" to="(1050,540)"/>
     <wire from="(440,530)" to="(440,610)"/>
     <wire from="(1020,830)" to="(1020,860)"/>
     <wire from="(970,470)" to="(970,610)"/>
     <wire from="(500,900)" to="(500,950)"/>
     <wire from="(520,510)" to="(580,510)"/>
     <wire from="(300,830)" to="(360,830)"/>
-    <wire from="(880,240)" to="(880,630)"/>
     <wire from="(580,190)" to="(640,190)"/>
-    <wire from="(950,190)" to="(1010,190)"/>
-    <wire from="(540,240)" to="(540,380)"/>
+    <wire from="(880,240)" to="(880,630)"/>
     <wire from="(510,300)" to="(510,500)"/>
+    <wire from="(540,240)" to="(540,380)"/>
+    <wire from="(950,190)" to="(1010,190)"/>
     <wire from="(160,1000)" to="(460,1000)"/>
-    <wire from="(490,680)" to="(520,680)"/>
     <wire from="(420,190)" to="(580,190)"/>
+    <wire from="(490,680)" to="(520,680)"/>
     <wire from="(460,510)" to="(500,510)"/>
-    <wire from="(850,610)" to="(970,610)"/>
     <wire from="(970,850)" to="(1000,850)"/>
+    <wire from="(850,610)" to="(970,610)"/>
     <wire from="(490,610)" to="(700,610)"/>
     <wire from="(220,830)" to="(260,830)"/>
     <wire from="(920,920)" to="(950,920)"/>
     <wire from="(1030,540)" to="(1050,540)"/>
-    <wire from="(200,100)" to="(200,120)"/>
     <wire from="(130,240)" to="(540,240)"/>
+    <wire from="(200,100)" to="(200,120)"/>
     <wire from="(830,430)" to="(900,430)"/>
     <wire from="(720,490)" to="(780,490)"/>
-    <wire from="(870,40)" to="(950,40)"/>
     <wire from="(1080,310)" to="(1120,310)"/>
+    <wire from="(870,40)" to="(950,40)"/>
     <wire from="(310,950)" to="(330,950)"/>
     <wire from="(1120,310)" to="(1120,680)"/>
     <wire from="(550,900)" to="(550,950)"/>
     <wire from="(170,90)" to="(180,90)"/>
     <wire from="(290,390)" to="(290,510)"/>
-    <wire from="(1100,680)" to="(1120,680)"/>
     <wire from="(670,190)" to="(670,390)"/>
+    <wire from="(1100,680)" to="(1120,680)"/>
     <wire from="(640,190)" to="(670,190)"/>
-    <wire from="(630,990)" to="(630,1030)"/>
     <wire from="(880,630)" to="(1040,630)"/>
     <wire from="(250,900)" to="(250,960)"/>
     <wire from="(970,880)" to="(1040,880)"/>
@@ -220,96 +220,39 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
     <wire from="(200,100)" to="(210,100)"/>
     <wire from="(740,390)" to="(780,390)"/>
     <wire from="(950,470)" to="(950,720)"/>
-    <wire from="(1010,330)" to="(1070,330)"/>
     <wire from="(380,140)" to="(380,190)"/>
+    <wire from="(1010,330)" to="(1070,330)"/>
     <wire from="(1010,250)" to="(1010,330)"/>
     <wire from="(1050,720)" to="(1050,890)"/>
-    <wire from="(210,80)" to="(210,100)"/>
     <wire from="(970,860)" to="(1020,860)"/>
+    <wire from="(210,80)" to="(210,100)"/>
     <wire from="(450,630)" to="(570,630)"/>
     <wire from="(480,950)" to="(500,950)"/>
+    <wire from="(630,990)" to="(630,1000)"/>
     <wire from="(970,790)" to="(1080,790)"/>
     <wire from="(780,430)" to="(780,490)"/>
-    <comp lib="0" loc="(200,140)" name="Splitter">
+    <comp lib="0" loc="(630,1030)" name="Pin">
       <a name="facing" val="north"/>
-      <a name="fanout" val="4"/>
-      <a name="incoming" val="4"/>
-    </comp>
-    <comp lib="4" loc="(720,950)" name="ROM">
-      <a name="dataWidth" val="16"/>
-      <a name="contents">addr/data: 8 16
-6 a 32 1
-</a>
-    </comp>
-    <comp lib="1" loc="(1070,300)" name="Controlled Buffer">
-      <a name="facing" val="north"/>
-      <a name="width" val="4"/>
-    </comp>
-    <comp lib="4" loc="(460,390)" name="Register">
-      <a name="width" val="4"/>
-      <a name="label" val="r0"/>
-    </comp>
-    <comp lib="0" loc="(630,790)" name="Pin">
       <a name="tristate" val="false"/>
-      <a name="label" val="addr lo enbl"/>
+    </comp>
+    <comp lib="0" loc="(950,920)" name="Splitter">
+      <a name="fanout" val="16"/>
+      <a name="incoming" val="16"/>
     </comp>
     <comp lib="0" loc="(240,940)" name="Bit Extender">
       <a name="in_width" val="1"/>
       <a name="out_width" val="8"/>
     </comp>
-    <comp lib="5" loc="(210,80)" name="LED">
-      <a name="facing" val="south"/>
+    <comp lib="1" loc="(220,830)" name="Constant">
+      <a name="value" val="0x0"/>
     </comp>
-    <comp lib="5" loc="(1160,100)" name="DotMatrix">
-      <a name="matrixcols" val="1"/>
-      <a name="matrixrows" val="4"/>
-    </comp>
-    <comp lib="5" loc="(420,70)" name="Hex Digit Display"/>
-    <comp lib="0" loc="(550,900)" name="Probe">
-      <a name="facing" val="south"/>
-    </comp>
-    <comp lib="5" loc="(190,80)" name="LED">
-      <a name="facing" val="south"/>
-    </comp>
-    <comp lib="4" loc="(740,390)" name="Register">
-      <a name="width" val="4"/>
-      <a name="label" val="adr lo"/>
-    </comp>
-    <comp lib="0" loc="(930,690)" name="Pin">
+    <comp lib="0" loc="(1100,680)" name="Pin">
       <a name="tristate" val="false"/>
-      <a name="label" val="mem enbl"/>
-    </comp>
-    <comp lib="4" loc="(870,40)" name="Counter">
-      <a name="width" val="4"/>
-      <a name="max" val="0xf"/>
-    </comp>
-    <comp lib="0" loc="(990,350)" name="Probe"/>
-    <comp lib="2" loc="(390,820)" name="Multiplexer">
-      <a name="width" val="8"/>
-    </comp>
-    <comp lib="1" loc="(1010,250)" name="Controlled Buffer">
-      <a name="facing" val="south"/>
-      <a name="width" val="4"/>
-    </comp>
-    <comp lib="0" loc="(130,520)" name="Pin">
-      <a name="tristate" val="false"/>
-      <a name="label" val="r1 enbl"/>
-    </comp>
-    <comp lib="0" loc="(130,400)" name="Pin">
-      <a name="tristate" val="false"/>
-      <a name="label" val="r0 enbl"/>
+      <a name="label" val="mem out"/>
     </comp>
     <comp lib="1" loc="(550,390)" name="Controlled Buffer">
       <a name="width" val="4"/>
       <a name="control" val="left"/>
-    </comp>
-    <comp lib="0" loc="(630,1030)" name="Pin">
-      <a name="facing" val="north"/>
-      <a name="tristate" val="false"/>
-    </comp>
-    <comp lib="4" loc="(720,490)" name="Register">
-      <a name="width" val="4"/>
-      <a name="label" val="adr lo"/>
     </comp>
     <comp lib="0" loc="(830,430)" name="Splitter">
       <a name="facing" val="west"/>
@@ -322,11 +265,15 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
       <a name="bit6" val="1"/>
       <a name="bit7" val="1"/>
     </comp>
-    <comp lib="0" loc="(720,110)" name="Pin">
+    <comp lib="0" loc="(930,750)" name="Pin">
       <a name="tristate" val="false"/>
-      <a name="label" val="cnt out"/>
+      <a name="label" val="mem load"/>
     </comp>
-    <comp lib="0" loc="(820,940)" name="Probe">
+    <comp lib="5" loc="(210,80)" name="LED">
+      <a name="facing" val="south"/>
+    </comp>
+    <comp lib="1" loc="(550,1000)" name="Constant"/>
+    <comp lib="5" loc="(170,80)" name="LED">
       <a name="facing" val="south"/>
     </comp>
     <comp lib="0" loc="(880,650)" name="Pin">
@@ -334,65 +281,67 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
       <a name="tristate" val="false"/>
       <a name="label" val="mem in"/>
     </comp>
-    <comp lib="5" loc="(170,80)" name="LED">
+    <comp lib="0" loc="(200,140)" name="Splitter">
+      <a name="facing" val="north"/>
+      <a name="fanout" val="4"/>
+      <a name="incoming" val="4"/>
+    </comp>
+    <comp lib="4" loc="(720,950)" name="ROM">
+      <a name="dataWidth" val="16"/>
+      <a name="contents">addr/data: 8 16
+6 a 32 1
+</a>
+    </comp>
+    <comp lib="1" loc="(950,120)" name="Controlled Buffer">
       <a name="facing" val="south"/>
+      <a name="width" val="4"/>
     </comp>
-    <comp lib="4" loc="(480,950)" name="Register"/>
-    <comp lib="1" loc="(220,830)" name="Constant">
-      <a name="value" val="0x0"/>
-    </comp>
-    <comp lib="0" loc="(130,240)" name="Pin">
-      <a name="tristate" val="false"/>
-      <a name="label" val="r0 out"/>
-    </comp>
-    <comp lib="0" loc="(300,830)" name="Bit Extender">
-      <a name="in_width" val="1"/>
-      <a name="out_width" val="8"/>
+    <comp lib="4" loc="(870,40)" name="Counter">
+      <a name="width" val="4"/>
+      <a name="max" val="0xf"/>
     </comp>
     <comp lib="0" loc="(130,610)" name="Clock">
       <a name="label" val="clk"/>
-    </comp>
-    <comp lib="4" loc="(1040,430)" name="RAM">
-      <a name="dataWidth" val="4"/>
-    </comp>
-    <comp lib="0" loc="(930,750)" name="Pin">
-      <a name="tristate" val="false"/>
-      <a name="label" val="mem load"/>
-    </comp>
-    <comp lib="0" loc="(950,920)" name="Splitter">
-      <a name="fanout" val="16"/>
-      <a name="incoming" val="16"/>
-    </comp>
-    <comp lib="1" loc="(580,620)" name="Controlled Buffer">
-      <a name="facing" val="north"/>
-      <a name="width" val="4"/>
-      <a name="control" val="left"/>
     </comp>
     <comp lib="0" loc="(130,300)" name="Pin">
       <a name="tristate" val="false"/>
       <a name="label" val="r1 out"/>
     </comp>
-    <comp lib="1" loc="(520,510)" name="Controlled Buffer">
+    <comp lib="0" loc="(820,940)" name="Probe">
+      <a name="facing" val="south"/>
+    </comp>
+    <comp lib="0" loc="(630,830)" name="Pin">
+      <a name="tristate" val="false"/>
+      <a name="label" val="addr hi enbl"/>
+    </comp>
+    <comp lib="0" loc="(550,900)" name="Probe">
+      <a name="facing" val="south"/>
+    </comp>
+    <comp lib="0" loc="(130,520)" name="Pin">
+      <a name="tristate" val="false"/>
+      <a name="label" val="r1 enbl"/>
+    </comp>
+    <comp lib="3" loc="(300,950)" name="Adder"/>
+    <comp lib="1" loc="(580,620)" name="Controlled Buffer">
+      <a name="facing" val="north"/>
       <a name="width" val="4"/>
       <a name="control" val="left"/>
     </comp>
+    <comp lib="0" loc="(720,110)" name="Pin">
+      <a name="tristate" val="false"/>
+      <a name="label" val="cnt out"/>
+    </comp>
+    <comp lib="4" loc="(480,950)" name="Register"/>
     <comp lib="0" loc="(130,680)" name="Pin">
       <a name="tristate" val="false"/>
       <a name="label" val="rand out"/>
     </comp>
-    <comp lib="5" loc="(1030,540)" name="Button"/>
-    <comp lib="3" loc="(300,950)" name="Adder"/>
-    <comp lib="0" loc="(470,1050)" name="Pin">
-      <a name="facing" val="north"/>
-      <a name="tristate" val="false"/>
-      <a name="label" val="pc rst"/>
-    </comp>
-    <comp lib="0" loc="(310,780)" name="Probe">
+    <comp lib="5" loc="(190,80)" name="LED">
       <a name="facing" val="south"/>
     </comp>
-    <comp lib="0" loc="(1100,680)" name="Pin">
-      <a name="tristate" val="false"/>
-      <a name="label" val="mem out"/>
+    <comp lib="0" loc="(300,830)" name="Bit Extender">
+      <a name="in_width" val="1"/>
+      <a name="out_width" val="8"/>
     </comp>
     <comp lib="5" loc="(230,80)" name="LED">
       <a name="facing" val="south"/>
@@ -401,18 +350,71 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
       <a name="width" val="4"/>
       <a name="label" val="r1"/>
     </comp>
+    <comp lib="1" loc="(110,940)" name="Constant"/>
+    <comp lib="1" loc="(1070,300)" name="Controlled Buffer">
+      <a name="facing" val="north"/>
+      <a name="width" val="4"/>
+    </comp>
+    <comp lib="5" loc="(420,70)" name="Hex Digit Display"/>
+    <comp lib="0" loc="(930,690)" name="Pin">
+      <a name="tristate" val="false"/>
+      <a name="label" val="mem enbl"/>
+    </comp>
+    <comp lib="0" loc="(130,400)" name="Pin">
+      <a name="tristate" val="false"/>
+      <a name="label" val="r0 enbl"/>
+    </comp>
     <comp lib="4" loc="(550,690)" name="Random">
       <a name="width" val="4"/>
     </comp>
-    <comp lib="0" loc="(630,830)" name="Pin">
+    <comp lib="0" loc="(130,240)" name="Pin">
       <a name="tristate" val="false"/>
-      <a name="label" val="addr hi enbl"/>
+      <a name="label" val="r0 out"/>
     </comp>
-    <comp lib="1" loc="(950,120)" name="Controlled Buffer">
+    <comp lib="1" loc="(520,510)" name="Controlled Buffer">
+      <a name="width" val="4"/>
+      <a name="control" val="left"/>
+    </comp>
+    <comp lib="5" loc="(1160,100)" name="DotMatrix">
+      <a name="matrixcols" val="1"/>
+      <a name="matrixrows" val="4"/>
+    </comp>
+    <comp lib="1" loc="(1010,250)" name="Controlled Buffer">
       <a name="facing" val="south"/>
       <a name="width" val="4"/>
     </comp>
+    <comp lib="0" loc="(310,780)" name="Probe">
+      <a name="facing" val="south"/>
+    </comp>
+    <comp lib="5" loc="(1030,540)" name="Button"/>
+    <comp lib="2" loc="(390,820)" name="Multiplexer">
+      <a name="width" val="8"/>
+    </comp>
+    <comp lib="0" loc="(470,1050)" name="Pin">
+      <a name="facing" val="north"/>
+      <a name="tristate" val="false"/>
+      <a name="label" val="pc rst"/>
+    </comp>
+    <comp lib="4" loc="(1040,430)" name="RAM">
+      <a name="dataWidth" val="4"/>
+    </comp>
+    <comp lib="0" loc="(630,790)" name="Pin">
+      <a name="tristate" val="false"/>
+      <a name="label" val="addr lo enbl"/>
+    </comp>
+    <comp lib="4" loc="(740,390)" name="Register">
+      <a name="width" val="4"/>
+      <a name="label" val="adr lo"/>
+    </comp>
+    <comp lib="0" loc="(990,350)" name="Probe"/>
+    <comp lib="4" loc="(460,390)" name="Register">
+      <a name="width" val="4"/>
+      <a name="label" val="r0"/>
+    </comp>
     <comp lib="0" loc="(350,140)" name="Probe"/>
-    <comp lib="1" loc="(110,940)" name="Constant"/>
+    <comp lib="4" loc="(720,490)" name="Register">
+      <a name="width" val="4"/>
+      <a name="label" val="adr lo"/>
+    </comp>
   </circuit>
 </project>
