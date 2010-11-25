@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project source="2.6.1" version="1.0">
+This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
+<lib desc="#Base" name="0">
+    <tool name="Text Tool">
+      <a name="text" val=""/>
+      <a name="font" val="SansSerif plain 12"/>
+      <a name="halign" val="center"/>
+      <a name="valign" val="base"/>
+    </tool>
+  </lib>
+  <lib desc="#Gates" name="1"/>
+  <lib desc="#Plexers" name="2"/>
+  <lib desc="#Arithmetic" name="3"/>
+  <lib desc="#Memory" name="4">
+    <tool name="ROM">
+      <a name="contents">addr/data: 8 8
+0
+</a>
+    </tool>
+  </lib>
+  <lib desc="#I/O" name="5"/>
+  <main name="main"/>
+  <options>
+    <a name="showgrid" val="true"/>
+    <a name="preview" val="false"/>
+    <a name="showhalo" val="true"/>
+    <a name="showhalo" val="true"/>
+    <a name="moveconnect" val="true"/>
+    <a name="zoom" val="1.0"/>
+    <a name="gateUndefined" val="ignore"/>
+    <a name="simlimit" val="1000"/>
+    <a name="simrand" val="0"/>
+    <a name="radix" val="2"/>
+    <a name="radix2" val="10signed"/>
+    <a name="toolbarloc" val="north"/>
+  </options>
+  <mappings>
+    <tool lib="0" map="Button2" name="Menu Tool"/>
+    <tool lib="0" map="Ctrl Button1" name="Menu Tool"/>
+    <tool lib="0" map="Button3" name="Menu Tool"/>
+  </mappings>
+  <toolbar>
+    <tool lib="0" name="Poke Tool"/>
+    <tool lib="0" name="Edit Tool"/>
+    <tool lib="0" name="Text Tool">
+      <a name="text" val=""/>
+      <a name="font" val="SansSerif plain 12"/>
+      <a name="halign" val="center"/>
+      <a name="valign" val="base"/>
+    </tool>
+    <sep/>
+    <tool lib="0" name="Pin">
+      <a name="tristate" val="false"/>
+    </tool>
+    <tool lib="0" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="labelloc" val="east"/>
+    </tool>
+    <tool lib="1" name="NOT Gate"/>
+    <tool lib="1" name="AND Gate"/>
+    <tool lib="1" name="OR Gate"/>
+  </toolbar>
+  <circuit name="main">
+    <a name="circuit" val="main"/>
+    <a name="label" val=""/>
+    <a name="labelup" val="east"/>
+    <a name="labelfont" val="SansSerif plain 12"/>
+    <wire from="(360,260)" to="(420,260)"/>
+    <wire from="(200,590)" to="(200,660)"/>
+    <wire from="(250,590)" to="(250,800)"/>
+    <wire from="(160,300)" to="(160,590)"/>
+    <wire from="(80,740)" to="(80,770)"/>
+    <wire from="(250,430)" to="(300,430)"/>
+    <wire from="(160,170)" to="(330,170)"/>
+    <wire from="(390,640)" to="(390,690)"/>
+    <wire from="(400,640)" to="(400,690)"/>
+    <wire from="(560,130)" to="(560,240)"/>
+    <wire from="(370,470)" to="(370,510)"/>
+    <wire from="(130,700)" to="(130,730)"/>
+    <wire from="(410,660)" to="(560,660)"/>
+    <wire from="(250,360)" to="(420,360)"/>
+    <wire from="(560,240)" to="(560,260)"/>
+    <wire from="(560,240)" to="(600,240)"/>
+    <wire from="(130,730)" to="(170,730)"/>
+    <wire from="(440,430)" to="(560,430)"/>
+    <wire from="(80,740)" to="(130,740)"/>
+    <wire from="(40,780)" to="(40,790)"/>
+    <wire from="(40,780)" to="(210,780)"/>
+    <wire from="(250,360)" to="(250,430)"/>
+    <wire from="(200,590)" to="(250,590)"/>
+    <wire from="(270,510)" to="(370,510)"/>
+    <wire from="(130,730)" to="(130,740)"/>
+    <wire from="(400,690)" to="(750,690)"/>
+    <wire from="(420,260)" to="(420,360)"/>
+    <wire from="(390,540)" to="(420,540)"/>
+    <wire from="(250,800)" to="(300,800)"/>
+    <wire from="(380,690)" to="(390,690)"/>
+    <wire from="(390,470)" to="(390,540)"/>
+    <wire from="(370,640)" to="(370,810)"/>
+    <wire from="(110,700)" to="(130,700)"/>
+    <wire from="(390,690)" to="(400,690)"/>
+    <wire from="(690,620)" to="(750,620)"/>
+    <wire from="(40,790)" to="(210,790)"/>
+    <wire from="(600,240)" to="(600,620)"/>
+    <wire from="(600,620)" to="(650,620)"/>
+    <wire from="(270,590)" to="(290,590)"/>
+    <wire from="(420,260)" to="(560,260)"/>
+    <wire from="(250,590)" to="(270,590)"/>
+    <wire from="(560,430)" to="(560,660)"/>
+    <wire from="(330,810)" to="(370,810)"/>
+    <wire from="(270,510)" to="(270,590)"/>
+    <wire from="(130,590)" to="(160,590)"/>
+    <wire from="(340,280)" to="(340,300)"/>
+    <wire from="(160,300)" to="(340,300)"/>
+    <wire from="(750,620)" to="(750,690)"/>
+    <wire from="(160,590)" to="(200,590)"/>
+    <wire from="(80,770)" to="(210,770)"/>
+    <wire from="(40,660)" to="(40,780)"/>
+    <wire from="(160,170)" to="(160,300)"/>
+    <wire from="(40,660)" to="(200,660)"/>
+    <wire from="(410,640)" to="(410,660)"/>
+    <wire from="(380,640)" to="(380,690)"/>
+    <comp lib="4" loc="(360,260)" name="Counter">
+      <a name="width" val="4"/>
+      <a name="max" val="0xf"/>
+    </comp>
+    <comp lib="0" loc="(690,620)" name="Bit Extender">
+      <a name="in_width" val="4"/>
+      <a name="out_width" val="7"/>
+    </comp>
+    <comp lib="0" loc="(370,170)" name="Bit Extender">
+      <a name="in_width" val="1"/>
+      <a name="out_width" val="4"/>
+    </comp>
+    <comp lib="0" loc="(130,590)" name="Clock"/>
+    <comp lib="1" loc="(420,540)" name="Constant"/>
+    <comp lib="5" loc="(560,130)" name="Hex Digit Display"/>
+    <comp lib="1" loc="(110,700)" name="Constant"/>
+    <comp lib="5" loc="(370,640)" name="DotMatrix"/>
+    <comp lib="5" loc="(290,590)" name="LED"/>
+    <comp lib="4" loc="(440,430)" name="RAM">
+      <a name="addrWidth" val="4"/>
+      <a name="dataWidth" val="7"/>
+    </comp>
+    <comp lib="4" loc="(330,810)" name="Random">
+      <a name="width" val="7"/>
+    </comp>
+  </circuit>
+</project>
