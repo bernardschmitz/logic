@@ -9,5 +9,21 @@ addressing modes
 100 mov #, A
 
 
+mov i, A
+mov a, A
+mov [a], A
+mov [a+X], A
+mov [a]+X, A
+mov i, X
+mov a, X
+mov [a], X
+mov A, a
+mov A, [a]
+mov A, [a+X]
+mov A, [a]+X
+mov X, a
+mov X, [a]
+mov A, X
+mov X, A
 
 
