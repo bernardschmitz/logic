@@ -1,25 +1,25 @@
 
-000
-nop
-halt
+000  op
+nop  0
+halt 1
 
-001
-adc
-sbc
-mul
-div
-neg
-cmp
-inc
-dec
-clc
-sec
+001  op   adr
+adc  0000 0
+sbc  0001 0
+mul  0010
+div  0011
+neg  0100
+cmp  0101
+inc  0110
+dec  0111
+clc  1000
+sec  1001
 
-010
-and
-or
-not
-xor
+010  op
+and  0000
+or   0001
+not  0010
+xor  0011
 shr
 shl
 sar
@@ -45,9 +45,8 @@ call
 ret
 
 101
-ld
+mov
 
 110
-st
 
 111
