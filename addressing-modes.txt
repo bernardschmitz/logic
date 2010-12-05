@@ -1,29 +1,37 @@
 
 addressing modes
 
+0000 i
+0001 r
+0010 a
+0011 [a]
+0100 [r]
+0101 [a+r]
+0110 [a]+r
+0111 [r0+r1]
+1000 [r0]+r1
 
-000 mov a, A
-001 mov [a], A
-010 mov A, a
-011 mov A, [a]
-100 mov #, A
+0000 as src only
 
 
-mov i, A
-mov a, A
-mov [a], A
-mov [a+X], A
-mov [a]+X, A
-mov i, X
-mov a, X
-mov [a], X
-mov A, a
-mov A, [a]
-mov A, [a+X]
-mov A, [a]+X
-mov X, a
-mov X, [a]
-mov A, X
-mov X, A
 
+
+
+mov i, r0
+mov a, r0
+mov r0, r1
+mov [a], r0
+mov [r0], r1
+mov [a+r0], r1
+mov [a]+r0, r1
+mov [r0+r1], r2
+mov [r0]+r1, r2
+
+mov r0, a
+mov r0, [a]
+mov r1, [r0]
+mov r1, [a+r0]
+mov r1, [a]+r0
+mov r2, [r0+r1]
+mov r2, [r0]+r1
 

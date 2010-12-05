@@ -1,32 +1,32 @@
 
-000  op
+0000 op
 nop  0
 halt 1
 
-001  op   adr
-adc  0000 0
-sbc  0001 0
-mul  0010
-div  0011
-neg  0100
-cmp  0101
-inc  0110
-dec  0111
-clc  1000
-sec  1001
-
-010  op
-and  0000
-or   0001
-not  0010
-xor  0011
+0001 op
+adc
+sbc
+mul
+div
+neg
+cmp
+inc
+dec
+and
+or
+not
+xor
 shr
 shl
-sar
+sar  
 ror
 rol
 
-011
+0010
+clc
+sec
+
+0011
 beq
 bne
 blt
@@ -36,17 +36,18 @@ bpl
 bcc
 bcs
 bra
+
+0100
 jmp
 
-100
+0101
 push
 pop
+
+0110
 call
 ret
 
-101
+0111
 mov
 
-110
-
-111
