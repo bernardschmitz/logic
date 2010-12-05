@@ -4,29 +4,35 @@ nop  0
 halt 1
 
 0001 op
-adc
-sbc
-mul
-div
-neg
-cmp
-inc
-dec
-and
-or
-not
-xor
-shr
-shl
-sar  
-ror
-rol
+add  000
+adc  001
+sub  010
+sbc  011
+mul  100
+div  101
+neg  110
+cmp  111
 
-0010
+0010 op
+inc  000
+dec  001
+and  010
+or   011
+not  100
+xor  101
+
+0011 op
+shr  000
+shl  001
+sar  010
+ror  011
+rol  100
+
+0100 op
 clc
 sec
 
-0011
+0101
 beq
 bne
 blt
@@ -48,6 +54,13 @@ pop
 call
 ret
 
-0111
-mov
+0111 reg am
+load rrr mmmm
+
+1000  reg am
+store rrr mmmm
+
+1001 hi/lo reg
+mflo 0     rrr
+mfhi 1     rrr
 

@@ -11,11 +11,16 @@ addressing modes
 0111 [r0+r1]
 1000 [r0]+r1
 
-0000 as src only
+mode 0000 as src only
+mode 0001 can be both src and dst
+modes greater than 0001 can only be used for src or dst, not both
 
+eg
 
+mov A, [200h]
+mov [200h+X], B
 
-
+----------------
 
 mov i, r0
 mov a, r0
