@@ -4,39 +4,36 @@ nop  0
 halt 1
 
 0001 op
-add  000 sss rrr ddd
-adc  001 sss rrr ddd 
-sub  010 sss rrr ddd
-sbc  011 sss rrr ddd
-mul  100 sss rrr ddd
-div  101 sss rrr ddd
-neg  110 sss rrr ddd
-cmp  111 sss rrr ddd
+add  000 sss ttt ddd
+adc  001 sss ttt ddd 
+sub  010 sss ttt ddd
+sbc  011 sss ttt ddd
+mul  100 sss ttt ddd
+div  101 sss ttt ddd
+neg  110 sss ttt ddd
+cmp  111 sss ttt ddd
 
 0010 op
-inc  000 ddd
-dec  001 ddd
-and  010 sss rrr ddd
-or   011 sss rrr ddd
-not  100 sss rrr ddd
-xor  101 sss rrr ddd
-
-0011 op
-shr  000 sss rrr ddd
-shl  001 sss rrr ddd
-sar  010 sss rrr ddd
-ror  011 sss rrr ddd
-rol  100 sss rrr ddd
+and  000 sss ttt ddd
+or   001 sss ttt ddd
+not  010 sss ttt ddd
+xor  011 sss ttt ddd
+shr  100 sss ttt ddd
+shl  101 sss ttt ddd
+ror  110 sss ttt ddd
+rol  111 sss ttt ddd
 
 0100 op
 clc
 sec
+slt
+seq
 
 0101
 beq  000 rrr sss
 bne  001 rrr sss
 blt  010 rrr sss
-bge  011 rrr sss
+bgr  011 rrr sss
 bmi  100 rrr sss
 bpl  101 rrr sss
 bcc  110 rrr sss
@@ -49,10 +46,10 @@ bra  1 | offset
 0101
 
 0111 reg base am
-load ddd bbb  mmm | address
+load ttt ddd bbb  mmm | address
 
 1000  reg base am
-store ddd bbb  mmm | address
+store ttt ddd bbb  mmm | address
 
 1001 hi/lo reg
 mflo 0     rrr
