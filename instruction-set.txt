@@ -33,8 +33,11 @@ clc
 sec
 
 0101
-beq
-bne
+beq  00 000 rrr sss
+bne  01 001 rrr sss
+beq  10 000 rrr        C
+bne  11 001 rrr        C
+
 blt
 bge
 bmi
@@ -46,21 +49,23 @@ bra
 0100
 jmp
 
-0101
-push
-pop
+0101   reg
+push 0 rrr
+pop  1 rrr
 
 0110
-call
-ret
+call 0
+ret  1
 
 0111 reg am
-load rrr mmmm
+load rrr mmmm     C
 
 1000  reg am
-store rrr mmmm
+store rrr mmmm    C
 
 1001 hi/lo reg
 mflo 0     rrr
 mfhi 1     rrr
 
+1010
+slt
