@@ -1,15 +1,13 @@
 
 addressing modes
 
-0000 i
-0001 r
-0010 a
-0011 [a]
-0100 [r]
-0101 [a+r]
-0110 [a]+r
-0111 [r0+r1]
-1000 [r0]+r1
+000 i
+001 r
+010 a
+011 [a]
+100 [r]
+101 [a+r]
+110 [a]+r
 
 mode 0000 as src only
 mode 0001 can be both src and dst
