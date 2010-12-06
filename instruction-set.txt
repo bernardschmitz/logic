@@ -4,11 +4,11 @@ nop  0
 halt 1
 
 0001 op
-add  000 sss ttt ddd
-adc  001 sss ttt ddd 
-sub  010 sss ttt ddd
-sbc  011 sss ttt ddd
-mul  100 sss ttt ddd
+add  000 sss ddd mmm 0
+adc  001 sss ddd 
+sub  010 sss ddd
+sbc  011 sss ddd
+mul  100 sss ddd
 div  101 sss ttt ddd
 neg  110 sss ttt ddd
 cmp  111 sss ttt ddd

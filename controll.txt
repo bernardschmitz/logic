@@ -1,0 +1,18 @@
+
+control
+
+ALU op 0000
+ALU A src 0
+ALU B src 0
+carry write 0
+mem data src 0
+mem addr src 00
+mem write 0
+pc write 0
+oper write 0
+IR write 0
+accum src 00
+accum write 0
+
+
+
