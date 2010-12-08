@@ -1,46 +1,62 @@
 
+mem
+	move
+	store
+
+arith
+	add
+	sub
+	adc
+	sbc
+	mul
+	div
+	neg
+	cmp
+	
+logic
+	and
+	or
+	xor
+	not
+	shr
+	shl
+	sar
+	ror
+	rol
+	
+branch	
+	bra
+	beq
+	bne
+	bmi
+	bpl
+	
+
+
+
+
+
+
+
+
+
+
+
+
 mov src, dst
 
-move r, const
-
+move r, r
 move r, [disp]
 move r, [reg]
 move r, [reg+disp]
-
 move r, [reg+reg]
 move r, [reg+reg+disp]
-
-
-
-
-
-
-
-
-
-mov s, reg
-mov s, [reg]
-mov s, [reg]+off
-mov s, [reg+off]
-mov s, [addr]
-mov s, [addr]+reg
-
-mov C, d
-mov [r], d
-mov [s+o], d
-mov o, d
-mov [o], d
-mov [o]+s, d
-
-
-
-
-
-
-
-
-
-
+move const, r
+move [disp], r
+move [reg], r
+move [reg+disp], r
+move [reg+reg], r
+move [reg+reg+disp], r
 
 
 
