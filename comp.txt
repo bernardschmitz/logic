@@ -1,0 +1,37 @@
+
+unsigned 
+
+> bcc bne
+not <= bcc bne
+>= bcc
+not < bcc
+< bcs
+not >= bcs
+<= bcs beq
+not > bcs beq
+= beq
+not = bne
+
+
+
+signed 
+
+> 
+not <= 
+>= 
+not < 
+< 
+not >= 
+<= 
+not > 
+= 
+not = 
+
+
+
+N V    
+0 0 >=
+0 1 <
+1 0 <
+1 1 >=
+

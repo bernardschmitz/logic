@@ -30,7 +30,11 @@ branch
 	bne
 	bmi
 	bpl
-	
+	bcs
+	bcc
+	bvs
+	bvc
+
 
 
 
