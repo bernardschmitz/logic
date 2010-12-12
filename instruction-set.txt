@@ -1,19 +1,63 @@
 
-mem
-	move
-	store
+000 mem
 
-arith
-	add
-	sub
-	adc
-	sbc
-	mul
-	div
-	neg
-	cmp
+0000 move rs, [disp]
+0001 move rs, [reg0]
+0010 move rs, [reg0+disp]
+0011 move rs, [reg0+reg1]
+0100 move rs, [reg0+reg1+disp]
+0101 move [disp], rd
+0110 move [reg0], rd
+0111 move [reg0+disp], rd
+1000 move [reg0+reg1], rd
+1001 move [reg0+reg1+disp], rd
+1010 move const, rd
+1011 move rs, rd
+
+000 0000 sss 000 000
+000 0001 sss bbb 000
+000 0010 sss bbb 000
+000 0011 sss bbb iii
+000 0100 sss bbb iii
+
+000 0101 ddd 000 000
+000 0110 ddd bbb 000
+000 0111 ddd bbb 000
+000 1000 ddd bbb iii
+000 1001 ddd bbb iii
+
+000 1010 ddd 000 000
+000 1011 sss ddd 000
+
+---
+
+001 arith
+
+0000 add
+0001 sub
+0010 adc
+0011 sbc
+0100 mul  hi/lo
+0101 div  hi/lo
+0110 neg
+0111 cmp
+1000 inc
+1001 dec
+
+001 0000 sss ttt ddd
+001 0001 sss ttt ddd
+001 0010 sss ttt ddd
+001 0011 sss ttt ddd
+001 0100 sss ttt 000
+001 0101 sss ttt 000
+001 0110 000 000 ddd
+001 0111 sss 000 ddd
+001 1000 000 000 ddd
+001 1001 000 000 ddd
+
+
 	
-logic
+010 logic
 	and
 	or
 	xor
@@ -24,7 +68,11 @@ logic
 	ror
 	rol
 	
-branch	
+011 alu
+	sec
+	clc
+	
+100 branch	
 	bra
 	beq
 	bne
@@ -34,8 +82,19 @@ branch
 	bcc
 	bvs
 	bvc
-
-
+	jmp
+	
+101 stack
+	push
+	pop
+	call
+	ret
+	
+110 control
+	nop
+	halt
+	
+111
 
 
 
@@ -49,18 +108,18 @@ branch
 
 mov src, dst
 
-move r, r
-move r, [disp]
-move r, [reg]
-move r, [reg+disp]
-move r, [reg+reg]
-move r, [reg+reg+disp]
-move const, r
-move [disp], r
-move [reg], r
-move [reg+disp], r
-move [reg+reg], r
-move [reg+reg+disp], r
+move rd, rs
+move rd, [disp]
+move rd, [reg0]
+move rd, [reg0+disp]
+move rd, [reg0+reg1]
+move rd, [reg0+reg1+disp]
+move const, rs
+move [disp], rs
+move [reg0], rs
+move [reg0+disp], rs
+move [reg0+reg1], rs
+move [reg0+reg1+disp], rs
 
 
 
