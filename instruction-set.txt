@@ -57,20 +57,6 @@
 
 
 
-00000 add s, d
-00001 add [disp], d
-00010 add [s], d
-00011 add [b+disp], d
-00100 add [b+i+disp], d
-
-????
-
-
-
-
-
-
-
 ---
 	
 010 logic
@@ -101,8 +87,25 @@
 	
 011 alu
 
-0000	sec
-0001	clc
+0000 sec
+0001 clc
+0010 mov hi, r
+0011 mov lo, r
+0100 mov sp, r
+0101 mov r, sp
+0110 mov ss, r
+0111 mov r, ss
+
+
+011 0000 000 000 000
+011 0001 000 000 000
+011 0010 rrr 000 000
+011 0011 rrr 000 000
+011 0100 rrr 000 000
+011 0101 rrr 000 000
+011 0110 rrr 000 000
+011 0111 rrr 000 000
+
 
 ---	
 100 branch	
@@ -133,6 +136,7 @@
 	
 101 stack
 
+
 0000 push r
 0001 push const
 0010 push [r]
@@ -161,8 +165,18 @@
 ---
 	
 110 control
-	nop
-	halt
+
+0000	nop
+0001	halt
+0010	break
+
+
+110 0000 000 000 000
+110 0001 000 000 000
+110 0010 000 000 000 
+
+
+---
 	
 111
 
@@ -174,90 +188,3 @@
 
 
 
-
-
-mov src, dst
-
-move rd, rs
-move rd, [disp]
-move rd, [reg0]
-move rd, [reg0+disp]
-move rd, [reg0+reg1]
-move rd, [reg0+reg1+disp]
-move const, rs
-move [disp], rs
-move [reg0], rs
-move [reg0+disp], rs
-move [reg0+reg1], rs
-move [reg0+reg1+disp], rs
-
-
-
-
-
-
-------------------------------------------------------------
-
-
-0000 op
-nop  0
-halt 1
-
-0001 op
-add  000 sss ddd mmm 0
-adc  001 sss ddd 
-sub  010 sss ddd
-sbc  011 sss ddd
-mul  100 sss ddd
-div  101 sss ttt ddd
-neg  110 sss ttt ddd
-cmp  111 sss ttt ddd
-
-0010 op
-and  000 sss ttt ddd
-or   001 sss ttt ddd
-not  010 sss ttt ddd
-xor  011 sss ttt ddd
-shr  100 sss ttt ddd
-shl  101 sss ttt ddd
-ror  110 sss ttt ddd
-rol  111 sss ttt ddd
-
-0100 op
-clc
-sec
-slt
-seq
-
-0101
-beq  000 rrr sss
-bne  001 rrr sss
-blt  010 rrr sss
-bgr  011 rrr sss
-bmi  100 rrr sss
-bpl  101 rrr sss
-bcc  110 rrr sss
-bcs  111 rrr sss
-
-0100
-jmp  0 mmm | address
-bra  1 | offset
-
-0101
-
-0111 reg base am
-load ttt ddd bbb  mmm | address
-
-1000  reg base am
-store ttt ddd bbb  mmm | address
-
-1001 hi/lo reg
-mflo 0     rrr
-mfhi 1     rrr
-
-1010
-1011
-1100
-1101
-1110
-1111
