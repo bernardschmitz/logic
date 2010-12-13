@@ -50,45 +50,115 @@
 001 0011 sss ttt ddd
 001 0100 sss ttt 000
 001 0101 sss ttt 000
-001 0110 000 000 ddd
+001 0110 sss 000 ddd
 001 0111 sss 000 ddd
-001 1000 000 000 ddd
-001 1001 000 000 ddd
+001 1000 sss 000 ddd
+001 1001 sss 000 ddd
 
 
+
+00000 add s, d
+00001 add [disp], d
+00010 add [s], d
+00011 add [b+disp], d
+00100 add [b+i+disp], d
+
+????
+
+
+
+
+
+
+
+---
 	
 010 logic
-	and
-	or
-	xor
-	not
-	shr
-	shl
-	sar
-	ror
-	rol
+
+0000	and
+0001	or
+0010	xor
+0011	not
+0100	shr
+0101	shl
+0110	sar
+0111	ror
+1000	rol
+	
+010 0000 sss ttt ddd
+010 0001 sss ttt ddd
+010 0010 sss ttt ddd
+010 0011 sss 000 ddd
+010 0100 sss ttt ddd
+010 0101 sss ttt ddd
+010 0110 sss ttt ddd
+010 0111 sss ttt ddd
+010 1000 sss ttt ddd
+
+
+	
+---
 	
 011 alu
-	sec
-	clc
-	
+
+0000	sec
+0001	clc
+
+---	
 100 branch	
-	bra
-	beq
-	bne
-	bmi
-	bpl
-	bcs
-	bcc
-	bvs
-	bvc
-	jmp
+
+0000	bra
+0001	beq
+0010	bne
+0011	bmi
+0100	bpl
+0101	bcs
+0110	bcc
+0111	bvs
+1000	bvc
+1001	jmp
+	
+100 0000 0 0000 0000 | 0000000000000000
+100 0001 0 0000 0000 | 0000000000000000
+100 0010 0 0000 0000 | 0000000000000000
+100 0011 0 0000 0000 | 0000000000000000
+100 0100 0 0000 0000 | 0000000000000000
+100 0101 0 0000 0000 | 0000000000000000
+100 0110 0 0000 0000 | 0000000000000000
+100 0111 0 0000 0000 | 0000000000000000
+100 1000 0 0000 0000 | 0000000000000000
+100 1001 0 0000 0000 | 0000000000000000
+	
+---	
 	
 101 stack
-	push
-	pop
-	call
-	ret
+
+0000 push r
+0001 push const
+0010 push [r]
+0011 push [disp]
+0100 pop r
+0101 pop [r]
+0110 pop [disp]
+0111 call disp
+1000 call [r]
+1001 call [disp]
+1010 ret
+
+101 0000 rrr 000000
+101 0001 000 000000 | cccccccccccccccc
+101 0010 rrr 000000
+101 0011 000 000000 | dispdispdispdisp
+101 0100 rrr 000000
+101 0101 rrr 000000
+101 0110 000 000000 | dispdispdispdisp
+101 0111 000 000000 | dispdispdispdisp
+101 1000 rrr 000000
+101 1001 000 000000 | dispdispdispdisp
+101 1010 000 000000
+
+
+---
 	
 110 control
 	nop
