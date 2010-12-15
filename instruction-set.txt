@@ -36,7 +36,7 @@
 0000 add
 0001 sub
 0010 adc
-0011 sbc
+0011 sbb
 0100 mul  hi/lo
 0101 div  hi/lo
 0110 neg
