@@ -20,6 +20,6 @@ odd:
 	adc r0, r2
 
 	cmp r2, #003d
-	bmi loop
+	bcs loop
 
 
