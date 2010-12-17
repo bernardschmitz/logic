@@ -33,6 +33,25 @@
 
 001 arith
 
+
+add s, t, d
+add #, t, d
+adc s, t, d
+adc #, t, d
+sub s, t, d
+sub #, t, d
+sbb s, t, d
+sbb #, t, d
+mul s, t
+div s, t
+neg s, d
+cmp s, t
+cmp s, #
+cmp #, s
+inc d
+dec d
+
+
 0000 add
 0001 sub
 0010 adc
