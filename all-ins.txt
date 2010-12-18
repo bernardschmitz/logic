@@ -6,11 +6,91 @@
 16 bits for displacement
 
 
+mov reg, reg
+mov [reg], reg
+mov #const, reg
+mov [disp], reg
+mov [reg+disp], reg
+mov reg, [reg]
+mov reg, [disp]
+mov reg, [reg+disp]
+
+add
+adc
+sub
+sbb
+
+
+mul reg, reg			; result in r11,r12
+mul [reg], reg
+mul #const, reg
+mul [disp], reg
+mul [reg+disp], reg
+mul reg, [reg]
+mul reg, [disp]
+mul reg, [reg+disp]
+
+div reg, reg			; result in r11, remainder in r12
+div [reg], reg
+div #const, reg
+div [disp], reg
+div [reg+disp], reg
+div reg, [reg]
+div reg, [disp]
+div reg, [reg+disp]
+
+neg 
+cmp
+
+and
+or
+xor
+not
+shr
+shl
+sar
+ror
+rol
+
+sec
+clc
+
+branch condition
+	beq
+	bne
+	blt	
+	bgt
+	bcc
+	bcs
+	bvs
+	bvc
+
+branch unconditional 
+	bra offset
+	jmp addr
+	jmp [addr]
+	jmp [reg]
+
+push
+pop
+
+call addr
+call [addr]
+call [reg]
+ret
+
+nop
+halt
+
+
 r0 = 0
 r1 = 1
-r15 = -1
-r14 = sp
+
+r11 = mul result hi
+r12 = mul result lo
 r13 = bp
+r14 = sp
+r15 = -1
 
 
 mov reg, reg
