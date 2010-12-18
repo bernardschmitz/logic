@@ -1,4 +1,41 @@
 
+
+opop opop ssss tttt | dddd bbbb iiii cccc | disp disp disp disp 
+
+
+eg
+
+mov r0, [r4+r5+200h]
+
+opop opop 0000 0000 | 0000 0100 0101 0000 | 0000 0010 0000 0000
+
+
+add [r7], r2, r8
+
+opop opop 0111 0010 | 1000 0000 0000 0000 
+
+
+shr r3, #4
+
+opop opop 0011 0000 | 0011 0000 0000 0100
+
+
+mov [200h], r9
+
+opop opop 0000 0000 | 1001 0000 0000 0000 | 0000 0010 0000 0000
+
+
+
+
+
+
+
+
+
+
+
+
+
 000 mem
 
 0000 move rs, [disp]

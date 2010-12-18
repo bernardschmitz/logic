@@ -1,0 +1,16 @@
+
+mov reg, reg
+mov [reg], reg
+mov #const, reg
+mov [disp], reg
+mov [reg+disp], reg
+mov [reg+reg+disp], reg
+mov [reg+reg], reg
+
+mov reg, [disp]
+mov reg, [reg]
+mov reg, [reg+disp]
+mov reg, [reg+reg]
+mov reg, [reg+reg+disp]
+
+
