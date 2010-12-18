@@ -1,16 +1,57 @@
 
+3 bits for addressing mode
+4 bits for src reg
+4 bits for dest reg
+5 bits for op code
+16 bits for displacement
+
+
+r0 = 0
+r1 = 1
+r15 = -1
+r14 = sp
+r13 = bp
+
+
 mov reg, reg
 mov [reg], reg
 mov #const, reg
-mov [disp], reg
+mov [disp], reg			-> mov [r0+disp], reg
 mov [reg+disp], reg
-mov [reg+reg+disp], reg
-mov [reg+reg], reg
-
 mov reg, [disp]
 mov reg, [reg]
-mov reg, [reg+disp]
-mov reg, [reg+reg]
-mov reg, [reg+reg+disp]
+mov reg, [reg+disp]		-> mov reg, [r0+disp]
 
 
+sr dr oper si di
+1  1  0    0  0
+1  1  0    1  0
+0  1  1    0  0
+0  1  1    1  0
+1  1  1    1  0
+1  0  1    0  1
+1  1  0    0  1
+1  1  1    0  1
+
+------------------
+
+reg, reg
+	4,4
+	
+[reg], reg
+	4,4
+	
+#const, reg
+	16, 4
+	
+[reg+disp], reg
+	4, 16, 4
+	
+reg, [reg]
+	4, 4
+	
+reg, [reg+disp]
+	4, 4, 16
+	
+inc reg					-> add r1, reg
+dec reg					-> sub r15, reg
