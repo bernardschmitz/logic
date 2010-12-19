@@ -1,4 +1,7 @@
 
+carrys
+	(a+b+c) xor a xor b
+
 unsigned 
 
 > bcc bne
