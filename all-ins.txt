@@ -58,8 +58,8 @@ clc
 branch condition
 	beq
 	bne
-	blt	
-	bgt
+	bpl	
+	bmi
 	bcc
 	bcs
 	bvs
