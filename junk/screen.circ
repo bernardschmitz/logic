@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project source="2.6.1" version="1.0">
+<project source="2.6.2" version="1.0">
 This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
 <lib desc="#Base" name="0">
     <tool name="Text Tool">
@@ -37,28 +37,19 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
   </lib>
   <lib desc="#I/O" name="5">
     <tool name="DotMatrix">
-      <a name="inputtype" val="select"/>
+      <a name="inputtype" val="row"/>
     </tool>
   </lib>
   <main name="main"/>
   <options>
-    <a name="showgrid" val="true"/>
-    <a name="preview" val="false"/>
-    <a name="showhalo" val="true"/>
-    <a name="showhalo" val="true"/>
-    <a name="moveconnect" val="true"/>
-    <a name="zoom" val="1.0"/>
     <a name="gateUndefined" val="ignore"/>
     <a name="simlimit" val="1000"/>
     <a name="simrand" val="0"/>
-    <a name="radix" val="2"/>
-    <a name="radix2" val="10signed"/>
-    <a name="toolbarloc" val="north"/>
   </options>
   <mappings>
     <tool lib="0" map="Button2" name="Menu Tool"/>
-    <tool lib="0" map="Button3" name="Menu Tool"/>
     <tool lib="0" map="Ctrl Button1" name="Menu Tool"/>
+    <tool lib="0" map="Button3" name="Menu Tool"/>
   </mappings>
   <toolbar>
     <tool lib="0" name="Poke Tool"/>
@@ -71,7 +62,6 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
     </tool>
     <sep/>
     <tool lib="0" name="Pin">
-      <a name="facing" val="north"/>
       <a name="tristate" val="false"/>
     </tool>
     <tool lib="0" name="Pin">
@@ -95,12 +85,12 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
     <wire from="(220,550)" to="(620,550)"/>
     <wire from="(690,390)" to="(790,390)"/>
     <wire from="(220,550)" to="(220,780)"/>
-    <wire from="(630,100)" to="(630,140)"/>
     <wire from="(520,140)" to="(630,140)"/>
-    <wire from="(430,440)" to="(430,580)"/>
+    <wire from="(630,100)" to="(630,140)"/>
     <wire from="(390,350)" to="(620,350)"/>
-    <wire from="(630,140)" to="(670,140)"/>
+    <wire from="(430,440)" to="(430,580)"/>
     <wire from="(630,100)" to="(650,100)"/>
+    <wire from="(630,140)" to="(670,140)"/>
     <wire from="(950,410)" to="(950,550)"/>
     <wire from="(750,220)" to="(750,590)"/>
     <wire from="(130,270)" to="(130,300)"/>
@@ -115,69 +105,69 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
     <wire from="(690,110)" to="(690,390)"/>
     <wire from="(750,590)" to="(790,590)"/>
     <wire from="(680,110)" to="(690,110)"/>
-    <wire from="(90,70)" to="(210,70)"/>
-    <wire from="(220,780)" to="(340,780)"/>
     <wire from="(620,350)" to="(620,550)"/>
-    <wire from="(130,270)" to="(250,270)"/>
+    <wire from="(220,780)" to="(340,780)"/>
+    <wire from="(90,70)" to="(210,70)"/>
     <wire from="(250,400)" to="(270,400)"/>
+    <wire from="(130,270)" to="(250,270)"/>
     <wire from="(260,790)" to="(340,790)"/>
-    <comp lib="2" loc="(230,200)" name="Decoder">
+    <comp lib="2" loc="(270,400)" name="Decoder">
       <a name="facing" val="south"/>
       <a name="select" val="5"/>
     </comp>
-    <comp lib="0" loc="(130,300)" name="Pin">
+    <comp lib="2" loc="(950,410)" name="Demultiplexer">
       <a name="facing" val="north"/>
-      <a name="width" val="5"/>
-      <a name="tristate" val="false"/>
+      <a name="select" val="5"/>
+      <a name="width" val="32"/>
     </comp>
-    <comp lib="0" loc="(90,100)" name="Pin">
+    <comp lib="2" loc="(790,590)" name="Decoder">
       <a name="facing" val="north"/>
-      <a name="width" val="5"/>
-      <a name="tristate" val="false"/>
-    </comp>
-    <comp lib="0" loc="(390,240)" name="Splitter">
-      <a name="facing" val="north"/>
-      <a name="fanout" val="32"/>
-      <a name="incoming" val="32"/>
-    </comp>
-    <comp lib="5" loc="(790,370)" name="DotMatrix">
-      <a name="matrixcols" val="32"/>
-      <a name="matrixrows" val="32"/>
+      <a name="select" val="5"/>
     </comp>
     <comp lib="5" loc="(340,780)" name="DotMatrix">
       <a name="inputtype" val="select"/>
       <a name="matrixcols" val="32"/>
       <a name="matrixrows" val="32"/>
     </comp>
-    <comp lib="4" loc="(740,220)" name="Random">
-      <a name="width" val="5"/>
-    </comp>
-    <comp lib="2" loc="(790,590)" name="Decoder">
+    <comp lib="0" loc="(90,100)" name="Pin">
       <a name="facing" val="north"/>
-      <a name="select" val="5"/>
-    </comp>
-    <comp lib="2" loc="(270,400)" name="Decoder">
-      <a name="facing" val="south"/>
-      <a name="select" val="5"/>
-    </comp>
-    <comp lib="0" loc="(520,140)" name="Clock"/>
-    <comp lib="2" loc="(950,410)" name="Demultiplexer">
-      <a name="facing" val="north"/>
-      <a name="select" val="5"/>
-      <a name="width" val="32"/>
-    </comp>
-    <comp lib="4" loc="(680,110)" name="Random">
       <a name="width" val="5"/>
+      <a name="tristate" val="false"/>
     </comp>
     <comp lib="0" loc="(950,550)" name="Splitter">
       <a name="facing" val="south"/>
       <a name="fanout" val="32"/>
       <a name="incoming" val="32"/>
     </comp>
+    <comp lib="0" loc="(390,240)" name="Splitter">
+      <a name="facing" val="north"/>
+      <a name="fanout" val="32"/>
+      <a name="incoming" val="32"/>
+    </comp>
+    <comp lib="0" loc="(130,300)" name="Pin">
+      <a name="facing" val="north"/>
+      <a name="width" val="5"/>
+      <a name="tristate" val="false"/>
+    </comp>
+    <comp lib="4" loc="(740,220)" name="Random">
+      <a name="width" val="5"/>
+    </comp>
     <comp lib="0" loc="(430,440)" name="Splitter">
       <a name="facing" val="north"/>
       <a name="fanout" val="32"/>
       <a name="incoming" val="32"/>
+    </comp>
+    <comp lib="4" loc="(680,110)" name="Random">
+      <a name="width" val="5"/>
+    </comp>
+    <comp lib="2" loc="(230,200)" name="Decoder">
+      <a name="facing" val="south"/>
+      <a name="select" val="5"/>
+    </comp>
+    <comp lib="0" loc="(520,140)" name="Clock"/>
+    <comp lib="5" loc="(790,370)" name="DotMatrix">
+      <a name="matrixcols" val="32"/>
+      <a name="matrixrows" val="32"/>
     </comp>
   </circuit>
   <circuit name="big">
@@ -185,78 +175,170 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
     <a name="label" val=""/>
     <a name="labelup" val="east"/>
     <a name="labelfont" val="SansSerif plain 12"/>
-    <wire from="(160,110)" to="(320,110)"/>
+    <wire from="(600,650)" to="(600,880)"/>
     <wire from="(290,50)" to="(290,100)"/>
-    <wire from="(400,80)" to="(400,110)"/>
-    <wire from="(210,660)" to="(270,660)"/>
-    <wire from="(530,330)" to="(570,330)"/>
-    <wire from="(190,860)" to="(190,880)"/>
-    <wire from="(600,100)" to="(600,340)"/>
-    <wire from="(190,310)" to="(320,310)"/>
-    <wire from="(530,340)" to="(600,340)"/>
-    <wire from="(260,860)" to="(260,870)"/>
-    <wire from="(200,300)" to="(290,300)"/>
+    <wire from="(570,100)" to="(570,340)"/>
+    <wire from="(80,270)" to="(80,860)"/>
     <wire from="(70,100)" to="(80,100)"/>
-    <wire from="(210,650)" to="(300,650)"/>
-    <wire from="(190,310)" to="(190,340)"/>
     <wire from="(320,110)" to="(400,110)"/>
     <wire from="(160,110)" to="(160,140)"/>
-    <wire from="(570,80)" to="(570,330)"/>
     <wire from="(130,140)" to="(160,140)"/>
-    <wire from="(190,340)" to="(210,340)"/>
-    <wire from="(600,650)" to="(600,900)"/>
-    <wire from="(260,870)" to="(270,870)"/>
-    <wire from="(80,100)" to="(80,200)"/>
-    <wire from="(270,660)" to="(270,870)"/>
+    <wire from="(600,650)" to="(660,650)"/>
     <wire from="(300,650)" to="(300,880)"/>
-    <wire from="(80,100)" to="(140,100)"/>
-    <wire from="(140,40)" to="(140,100)"/>
-    <wire from="(400,80)" to="(570,80)"/>
+    <wire from="(560,660)" to="(660,660)"/>
     <wire from="(200,50)" to="(290,50)"/>
+    <wire from="(530,340)" to="(570,340)"/>
+    <wire from="(190,880)" to="(300,880)"/>
+    <wire from="(270,850)" to="(560,850)"/>
+    <wire from="(200,330)" to="(210,330)"/>
+    <wire from="(290,100)" to="(290,300)"/>
+    <wire from="(80,200)" to="(110,200)"/>
+    <wire from="(50,290)" to="(50,320)"/>
+    <wire from="(140,40)" to="(170,40)"/>
+    <wire from="(200,300)" to="(200,330)"/>
+    <wire from="(530,650)" to="(600,650)"/>
+    <wire from="(160,110)" to="(320,110)"/>
+    <wire from="(20,320)" to="(50,320)"/>
+    <wire from="(20,200)" to="(80,200)"/>
+    <wire from="(400,80)" to="(400,110)"/>
+    <wire from="(210,660)" to="(270,660)"/>
+    <wire from="(190,860)" to="(190,880)"/>
+    <wire from="(190,310)" to="(320,310)"/>
+    <wire from="(260,860)" to="(260,870)"/>
+    <wire from="(200,300)" to="(290,300)"/>
+    <wire from="(400,80)" to="(540,80)"/>
+    <wire from="(210,650)" to="(300,650)"/>
+    <wire from="(270,850)" to="(270,870)"/>
+    <wire from="(190,310)" to="(190,340)"/>
+    <wire from="(190,340)" to="(210,340)"/>
+    <wire from="(80,100)" to="(80,200)"/>
+    <wire from="(260,870)" to="(270,870)"/>
+    <wire from="(20,200)" to="(20,320)"/>
+    <wire from="(80,100)" to="(140,100)"/>
+    <wire from="(530,330)" to="(540,330)"/>
+    <wire from="(140,40)" to="(140,100)"/>
+    <wire from="(70,270)" to="(80,270)"/>
+    <wire from="(290,100)" to="(570,100)"/>
     <wire from="(190,860)" to="(260,860)"/>
     <wire from="(320,110)" to="(320,310)"/>
     <wire from="(530,660)" to="(560,660)"/>
     <wire from="(110,160)" to="(110,200)"/>
-    <wire from="(190,880)" to="(300,880)"/>
-    <wire from="(290,100)" to="(600,100)"/>
+    <wire from="(540,80)" to="(540,330)"/>
     <wire from="(560,660)" to="(560,850)"/>
-    <wire from="(200,330)" to="(210,330)"/>
+    <wire from="(300,880)" to="(600,880)"/>
     <wire from="(80,860)" to="(190,860)"/>
-    <wire from="(290,100)" to="(290,300)"/>
-    <wire from="(80,200)" to="(110,200)"/>
-    <wire from="(140,40)" to="(170,40)"/>
-    <wire from="(530,650)" to="(600,650)"/>
-    <wire from="(200,300)" to="(200,330)"/>
+    <wire from="(270,660)" to="(270,850)"/>
     <comp lib="5" loc="(530,650)" name="DotMatrix">
       <a name="inputtype" val="select"/>
       <a name="matrixcols" val="32"/>
       <a name="matrixrows" val="32"/>
-    </comp>
-    <comp lib="5" loc="(530,330)" name="DotMatrix">
-      <a name="inputtype" val="select"/>
-      <a name="matrixcols" val="32"/>
-      <a name="matrixrows" val="32"/>
-    </comp>
-    <comp lib="4" loc="(80,860)" name="Register">
-      <a name="width" val="32"/>
-    </comp>
-    <comp lib="4" loc="(200,50)" name="Random">
-      <a name="width" val="32"/>
-    </comp>
-    <comp lib="4" loc="(130,140)" name="Counter">
-      <a name="width" val="32"/>
-      <a name="max" val="0xffffffff"/>
     </comp>
     <comp lib="5" loc="(210,650)" name="DotMatrix">
       <a name="inputtype" val="select"/>
       <a name="matrixcols" val="32"/>
       <a name="matrixrows" val="32"/>
     </comp>
+    <comp lib="4" loc="(70,270)" name="Register">
+      <a name="width" val="32"/>
+    </comp>
     <comp lib="0" loc="(70,100)" name="Clock"/>
+    <comp lib="4" loc="(130,140)" name="Counter">
+      <a name="width" val="32"/>
+      <a name="max" val="0xffffffff"/>
+    </comp>
+    <comp lib="4" loc="(200,50)" name="Random">
+      <a name="width" val="32"/>
+    </comp>
+    <comp lib="5" loc="(530,330)" name="DotMatrix">
+      <a name="inputtype" val="select"/>
+      <a name="matrixcols" val="32"/>
+      <a name="matrixrows" val="32"/>
+    </comp>
     <comp lib="5" loc="(210,330)" name="DotMatrix">
       <a name="inputtype" val="select"/>
       <a name="matrixcols" val="32"/>
       <a name="matrixrows" val="32"/>
+    </comp>
+  </circuit>
+  <circuit name="scr">
+    <a name="circuit" val="scr"/>
+    <a name="label" val=""/>
+    <a name="labelup" val="east"/>
+    <a name="labelfont" val="SansSerif plain 12"/>
+    <wire from="(500,420)" to="(520,420)"/>
+    <wire from="(500,400)" to="(520,400)"/>
+    <wire from="(500,250)" to="(520,250)"/>
+    <wire from="(500,200)" to="(520,200)"/>
+    <wire from="(370,290)" to="(370,490)"/>
+    <wire from="(80,510)" to="(80,660)"/>
+    <wire from="(100,490)" to="(160,490)"/>
+    <wire from="(500,340)" to="(520,340)"/>
+    <wire from="(380,680)" to="(380,770)"/>
+    <wire from="(500,140)" to="(520,140)"/>
+    <wire from="(500,310)" to="(520,310)"/>
+    <wire from="(300,490)" to="(370,490)"/>
+    <wire from="(500,170)" to="(520,170)"/>
+    <wire from="(500,280)" to="(520,280)"/>
+    <wire from="(500,390)" to="(520,390)"/>
+    <wire from="(500,350)" to="(520,350)"/>
+    <wire from="(230,770)" to="(380,770)"/>
+    <wire from="(500,360)" to="(520,360)"/>
+    <wire from="(500,320)" to="(520,320)"/>
+    <wire from="(500,130)" to="(520,130)"/>
+    <wire from="(370,180)" to="(370,290)"/>
+    <wire from="(500,430)" to="(520,430)"/>
+    <wire from="(500,160)" to="(520,160)"/>
+    <wire from="(370,290)" to="(460,290)"/>
+    <wire from="(500,270)" to="(520,270)"/>
+    <wire from="(500,290)" to="(520,290)"/>
+    <wire from="(500,180)" to="(520,180)"/>
+    <wire from="(500,380)" to="(520,380)"/>
+    <wire from="(400,660)" to="(480,660)"/>
+    <wire from="(270,180)" to="(370,180)"/>
+    <wire from="(500,410)" to="(520,410)"/>
+    <wire from="(500,440)" to="(520,440)"/>
+    <wire from="(500,240)" to="(520,240)"/>
+    <wire from="(80,660)" to="(230,660)"/>
+    <wire from="(480,450)" to="(480,620)"/>
+    <wire from="(500,210)" to="(520,210)"/>
+    <wire from="(230,660)" to="(230,770)"/>
+    <wire from="(480,620)" to="(480,660)"/>
+    <wire from="(500,370)" to="(520,370)"/>
+    <wire from="(130,770)" to="(230,770)"/>
+    <wire from="(500,300)" to="(520,300)"/>
+    <wire from="(480,620)" to="(600,620)"/>
+    <wire from="(500,150)" to="(520,150)"/>
+    <wire from="(500,330)" to="(520,330)"/>
+    <wire from="(500,220)" to="(520,220)"/>
+    <wire from="(500,230)" to="(520,230)"/>
+    <wire from="(500,190)" to="(520,190)"/>
+    <wire from="(500,260)" to="(520,260)"/>
+    <comp lib="4" loc="(300,490)" name="RAM">
+      <a name="addrWidth" val="5"/>
+      <a name="dataWidth" val="16"/>
+    </comp>
+    <comp lib="0" loc="(270,180)" name="Probe"/>
+    <comp lib="0" loc="(600,620)" name="Probe">
+      <a name="facing" val="west"/>
+    </comp>
+    <comp lib="4" loc="(100,490)" name="Counter">
+      <a name="width" val="5"/>
+      <a name="max" val="0x1f"/>
+    </comp>
+    <comp lib="2" loc="(460,290)" name="Demultiplexer">
+      <a name="select" val="5"/>
+      <a name="width" val="16"/>
+    </comp>
+    <comp lib="0" loc="(130,770)" name="Clock"/>
+    <comp lib="5" loc="(520,130)" name="DotMatrix">
+      <a name="inputtype" val="row"/>
+      <a name="matrixcols" val="16"/>
+      <a name="matrixrows" val="32"/>
+      <a name="persist" val="64"/>
+    </comp>
+    <comp lib="4" loc="(400,660)" name="Counter">
+      <a name="width" val="5"/>
+      <a name="max" val="0x1f"/>
     </comp>
   </circuit>
 </project>
