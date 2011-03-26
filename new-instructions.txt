@@ -1,0 +1,46 @@
+add		d, s, t		5 3 3 3		A
+addi	d, s, C		5 3 3 5		B
+sub		d, s, t		5 3 3 3		A
+mul		d, s		5   3 3		A
+div		d, s		5   3 3 	A
+sll		d, s, C		5 3 3 5		B
+srl		d, s, C		5 3 3 5		B
+sra		d, s, C		5 3 3 5		B
+sllv	d, s, t		5 3 3 3		A
+srlv	d, s, t		5 3 3 3		A
+srav	d, s, t		5 3 3 3		A
+beq		s, t, C		5 3 3 5		B
+bne		s, t, C		5 3 3 5		B
+slt		d, s, t		5 3 3 3		A
+slti	d, s, C		5 3 3 5		B
+and		d, s, t		5 3 3 3		A
+andi	d, s, C		5 3 3 5		B
+or		d, s, t		5 3 3 3		A
+ori		d, s, C		5 3 3 5		B
+xor		d, s, t		5 3 3 3		A
+nor		d, s, t		5 3 3 3		A
+j		C			5 11		C
+jr		t			5     3		A
+jal		t, C		5 3 8		D
+jalr	t, s		5   3 3		A
+lw		d, s, C		5 3 3 5		B
+sw		d, s, C		5 3 3 5		B
+lui		d, C		5 3 8		D
+lli		d, C		5 3 8		D
+mfhi	d			5 3			A
+mflo	d			5 3			A
+
+
+example
+
+; sum from 1 to 100
+
+start:
+	xor		r2, r2, r2		; r2 is sum
+	lli		r3, 1			; r3 is counter
+	lli		r4, 101			; r4 is limit
+loop:
+	add		r2, r2, r3
+	addi	r3, r3, 1
+	bne		r3, r4, loop
+	
