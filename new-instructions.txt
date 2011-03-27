@@ -30,31 +30,3 @@ lli		d, C		5 3 8		D
 mfhi	d			5 3			A
 mflo	d			5 3			A
 
-
-example
-
-; sum from 1 to 100
-
-start:
-	xor		r2, r2, r2		; r2 is sum
-	lli		r3, 1			; r3 is counter
-	lli		r4, 101			; r4 is limit
-loop:
-	add		r2, r2, r3
-	addi	r3, r3, 1
-	bne		r3, r4, loop
-	
-	
-	
-; mul from 1 to 10
-
-start:
-	lli		r2, 1
-	lli		r3, 1			; r3 is counter
-	lli		r4, 10			; r4 is limit
-loop:
-	mul		r2, r3
-	mflo	r2
-	addi	r3, r3, 1
-	slti	r5, r3, 10
-	beq		r5, r0, loop	
