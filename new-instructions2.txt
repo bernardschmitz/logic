@@ -1,21 +1,21 @@
 
-A 8 4 4 4
-B 8 4 4 16
+X 8 4 4 4
+Y 8 4 4 16
 
 
 add		d, s, t
 addi	d, s, C
 sub		d, s, t
-mul		s, t
-div		s, t
+mul		d, s
+div		d, s 
 sll		d, s, C
 srl		d, s, C
 sra		d, s, C
 sllv	d, s, t
 srlv	d, s, t
 srav	d, s, t
-beq		s, t, C
-bne		s, t, C
+beq		d, s, C
+bne		d, s, C
 slt		d, s, t
 slti	d, s, C
 and		d, s, t
@@ -25,9 +25,9 @@ ori		d, s, C
 xor		d, s, t
 nor		d, s, t
 j		C
-jr		t
-jal		t, C
-jalr	t, s
+jr		d
+jal		d, C
+jalr	d, s
 lw		d, s, C
 sw		d, s, C
 mfhi	d
