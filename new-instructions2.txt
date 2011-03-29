@@ -3,32 +3,32 @@ X 8 4 4 4
 Y 8 4 4 16
 
 
-add		d, s, t
-addi	d, s, C
-sub		d, s, t
-mul		d, s
-div		d, s 
-sll		d, s, C
-srl		d, s, C
-sra		d, s, C
-sllv	d, s, t
-srlv	d, s, t
-srav	d, s, t
-beq		d, s, C
-bne		d, s, C
-slt		d, s, t
-slti	d, s, C
-and		d, s, t
-andi	d, s, C
-or		d, s, t
-ori		d, s, C
-xor		d, s, t
-nor		d, s, t
-j		C
-jr		d
-jal		d, C
-jalr	d, s
-lw		d, s, C
-sw		d, s, C
-mfhi	d
-mflo	d
+0000000	add	d, s, t	X
+0000001	addi	d, s, C	Y
+0000010	sub	d, s, t	X
+0000011	mul	s, t	X
+0000100	div	s, t 	X
+0000101	sll	d, s, C	Y
+0000110	srl	d, s, C	Y
+0000111	sra	d, s, C	Y
+0001000	sllv	d, s, t	X
+0001001	srlv	d, s, t	X
+0001010	srav	d, s, t	X
+0001011	beq	d, s, C	Y
+0001100	bne	d, s, C	Y
+0001101	slt	d, s, t	X
+0001110	slti	d, s, C	Y
+0001111	and	d, s, t	X
+0010000	andi	d, s, C	Y
+0010001	or	d, s, t	X
+0010010	ori	d, s, C	Y
+0010011	xor	d, s, t	X
+0010100	nor	d, s, t	X
+0010101	j	C	Y
+0010110	jr	s	X
+0010111	jal	d, C	Y
+0011000	jalr	d, s	X
+0011001	lw	d, s, C	Y
+0011010	sw	d, s, C	Y
+0011011	mfhi	d	X
+0011100	mflo	d	X
