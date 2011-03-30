@@ -28,7 +28,7 @@ Y 8 4 4 16
 0010110	jr	s	X
 0010111	jal	d, C	Y
 0011000	jalr	d, s	X
-0011001	lw	d, s, C	Y
-0011010	sw	d, s, C	Y
+0011001	lw	d, s, C	Y	d <- [s+C]
+0011010	sw	d, s, C	Y	[s+C] <- d
 0011011	mfhi	d	X
 0011100	mflo	d	X
