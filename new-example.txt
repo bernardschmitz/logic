@@ -5,25 +5,25 @@ example
 ; sum from 1 to 100
 
 start:
-	xor		r2, r2, r2		; r2 is sum
-	lli		r3, 1			; r3 is counter
-	lli		r4, 101			; r4 is limit
+	addi	r2, r0, r0		; r2 is sum
+	addi	r3, r0, 1		; r3 is counter
+	addi	r4, r0, 100
 loop:
 	add		r2, r2, r3
 	addi	r3, r3, 1
-	bne		r3, r4, loop
-	
+	slti	r1, r4, r3
+	beq		r1, r0, loop
 	
 	
 ; mul from 1 to 10
 
 start:
-	lli		r2, 1
-	lli		r3, 1			; r3 is counter
-	lli		r4, 10			; r4 is limit
+	addi	r2, r0, 1		; r2 is result
+	addi	r3, r0, 1		; r3 is counter
+	addi	r4, r0, 10		; r4 is limit
 loop:
 	mul		r2, r3
 	mflo	r2
 	addi	r3, r3, 1
-	slti	r5, r3, 10
-	beq		r5, r0, loop	
+	slti	r1, r4, r3
+	beq		r1, r0, loop	

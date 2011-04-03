@@ -34,6 +34,53 @@ Y 8 4 4 16
 0011100	mflo	d	X
 
 
+
+pseudo instructions
+
+nop
+	add r0, r0, r0
+
+nop
+	mfhi r0
+	
+move d, s
+	add d, s, r0
+	
+clear d
+	add d, r0, r0
+
+li d, C
+	addi d, r0, C
+
+bgt x, y, C
+	slt r1, y, x
+	bne r1, r0, C
+	
+blt x, y, C
+	slt r1, x, y
+	bne r1, r0, C
+	
+bge x, y, C
+	slt r1, x, y
+	beq r1, r0, C
+	
+ble x, y, C
+	slt r1, y, x
+	beq r1, r0, C
+	
+mul d, s, t
+	mul s, t
+	mflo d
+
+div d, s, t
+	div s, t
+	mflo d
+
+	
+
+
+-----------------
+
 fetch:
 	PC -> Madr ; Mem -> IR
 	PC + 1 -> PC
