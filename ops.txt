@@ -1,0 +1,58 @@
+
+Rsrc1: Rs
+
+Rsrc2: Rt, Rd
+	Rsrc2 src:	0 Rt
+			1 Rd
+
+
+A: R1
+
+B: R2, OP
+	B src:	0 R2
+		1 OP
+
+Madr: PC, RESULT
+	Madr src:	0 PC
+			1 RESULT
+
+Mem: R2
+
+HI: ALU HI
+
+LO: ALU R
+
+PC: PC+1, PC+OP<<1, OP, R2
+	PC src:	00 PC+1
+		01 PC+OP<<1
+		10 OP
+		11 R2
+
+IR: Mem
+
+OP: Mem
+
+Rdst: Rd
+
+Rdata: RESULT, 1, PC, HI, LO, Mem
+	Rdata src:	000 RESULT
+			001 1
+			010 PC
+			011 HI
+			100 LO
+			101 Mem
+
+ALU OP:
+	0000	add
+	0001	sub
+	0010	sll
+	0011	srl
+	0100	sra
+	0101	and
+	0110	or
+	0111	nor
+	1000	xor
+	1001	mul
+	1010	div
+
+------------

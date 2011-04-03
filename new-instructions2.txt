@@ -14,8 +14,8 @@ Y 8 4 4 16
 0001000	sllv	d, s, t	X
 0001001	srlv	d, s, t	X
 0001010	srav	d, s, t	X
-0001011	beq	d, s, C	Y
-0001100	bne	d, s, C	Y
+0001011	beq	s, d, C	Y
+0001100	bne	s, d, C	Y
 0001101	slt	d, s, t	X
 0001110	slti	d, s, C	Y
 0001111	and	d, s, t	X
@@ -32,3 +32,178 @@ Y 8 4 4 16
 0011010	sw	d, s, C	Y	[s+C] <- d
 0011011	mfhi	d	X
 0011100	mflo	d	X
+
+
+fetch:
+	PC -> Madr ; Mem -> IR
+	PC + 1 -> PC
+	PC -> Madr ; Mem -> OP
+	PC + 1 -> PC
+
+execute:
+
+0000000	add	d, s, t	X
+
+	Rs -> A ; Rt -> B ; 0000 -> ALU OP ; ALU R -> RESULT
+	RESULT -> Rd
+
+
+0000001	addi	d, s, C	Y
+
+	Rs -> A ; OP -> B ; 0000 -> ALU OP ; ALU R -> RESULT
+	RESULT -> Rd
+
+
+0000010	sub	d, s, t	X
+
+	Rs -> A ; Rt -> B ; 0001 -> ALU OP ; ALU R -> RESULT
+	RESULT -> Rd
+
+
+0000011	mul	s, t	X
+
+	Rs -> A ; Rt -> B ; 1001 -> ALU OP ; ALU R -> LO ; ALU HI -> HI
+
+
+0000100	div	s, t 	X
+
+	Rs -> A ; Rt -> B ; 1010 -> ALU OP ; ALU R -> LO ; ALU HI -> HI
+
+
+0000101	sll	d, s, C	Y
+
+	Rs -> A ; OP -> B ; 0010 -> ALU OP ; ALU R -> RESULT
+	RESULT -> Rd
+
+
+0000110	srl	d, s, C	Y
+
+	Rs -> A ; OP -> B ; 0011 -> ALU OP ; ALU R -> RESULT
+	RESULT -> Rd
+
+
+0000111	sra	d, s, C	Y
+
+	Rs -> A ; OP -> B ; 0100 -> ALU OP ; ALU R -> RESULT
+	RESULT -> Rd
+
+
+0001000	sllv	d, s, t	X
+
+	Rs -> A ; Rt -> B ; 0010 -> ALU OP ; ALU R -> RESULT
+	RESULT -> Rd
+
+
+0001001	srlv	d, s, t	X
+
+	Rs -> A ; Rt -> B ; 0011 -> ALU OP ; ALU R -> RESULT
+	RESULT -> Rd
+
+
+0001010	srav	d, s, t	X
+
+	Rs -> A ; Rt -> B ; 0100 -> ALU OP ; ALU R -> RESULT
+	RESULT -> Rd
+
+
+0001011	beq	s, d, C	Y
+
+	Rs -> A ; Rd -> B ; 0000 -> ALU OP
+	if ALU EQ THEN PC + (OP<<1) -> PC
+
+
+0001100	bne	s, d, C	Y
+
+	Rs -> A ; Rd -> B ; 0000 -> ALU OP
+	if NOT ALU EQ THEN PC + (OP<<1) -> PC
+
+
+0001101	slt	d, s, t	X
+
+	Rs -> A ; Rt -> B ; 0000 -> ALU OP
+	if ALU LT THEN 1 -> Rd
+
+
+0001110	slti	d, s, C	Y
+
+	Rs -> A ; OP -> B ; 0000 -> ALU OP
+	if ALU LT THEN 1 -> Rd
+
+
+0001111	and	d, s, t	X
+
+	Rs -> A ; Rt -> B ; 0101 -> ALU OP ; ALU R -> RESULT
+	RESULT -> Rd
+
+
+0010000	andi	d, s, C	Y
+
+	Rs -> A ; OP -> B ; 0101 -> ALU OP ; ALU R -> RESULT
+	RESULT -> Rd
+
+
+0010001	or	d, s, t	X
+
+	Rs -> A ; Rt -> B ; 0110 -> ALU OP ; ALU R -> RESULT
+	RESULT -> Rd
+
+
+0010010	ori	d, s, C	Y
+
+	Rs -> A ; OP -> B ; 0110 -> ALU OP ; ALU R -> RESULT
+	RESULT -> Rd
+
+
+0010011	xor	d, s, t	X
+
+	Rs -> A ; Rt -> B ; 0111 -> ALU OP ; ALU R -> RESULT
+	RESULT -> Rd
+
+
+0010100	nor	d, s, t	X
+
+	Rs -> A ; Rt -> B ; 1000 -> ALU OP ; ALU R -> RESULT
+	RESULT -> Rd
+
+
+0010101	j	C	Y
+
+	OP -> PC
+
+0010110	jr	s	X
+
+	Rs -> PC
+
+0010111	jal	d, C	Y
+
+	PC -> Rd
+	OP -> PC
+
+0011000	jalr	d, s	X
+
+	PC -> Rd
+	Rs -> PC
+
+0011001	lw	d, s, C	Y	d <- [s+C]
+
+	Rs -> A ; OP -> B ; 0000 -> ALU OP ; ALU R -> RESULT 
+	RESULT -> Madr ; Mem -> Rd
+
+0011010	sw	d, s, C	Y	[s+C] <- d
+
+	Rs -> A ; OP -> B ; 0000 -> ALU OP ; ALU R -> RESULT
+	RESULT -> Madr ; Rd -> Mem
+
+
+0011011	mfhi	d	X
+
+	HI -> Rd
+
+
+0011100	mflo	d	X
+
+	LO -> Rd
+
+
+next:
+	1 -> T reset
