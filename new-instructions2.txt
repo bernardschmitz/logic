@@ -156,25 +156,27 @@ execute:
 0001011	beq	s, d, C	Y
 
 	Rs -> A ; Rd -> B ; 0000 -> ALU OP
-	if ALU EQ THEN PC + (OP<<1) -> PC
+	#if ALU EQ THEN PC + (OP<<1) -> PC
+	PC + (OP<<1) -> PC SRC ; ALU EQ -> PC WRT SRC
 
 
 0001100	bne	s, d, C	Y
 
 	Rs -> A ; Rd -> B ; 0000 -> ALU OP
-	if NOT ALU EQ THEN PC + (OP<<1) -> PC
+	#if NOT ALU EQ THEN PC + (OP<<1) -> PC
+	PC + (OP<<1) -> PC SRC ; NOT ALU EQ -> PC WRT SRC
 
 
 0001101	slt	d, s, t	X
 
 	Rs -> A ; Rt -> B ; 0000 -> ALU OP
-	if ALU LT THEN 1 -> Rd
+	ALU LT -> Rd
 
 
 0001110	slti	d, s, C	Y
 
 	Rs -> A ; OP -> B ; 0000 -> ALU OP
-	if ALU LT THEN 1 -> Rd
+	ALU LT -> Rd
 
 
 0001111	and	d, s, t	X

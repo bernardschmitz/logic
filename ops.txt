@@ -22,6 +22,13 @@ HI: ALU HI
 
 LO: ALU R
 
+PC WRT: 0, 1, ALU EQ, NOT ALU EQ
+	PC WRT SRC:	00 0
+			01 1
+			10 ALU EQ
+			11 NOT ALU EQ
+
+
 PC: PC+1, PC+OP<<1, OP, R2
 	PC src:	00 PC+1
 		01 PC+OP<<1
@@ -56,3 +63,71 @@ ALU OP:
 	1010	div
 
 ------------
+
+CONTROL
+
+input
+
+T 0000
+FETCH 0
+INSTRUCTION 00000
+
+output
+
+T RESET 0
+PC SRC 00
+PC WRT 00
+MAR SRC 0
+MEM WRT 0
+IR WRT 0
+OP WRT 0
+REG SRC 000
+REG WRITE 0
+ALU B SRC 0
+REG SRC2 SRC 0
+ALU OP 0000
+RESULT WRT 0
+LO WRT 0
+HI WRT 0
+
+
+add
+
+fetch:
+	PC -> Madr ; Mem -> IR
+	PC + 1 -> PC
+	PC -> Madr ; Mem -> OP
+	PC + 1 -> PC
+
+execute:
+
+0000000	add	d, s, t	X
+
+	Rs -> A ; Rt -> B ; 0000 -> ALU OP ; ALU R -> RESULT
+	RESULT -> Rd
+
+1 00000 0000 ; 0 00 00 0 0 0 1 0 000 0 0 0 0000 0 0 0
+1 00000 0001 ; 0 01 01 0 0 0 0 0 000 0 0 0 0000 0 0 0
+1 00000 0010 ; 0 00 00 0 0 0 0 1 000 0 0 0 0000 0 0 0
+1 00000 0011 ; 0 01 01 0 0 0 0 0 000 0 0 0 0000 0 0 0
+
+0 00000 0100 ; 0 00 00 0 0 0 0 0 000 0 0 0 0000 1 0 0
+0 00000 0101 ; 1 00 00 0 0 0 0 0 000 1 0 0 0000 0 0 0
+
+
+0001101	slt	d, s, t	X
+
+	Rs -> A ; Rt -> B ; 0000 -> ALU OP
+	if ALU LT THEN 1 -> Rd
+
+0 01101 0100 ; 0 00 00 0 0 0 0 0 000 0 0 0 0000 0 0 0
+0 01101 0101 ; 0 00 00 0 0 0 0 0 111 1 0 0 0000 0 0 0
+	
+0001011	beq	s, d, C	Y
+
+	Rs -> A ; Rd -> B ; 0000 -> ALU OP
+	#if ALU EQ THEN PC + (OP<<1) -> PC
+	PC + (OP<<1) -> PC SRC ; ALU EQ -> PC WRT SRC
+	
+0 01011 0100 ; 0 00 00 0 0 0 0 0 000 0 0 1 0000 0 0 0
+0 01011 0101 ; 1 01 10 0 0 0 0 0 000 0 0 0 0000 0 0 0
