@@ -5891,15 +5891,9 @@ c000
     <a name="label" val=""/>
     <a name="labelup" val="east"/>
     <a name="labelfont" val="SansSerif plain 12"/>
-    <wire from="(160,350)" to="(230,350)"/>
     <wire from="(160,530)" to="(230,530)"/>
     <wire from="(160,230)" to="(230,230)"/>
     <wire from="(160,400)" to="(230,400)"/>
-    <wire from="(160,300)" to="(230,300)"/>
-    <comp lib="0" loc="(160,350)" name="Pin">
-      <a name="tristate" val="false"/>
-      <a name="label" val="EQ"/>
-    </comp>
     <comp lib="0" loc="(160,230)" name="Pin">
       <a name="width" val="4"/>
       <a name="tristate" val="false"/>
@@ -5909,10 +5903,6 @@ c000
       <a name="width" val="5"/>
       <a name="tristate" val="false"/>
       <a name="label" val="INSTRUCTION"/>
-    </comp>
-    <comp lib="0" loc="(160,300)" name="Pin">
-      <a name="tristate" val="false"/>
-      <a name="label" val="LT"/>
     </comp>
     <comp lib="0" loc="(160,400)" name="Pin">
       <a name="tristate" val="false"/>
