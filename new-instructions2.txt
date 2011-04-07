@@ -32,6 +32,8 @@ Y 8 4 4 16
 0011010	sw	d, s, C	Y	[s+C] <- d
 0011011	mfhi	d	X
 0011100	mflo	d	X
+0011101
+0011111 halt
 
 
 
@@ -76,6 +78,13 @@ div d, s, t
 	div s, t
 	mflo d
 
+push	d
+	sw d, r14, 0
+	subi r14, r14, -1
+	
+pop	d
+	addi r14, r14, 1
+	lw d, r14, 0
 	
 
 
@@ -251,6 +260,9 @@ execute:
 
 	LO -> Rd
 
+0011111 halt
+
+	1 -> HALT
 
 next:
 	1 -> T reset

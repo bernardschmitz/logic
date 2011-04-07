@@ -11,5 +11,14 @@ fill:
 
 
 
+-----------------
+
+
+0000	addi	r1, r0, ffff					0110 ffff
+0002	addi	r2, r0, 0000					0120 0000
+0004	slt		r3, r1, r2		; true			0d31 2000
+0006	slt		r4, r2, r1		; false			0d42 1000
+
+
 
 
