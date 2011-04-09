@@ -249,7 +249,6 @@ my %microcode = (
 		]
 	],
 
-
 	jalr => [
 		{ fetch => 0, op => $ins_jalr, t => $op_t }, [ 
 			{ reg_src => $reg_src_pc, reg_wrt => 1 }, 
