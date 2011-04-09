@@ -152,14 +152,20 @@ my %microcode = (
 		]
 	],
 
+	div => [
+		{ fetch => 0, op => $ins_div, t => $op_t }, [ 
+			{ alu_b_src => $alu_b_src_reg2, alu_op => $alu_op_div, lo_wrt => 1, hi_wrt => 1, t_reset => 1, fetch => 1 } 
+		]
+	],
+
 
 );
 
-
+my @bin =  map { 0x800000 } (0 .. 4095) ;
 
 for my $ins (keys %microcode) {
 
-	print "$ins\n";
+#	print "$ins\n";
 
 	my $addr_desc = $microcode{$ins}->[0];
 	my $ins_desc = $microcode{$ins}->[1];
@@ -175,12 +181,49 @@ for my $ins (keys %microcode) {
 				$_->{reg_src2_src} << 7 | $_->{alu_op} << 3 | $_->{result_wrt} << 2 | $_->{lo_wrt} << 1 |
 				$_->{hi_wrt};
 
-		print sprintf("%03x %06x\n", $address, $code);	
+	#	print sprintf("%03x %06x\n", $address, $code);	
+		$bin[$address] = $code;
 
 		$address++;
 	}
 
-
 }
+
+my $c = 0;
+
+my $p = $bin[0];
+
+print "v2.0 raw\n";
+
+for my $b (@bin) {
+
+	if($b == $p) {
+		$c++;
+	}
+	else {
+		if($c > 1) {
+			print sprintf("%d*%x \n", $c, $p);
+			$p = $b;
+			$c = 1;
+		}
+		else {
+			print sprintf("%x \n", $p);
+			$p = $b;
+			$c = 1;
+		}
+	}
+}
+
+if($c > 1) {
+	print sprintf("%d*%x \n", $c, $p);
+	$p = $b;
+	$c = 1;
+}
+else {
+	print sprintf("%x \n", $p);
+		$p = $b;
+		$c = 1;
+}
+
 
 
