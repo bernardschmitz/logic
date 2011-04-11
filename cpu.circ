@@ -9,7 +9,7 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
       <a name="valign" val="base"/>
     </tool>
     <tool name="Splitter">
-      <a name="facing" val="north"/>
+      <a name="facing" val="south"/>
     </tool>
     <tool name="Tunnel">
       <a name="facing" val="east"/>
@@ -4722,8 +4722,8 @@ c000
   <circuit name="cpu2a">
     <a name="circuit" val="cpu2a"/>
     <a name="label" val="CPU"/>
-    <a name="labelup" val="east"/>
-    <a name="labelfont" val="SansSerif plain 12"/>
+    <a name="labelup" val="north"/>
+    <a name="labelfont" val="SansSerif plain 20"/>
     <appear>
       <path d="M61,56 Q65,66 69,56" fill="none" stroke="#808080" stroke-width="2"/>
       <rect fill="none" height="130" stroke="#000000" stroke-width="2" width="130" x="50" y="55"/>
