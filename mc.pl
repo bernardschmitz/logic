@@ -162,29 +162,33 @@ my %microcode = (
 
 	beq => [
 		{ fetch => 0, op => $ins_beq, t => $op_t }, [ 
-			{ alu_b_src => $alu_b_src_reg2, reg_src2_src => $reg_src2_src_rd, alu_op => $alu_op_add, result_wrt => 0 }, 
-			{ pc_src => $pc_src_pc_op, pc_wrt => $pc_wrt_alu_eq, t_reset => 1, fetch => 1 } 
+			#{ alu_b_src => $alu_b_src_reg2, reg_src2_src => $reg_src2_src_rd, alu_op => $alu_op_add, result_wrt => 0 }, 
+			#{ pc_src => $pc_src_pc_op, pc_wrt => $pc_wrt_alu_eq, t_reset => 1, fetch => 1 } 
+			{ alu_b_src => $alu_b_src_reg2, reg_src2_src => $reg_src2_src_rd, alu_op => $alu_op_add, pc_src => $pc_src_pc_op, pc_wrt => $pc_wrt_alu_eq, t_reset => 1, fetch => 1 } 
 		]
 	],
 
 	bne => [
 		{ fetch => 0, op => $ins_bne, t => $op_t }, [ 
-			{ alu_b_src => $alu_b_src_reg2, reg_src2_src => $reg_src2_src_rd, alu_op => $alu_op_add, result_wrt => 0 }, 
-			{ pc_src => $pc_src_pc_op, pc_wrt => $pc_wrt_not_alu_eq, t_reset => 1, fetch => 1 } 
+			#{ alu_b_src => $alu_b_src_reg2, reg_src2_src => $reg_src2_src_rd, alu_op => $alu_op_add, result_wrt => 0 }, 
+			#{ pc_src => $pc_src_pc_op, pc_wrt => $pc_wrt_not_alu_eq, t_reset => 1, fetch => 1 } 
+			{ alu_b_src => $alu_b_src_reg2, reg_src2_src => $reg_src2_src_rd, alu_op => $alu_op_add, pc_src => $pc_src_pc_op, pc_wrt => $pc_wrt_not_alu_eq, t_reset => 1, fetch => 1 } 
 		]
 	],
 
 	slt => [
 		{ fetch => 0, op => $ins_slt, t => $op_t }, [ 
-			{ alu_b_src => $alu_b_src_reg2, alu_op => $alu_op_add, result_wrt => 0 }, 
-			{ reg_wrt => 1, reg_src => $reg_src_alu_lt, t_reset => 1, fetch => 1 } 
+			#{ alu_b_src => $alu_b_src_reg2, alu_op => $alu_op_add, result_wrt => 0 }, 
+			#{ reg_wrt => 1, reg_src => $reg_src_alu_lt, t_reset => 1, fetch => 1 } 
+			{ alu_b_src => $alu_b_src_reg2, alu_op => $alu_op_add, reg_wrt => 1, reg_src => $reg_src_alu_lt, t_reset => 1, fetch => 1 } 
 		]
 	],
 
 	slti => [
 		{ fetch => 0, op => $ins_slti, t => $op_t }, [ 
-			{ alu_b_src => $alu_b_src_op, alu_op => $alu_op_add, result_wrt => 0 }, 
-			{ reg_wrt => 1, reg_src => $reg_src_alu_lt, t_reset => 1, fetch => 1 } 
+			#{ alu_b_src => $alu_b_src_op, alu_op => $alu_op_add, result_wrt => 0 }, 
+			#{ reg_wrt => 1, reg_src => $reg_src_alu_lt, t_reset => 1, fetch => 1 } 
+			{ alu_b_src => $alu_b_src_op, alu_op => $alu_op_add, reg_wrt => 1, reg_src => $reg_src_alu_lt, t_reset => 1, fetch => 1 } 
 		]
 	],
 
