@@ -80,12 +80,12 @@ div d, s, t
 	mflo d
 
 push	d
-	sw d, r14, 0
-	subi r14, r14, -1
+	addi $sp, $sp, -1
+	sw d, 0($sp)
 	
 pop	d
-	addi r14, r14, 1
 	lw d, r14, 0
+	addi r14, r14, 1
 	
 
 
