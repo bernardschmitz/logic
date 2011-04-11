@@ -1,4 +1,12 @@
 
+	addi	r13, r0, 0ff
+	beq	r13, r13, k
+	halt
+
+	org 20
+k:	halt
+
+
 	j	start
 
 result:	
