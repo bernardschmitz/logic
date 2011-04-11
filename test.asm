@@ -3,7 +3,7 @@
 
 kkk:	dw 1,2,  3,-4,5,6,7, forward, 0, 0
 
-	org 200
+	org 20
 
 start:	add	r2, r0, r0		; sum
 	addi	r3, r0, 100		; max
@@ -22,4 +22,7 @@ halt
 data0:	dw	34, 56;comment
 dw -1, -2, -4567, 12345678, 1
 
+dw 777, 888
+align
+dw 333
 

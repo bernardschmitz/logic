@@ -1,5 +1,7 @@
 
 use strict;
+#use warnings;
+use integer;
 
 my %instruction = (
 	org => { },
@@ -35,7 +37,7 @@ my %instruction = (
 	sw => { code => 26, size => 2, type => 1 },
 	mfhi => { code => 27, size => 2, type => 2 },
 	mflo => { code => 28, size => 2, type => 2 },
-	halt => { code => 30, size => 2, type => 2 },
+	halt => { code => 31, size => 2, type => 2 },
 );
 
 
@@ -47,6 +49,8 @@ my %symbols = ();
 my @lines = <>;
 my $address = 0;
 my $line = 0;
+
+print "v2.0 raw\n";
 
 for my $pass (0..1) {
 
@@ -68,16 +72,19 @@ for my $pass (0..1) {
 			collect_symbol($sym, $ins, $ops);
 		}
 		else {
-			assemble($ins, $ops);
+			if($ins ne '') {
+				print STDERR sprintf("%04x: %s\n", $address, $_);
+				assemble($ins, $ops);
+			}
 		}
 	}
 }
 
 
-print "\n\nsymbols\n-------\n";
-for(sort { $symbols{$a} <=> $symbols{$b} } keys %symbols) {
-	print sprintf("%s %x\n", $_, $symbols{$_});
-}
+#print "\n\nsymbols\n-------\n";
+#for(sort { $symbols{$a} <=> $symbols{$b} } keys %symbols) {
+#	print sprintf("%s %x\n", $_, $symbols{$_});
+#}
 
 
 sub collect_symbol {
@@ -98,7 +105,7 @@ sub collect_symbol {
 			$address += $desc->{size};
 		}
 		elsif($ins eq 'org') {
-			if(scalar @{$ops} == 1 && $ops->[0] =~ m/^[0-9a-f]+$/i) {
+			if(scalar @{$ops} == 1 && $ops->[0] =~ m/^[0-9a-f]+$/i && $ops->[0] >= $address) {
 				$address = hex $ops->[0];
 			}
 			else {
@@ -144,13 +151,28 @@ sub assemble {
 					output_word($val);
 				}
 				else {
-					die "line $line unknown word value: $_\n";
+					die "line $line unknown word value: '$_'\n";
 				}
 			}
 		}
+		elsif($ins eq 'align') {
+			if($address % 2 == 1) {
+				output_word(0);
+			}
+		}
+		elsif($ins eq 'org') {
+
+			my $org = hex $ops->[0];
+			my $count = $org - $address;
+			for(1..$count) {
+				output_word(0);
+			}
+			
+			$address = $org;
+		}
 	}
 	else {
-		die "line $line unknown instruction: $ins\n";
+		die "line $line unknown instruction: '$ins'\n";
 	}
 }
 
@@ -165,6 +187,12 @@ sub encode_instruction {
 	if($desc->{type} == 0) {
 		($code, $oper) = type_1_instruction($desc, $ins, $ops);
 	}	
+	elsif($desc->{type} == 1) {
+		($code, $oper) = type_2_instruction($desc, $ins, $ops);
+	}
+	elsif($desc->{type} == 2) {
+		($code, $oper) = type_3_instruction($desc, $ins, $ops);
+	}
 
 	output_word($code);
 	output_word($oper);
@@ -175,7 +203,7 @@ sub type_1_instruction {
 	my ($desc, $ins, $ops) = @_;
 
 	if(scalar @{$ops} != 3) {
-		die "line $line expected three operands for: $ins\n";
+		die "line $line expected 3 operands for: '$ins'\n";
 	}
 
 	my $rd = get_register(shift @{$ops});
@@ -184,6 +212,198 @@ sub type_1_instruction {
 
 	my $code = $desc->{code} << 8 | $rd << 4 | $rs;
 	my $oper = $rt << 12;
+
+	return ($code, $oper);
+}
+
+sub type_2_instruction {
+
+	my ($desc, $ins, $ops) = @_;
+
+	if(scalar @{$ops} != 3) {
+		die "line $line expected 3 operands for: $ins\n";
+	}
+
+	my $rd = get_register(shift @{$ops});
+	my $rs = get_register(shift @{$ops});
+	my $const = get_constant(shift @{$ops});
+
+	my $code = $desc->{code} << 8 | $rd << 4 | $rs;
+	my $oper = $const;
+
+	return ($code, $oper);
+}
+
+sub type_3_instruction {
+
+	my ($desc, $ins, $ops) = @_;
+
+	if($ins eq 'mul' || $ins eq 'div') {
+		return mul_div($desc, $ins, $ops);
+	}
+
+	if($ins eq 'mfhi' || $ins eq 'mflo') {
+		return mf($desc, $ins, $ops);
+	}
+
+	if($ins eq 'beq' || $ins eq 'bne') {
+		return branch($desc, $ins, $ops);
+	}
+
+	if($ins eq 'j') {
+		return j($desc, $ins, $ops);
+	}
+
+	if($ins eq 'jr') {
+		return jr($desc, $ins, $ops);
+	}
+
+	if($ins eq 'jal') {
+		return jal($desc, $ins, $ops);
+	}
+
+	if($ins eq 'jalr') {
+		return jalr($desc, $ins, $ops);
+	}
+
+	if($ins eq 'halt') {
+		return halt($desc, $ins, $ops);
+	}
+
+	die "line $line unknown instruction: $ins\n";
+}
+
+sub mul_div {
+
+	my ($desc, $ins, $ops) = @_;
+
+	if(scalar @{$ops} != 2) {
+		die "line $line expected 2 operands for: $ins\n";
+	}
+
+	my $rs = get_register(shift @{$ops});
+	my $rt = get_register(shift @{$ops});
+
+	my $code = $desc->{code} << 8 | $rs;
+	my $oper = $rt << 12;
+
+	return ($code, $oper);
+}
+
+sub mf {
+
+	my ($desc, $ins, $ops) = @_;
+
+	if(scalar @{$ops} != 1) {
+		die "line $line expected 1 operands for: $ins\n";
+	}
+
+	my $rd = get_register(shift @{$ops});
+
+	my $code = $desc->{code} << 8 | $rd << 4;
+	my $oper = 0;
+
+	return ($code, $oper);
+}
+
+sub branch {
+
+	my ($desc, $ins, $ops) = @_;
+
+	if(scalar @{$ops} != 3) {
+		die "line $line expected 3 operands for: $ins\n";
+	}
+
+	my $rs = get_register(shift @{$ops});
+	my $rd = get_register(shift @{$ops});
+	my $const = get_constant(shift @{$ops});
+
+	my $disp = $const - ($address+2);
+
+	#print "$address $const $disp\n";
+
+	my $code = $desc->{code} << 8 | $rd << 4 | $rs;
+	my $oper = $disp >> 1;
+
+	return ($code, $oper);
+}
+
+sub j {
+
+	my ($desc, $ins, $ops) = @_;
+
+	if(scalar @{$ops} != 1) {
+		die "line $line expected 1 operands for: $ins\n";
+	}
+
+	my $const = get_constant(shift @{$ops});
+
+	my $code = $desc->{code} << 8;
+	my $oper = $const;
+
+	return ($code, $oper);
+}
+
+sub jr {
+
+	my ($desc, $ins, $ops) = @_;
+
+	if(scalar @{$ops} != 1) {
+		die "line $line expected 1 operands for: $ins\n";
+	}
+
+	my $rt = get_register(shift @{$ops});
+
+	my $code = $desc->{code} << 8;
+	my $oper = $rt << 12;
+
+	return ($code, $oper);
+}
+
+sub jal {
+
+	my ($desc, $ins, $ops) = @_;
+
+	if(scalar @{$ops} != 2) {
+		die "line $line expected 2 operands for: $ins\n";
+	}
+
+	my $rd = get_register(shift @{$ops});
+	my $const = get_constant(shift @{$ops});
+
+	my $code = $desc->{code} << 8 | $rd << 4;
+	my $oper = $const;
+
+	return ($code, $oper);
+}
+
+sub jalr {
+
+	my ($desc, $ins, $ops) = @_;
+
+	if(scalar @{$ops} != 2) {
+		die "line $line expected 2 operands for: $ins\n";
+	}
+
+	my $rd = get_register(shift @{$ops});
+	my $rt = get_register(shift @{$ops});
+
+	my $code = $desc->{code} << 8 | $rd << 4;
+	my $oper = $rt << 12;
+
+	return ($code, $oper);
+}
+
+sub halt {
+
+	my ($desc, $ins, $ops) = @_;
+
+#	if(scalar @{$ops} != 0) {
+#		die "line $line expected 0 operands for: '$ins' '".join(' ', @{$ops})."'\n";
+#	}
+
+	my $code = $desc->{code} << 8;
+	my $oper = 0;
 
 	return ($code, $oper);
 }
@@ -202,61 +422,74 @@ sub get_register {
 	die "line $line invalid register spec: $reg\n";
 }
 
+sub get_constant {
+
+	my $_ = shift;
+
+	if(m/^[a-z][a-z0-9]*$/i) {
+		return lookup_symbol($_);
+	}
+	elsif(m/^-[0-9a-f]+$/i) {
+		s/-//;
+		my $val = hex;
+		return -$val;
+	}
+	elsif(m/^[0-9a-f]+$/i) {
+		return hex;
+	}
+	else {
+		die "line $line unknown word value: $_\n";
+	}
+}
+
 sub parse {
 
 	my $_ = shift;
 
 	my $sym;
 
-	if(m/^\s*([a-z][a-z0-9]*):/i) {
-		$sym = $1;
-	}
+	s/^\s+//g;
 
-	#print "s $sym\n";
+#	print "[$_]\n";
+
+	if(m/^([a-z][a-z0-9]*):/i) {
+		$sym = $1;
+		s/^\s*$sym://i;
+#		print "sym $sym [$_]\n";
+	}
 
 	my $ins;
 
-	if(m/^\s*([a-z][a-z0-9]*:)?\s*([a-z]+)/i) {
-		$ins = $2;
+	s/^\s+//g;
+
+#	print "[$_]\n";
+
+	#if(m/^\s*([a-z][a-z0-9]*:)?\s*([a-z]+)/i) {
+	if(m/^([a-z]+)/i) {
+		$ins = $1;
+		s/^$ins//i;
+#		print "ins $ins [$_]\n";
 	}
 
-	#print "i $ins\n";
+	my @ops = split(/,/);
 
-#	my $op1;
+	map { s/\s+//g } @ops;
+
+#	my @ops = ();
 #
-#	if(m/^\s*([a-z][a-z0-9]*:)?\s*([a-z]+)\s+([a-z0-9]+),?/i) {
-#		$op1 = $3;
+#	while(m/([\-a-z0-9]+),/ig) {
+#		push @ops, $1
+#	}	
+#
+#	if(m/,\s*([\-a-z0-9]+)\s*$/ig) {
+#		push @ops, $1
 #	}
 #
-#	print "1 $op1\n";
-#
-#	my $op2;
-#
-#	if(m/^\s*([a-z][a-z0-9]*:)?\s*([a-z]+)\s+([a-z0-9]+,)\s*([a-z0-9]+),?/i) {
-#		$op2 = $4;
+#	if(m/^\s*([a-z][a-z0-9]*:)?\s*([a-z]+)\s+([\-a-z0-9]+)\s*$/ig) {
+#		push @ops, $3
 #	}
-#
-#	print "2 $op2\n";
-#
-#	my $op3;
-#
-#	if(m/^\s*([a-z][a-z0-9]*:)?\s*([a-z]+)\s+([a-z0-9]+,)\s*([a-z0-9]+,)\s*([a-z0-9]+)/i) {
-#		$op3 = $5;
-#	}
-#
-#	print "3 $op3\n";
 
-	my @ops = ();
-
-	while(m/([\-a-z0-9]+),/ig) {
-		push @ops, $1
-	}	
-
-	if(m/,?\s*([\-a-z0-9]+)\s*$/ig) {
-		push @ops, $1
-	}
-
-#	print "ops ".join(' ', @ops)."\n";
+#	print "sym: '$sym' ins: '$ins' ops: '".join(' ', @ops)."'\n";
 
 	return ($sym, $ins, \@ops);
 }
