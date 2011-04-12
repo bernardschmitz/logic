@@ -41,6 +41,42 @@ my %instruction = (
 );
 
 
+my %register = (
+	r0 => { index => 0 },
+	r1 => { index => 1 },
+	r2 => { index => 2 },
+	r3 => { index => 3 },
+	r4 => { index => 4 },
+	r5 => { index => 5 },
+	r6 => { index => 6 },
+	r7 => { index => 7 },
+	r8 => { index => 8 },
+	r9 => { index => 9 },
+	r10 => { index => 10 },
+	r11 => { index => 11 },
+	r12 => { index => 12 },
+	r13 => { index => 13 },
+	r14 => { index => 14 },
+	r15 => { index => 15 },
+	zero => { index => 0 },
+	at => { index => 1 },
+	v0 => { index => 2 },
+	v1 => { index => 3 },
+	a0 => { index => 4 },
+	a1 => { index => 5 },
+	a2 => { index => 6 },
+	s0 => { index => 7 },
+	s1 => { index => 8 },
+	s2 => { index => 9 },
+	t0 => { index => 10 },
+	t1 => { index => 11 },
+	t2 => { index => 12 },
+	fp => { index => 13 },
+	sp => { index => 14 },
+	ra => { index => 15 },
+);
+
+
 # symbol:	ins	rd, rs, rt	; comment
 #		ins	rd, rs, C
 
@@ -412,14 +448,15 @@ sub get_register {
 
 	my $reg = shift;
 
-	if($reg =~ m/^r([0-9][0-9]?)$/i) {
-		my $val = $1;
-		if($val >= 0 && $val <= 15) {
-			return $val;
-		}
+	$reg =~ s/\s*//g;
+
+	my $desc = $register{$reg};
+
+	if(defined $desc) {
+		return $desc->{index};
 	}
 
-	die "line $line invalid register spec: $reg\n";
+	die "line $line invalid register spec: '$reg'\n";
 }
 
 sub get_constant {
