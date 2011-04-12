@@ -21,18 +21,17 @@ target:
 	sw	fp, sp, 0
 	sw	ra, sp, 1	
 
-	addi	t0, zero, 1
+	li	t0, 1
 	bne	a0, t0, notone
 
-	addi	v0, zero, 1
+	li	v0, 1
 	j	out
 	
 notone:
 	sw	a0, sp, 2
 	addi	a0, a0, -1
 
-	addi	sp, sp, -1
-	sw	a0, sp, 0
+	push	a0
 	jal	target
 	addi	sp, sp, 1
 
