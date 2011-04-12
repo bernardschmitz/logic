@@ -54,7 +54,7 @@ clear d
 
 li d, C
 	addi d, r0, C
-
+	
 bgt x, y, C
 	slt r1, y, x
 	bne r1, r0, C
@@ -87,6 +87,11 @@ pop	d
 	lw d, r14, 0
 	addi r14, r14, 1
 	
+jal	C
+	jal ra, C
+
+jalr	t
+	jalr ra, t
 
 
 -----------------

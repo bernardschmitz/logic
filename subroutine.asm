@@ -1,14 +1,12 @@
 
 ; sum 1 to 100 recursively
 
-	addi	sp, zero, stack
+	li	sp, stack
 
+	li	a0, 64
+	push	a0
 
-	addi	a0, zero, 64
-	addi	sp, sp, -1
-	sw	a0, sp, 0
-
-	jal	ra, target
+	jal	target
 	addi	sp, sp, 1
 
 	sw	v0, zero, result
@@ -35,7 +33,7 @@ notone:
 
 	addi	sp, sp, -1
 	sw	a0, sp, 0
-	jal	ra, target
+	jal	target
 	addi	sp, sp, 1
 
 	lw	a0, sp, 2
