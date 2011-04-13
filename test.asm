@@ -16,6 +16,8 @@ loop:	add	r2, r2, r3		; add next num
 forward:mul r4, r5
 	mfhi		r9
 
+
+
 xy12z3:lw r7,r0,data0
 halt
 ; yeah

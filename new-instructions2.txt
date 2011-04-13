@@ -93,7 +93,15 @@ jal	C
 jalr	t
 	jalr ra, t
 
-
+not	d
+	; addi at, zero, -1
+	; xor d, d, at
+	nor d, d, d
+	
+neg	d
+	nor d, d, d
+	addi d, d, 1
+	
 -----------------
 
 fetch:

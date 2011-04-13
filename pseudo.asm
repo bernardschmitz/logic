@@ -1,4 +1,7 @@
 
+	li v0, 10
+	neg v0
+
 	mul v0, v1, a0
 	div v0, v1, a0
 	li t2, 23
