@@ -8,9 +8,6 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
       <a name="halign" val="center"/>
       <a name="valign" val="base"/>
     </tool>
-    <tool name="Splitter">
-      <a name="facing" val="south"/>
-    </tool>
     <tool name="Tunnel">
       <a name="facing" val="east"/>
     </tool>
@@ -70,7 +67,7 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
       <a name="labelloc" val="east"/>
     </tool>
     <tool lib="1" name="NOT Gate">
-      <a name="facing" val="south"/>
+      <a name="facing" val="north"/>
       <a name="size" val="20"/>
     </tool>
     <tool lib="1" name="AND Gate"/>
@@ -6259,27 +6256,46 @@ c000
     <a name="label" val=""/>
     <a name="labelup" val="east"/>
     <a name="labelfont" val="SansSerif plain 12"/>
+    <wire from="(550,840)" to="(710,840)"/>
     <wire from="(860,360)" to="(890,360)"/>
     <wire from="(290,570)" to="(870,570)"/>
     <wire from="(1020,220)" to="(1020,450)"/>
+    <wire from="(750,740)" to="(840,740)"/>
     <wire from="(460,390)" to="(760,390)"/>
     <wire from="(290,450)" to="(290,570)"/>
+    <wire from="(660,420)" to="(660,730)"/>
+    <wire from="(760,390)" to="(760,700)"/>
     <wire from="(660,220)" to="(660,420)"/>
+    <wire from="(750,830)" to="(1160,830)"/>
     <wire from="(660,220)" to="(800,220)"/>
     <wire from="(760,240)" to="(800,240)"/>
     <wire from="(830,260)" to="(830,360)"/>
     <wire from="(180,710)" to="(310,710)"/>
     <wire from="(110,570)" to="(290,570)"/>
+    <wire from="(660,730)" to="(660,820)"/>
+    <wire from="(660,820)" to="(710,820)"/>
+    <wire from="(840,740)" to="(840,760)"/>
     <wire from="(890,260)" to="(890,360)"/>
     <wire from="(460,360)" to="(830,360)"/>
+    <wire from="(840,760)" to="(1150,760)"/>
     <wire from="(290,450)" to="(330,450)"/>
     <wire from="(310,460)" to="(310,710)"/>
     <wire from="(940,220)" to="(1020,220)"/>
+    <wire from="(1100,700)" to="(1100,730)"/>
     <wire from="(760,240)" to="(760,390)"/>
+    <wire from="(1050,690)" to="(1140,690)"/>
+    <wire from="(760,700)" to="(1030,700)"/>
+    <wire from="(1160,710)" to="(1160,830)"/>
+    <wire from="(550,750)" to="(710,750)"/>
     <wire from="(830,360)" to="(840,360)"/>
     <wire from="(460,430)" to="(530,430)"/>
     <wire from="(460,450)" to="(1020,450)"/>
+    <wire from="(1150,710)" to="(1150,760)"/>
+    <wire from="(870,730)" to="(1100,730)"/>
     <wire from="(310,460)" to="(330,460)"/>
+    <wire from="(870,570)" to="(870,730)"/>
+    <wire from="(660,730)" to="(710,730)"/>
+    <wire from="(1100,700)" to="(1140,700)"/>
     <wire from="(870,260)" to="(870,570)"/>
     <wire from="(530,270)" to="(530,430)"/>
     <wire from="(460,420)" to="(660,420)"/>
@@ -6292,7 +6308,33 @@ c000
       <a name="label" val="RESET"/>
       <a name="labelloc" val="west"/>
     </comp>
-    <comp lib="5" loc="(620,740)" name="TTY"/>
+    <comp lib="5" loc="(1140,880)" name="Keyboard"/>
+    <comp lib="3" loc="(750,830)" name="Comparator">
+      <a name="width" val="16"/>
+      <a name="mode" val="unsigned"/>
+    </comp>
+    <comp lib="1" loc="(550,750)" name="Constant">
+      <a name="width" val="16"/>
+      <a name="value" val="0xfffe"/>
+    </comp>
+    <comp lib="0" loc="(1030,700)" name="Splitter">
+      <a name="incoming" val="16"/>
+      <a name="bit1" val="0"/>
+      <a name="bit2" val="0"/>
+      <a name="bit3" val="0"/>
+      <a name="bit4" val="0"/>
+      <a name="bit5" val="0"/>
+      <a name="bit6" val="0"/>
+      <a name="bit7" val="1"/>
+      <a name="bit8" val="1"/>
+      <a name="bit9" val="1"/>
+      <a name="bit10" val="1"/>
+      <a name="bit11" val="1"/>
+      <a name="bit12" val="1"/>
+      <a name="bit13" val="1"/>
+      <a name="bit14" val="1"/>
+      <a name="bit15" val="1"/>
+    </comp>
     <comp lib="5" loc="(530,270)" name="LED">
       <a name="facing" val="south"/>
       <a name="label" val="HALT"/>
@@ -6301,11 +6343,19 @@ c000
     <comp lib="1" loc="(860,360)" name="NOT Gate">
       <a name="size" val="20"/>
     </comp>
-    <comp lib="5" loc="(630,800)" name="Keyboard"/>
+    <comp lib="1" loc="(550,840)" name="Constant">
+      <a name="width" val="16"/>
+      <a name="value" val="0xffff"/>
+    </comp>
+    <comp lib="5" loc="(1140,700)" name="TTY"/>
     <comp lib="4" loc="(940,220)" name="RAM">
       <a name="addrWidth" val="16"/>
       <a name="dataWidth" val="16"/>
       <a name="bus" val="separate"/>
+    </comp>
+    <comp lib="3" loc="(750,740)" name="Comparator">
+      <a name="width" val="16"/>
+      <a name="mode" val="unsigned"/>
     </comp>
   </circuit>
 </project>

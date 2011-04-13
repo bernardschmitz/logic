@@ -94,8 +94,6 @@ jalr	t
 	jalr ra, t
 
 not	d
-	; addi at, zero, -1
-	; xor d, d, at
 	nor d, d, d
 	
 neg	d
