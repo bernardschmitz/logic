@@ -137,6 +137,8 @@ sub process_pseudo_instructions {
 #	print "[$_]\n";
 
 	s/\bnop\b/add zero, zero, zero/gi;
+	s/\binc\s+([a-z0-9]+)/addi \1, \1, 1/gi;
+	s/\bdec\s+([a-z0-9]+)/addi \1, \1, -1/gi;
 	s/\bjal\s+([a-z0-9]+)/jal ra, \1/gi;
 	s/\bjalr\s+([a-z0-9]+)/jalr ra, \1/gi;
 	s/\bclear\s+([a-z0-9]+)/add \1, zero, zero/gi;
