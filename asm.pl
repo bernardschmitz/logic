@@ -211,7 +211,13 @@ sub assemble {
 		}
 		elsif($ins eq 'dw') {
 			for(@{$ops}) {
-				if(m/^[a-z][a-z0-9]*$/i) {
+				if(m/^\s*\"[^\"]*\"\s*$/i) {
+					s/\"//g;
+					for my $c (split //) {
+						output_word(ord $c);
+					}
+				}
+				elsif(m/^[a-z][a-z0-9]*$/i) {
 					my $val = lookup_symbol($_);
 					output_word($val);
 				}
@@ -539,7 +545,6 @@ sub parse {
 
 #	print "[$_]\n";
 
-	#if(m/^\s*([a-z][a-z0-9]*:)?\s*([a-z]+)/i) {
 	if(m/^([a-z]+)/i) {
 		$ins = $1;
 		s/^$ins//i;
@@ -548,23 +553,7 @@ sub parse {
 
 	my @ops = split(/,/);
 
-	map { s/\s+//g } @ops;
-
-#	my @ops = ();
-#
-#	while(m/([\-a-z0-9]+),/ig) {
-#		push @ops, $1
-#	}	
-#
-#	if(m/,\s*([\-a-z0-9]+)\s*$/ig) {
-#		push @ops, $1
-#	}
-#
-#	if(m/^\s*([a-z][a-z0-9]*:)?\s*([a-z]+)\s+([\-a-z0-9]+)\s*$/ig) {
-#		push @ops, $3
-#	}
-
-#	print "sym: '$sym' ins: '$ins' ops: '".join(' ', @ops)."'\n";
+	map { s/\s+//g unless m/\"/ } @ops;
 
 	return ($sym, $ins, \@ops);
 }
