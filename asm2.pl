@@ -2,6 +2,7 @@
 use strict;
 
 use vars qw{@code};
+use vars qw{%symbol};
 
 use Parse::RecDescent;
 use Data::Dumper;
@@ -14,6 +15,7 @@ $::RD_HINT = 1;
 my $address = 0;
 
 #my @code = ();
+#my %symbol = ();
 
 my $grammar = q {
 
@@ -25,15 +27,22 @@ my $grammar = q {
 	statement: directive
 		{ print "stmt $item[1]\n\n"; }
 
-	directive: org | dw
+	directive: org | dw | equ
 
-	org: /org/ num 
+	equ: symbol /equ/ expr
 		{
-			$main::address = $item{num};
-			print "org $item{num}\n";
+			print "sym $item{symbol}\n";
+			print "equ $item{expr}\n";
+			$main::symbol{$item[1]} = { value => $item{expr} };
 		}
 
-	dw: /dw/ num(s /,/)
+	org: /org/ expr
+		{
+			$main::address = $item{expr};
+			print "org $item{expr}\n";
+		}
+
+	dw: /dw/ expr(s /,/)
 		{
 			for my $n (@{$item[2]}) {
 				print "addr $main::address\n";
@@ -42,6 +51,12 @@ my $grammar = q {
 				$main::address++;
 			}
 		}
+
+	symbol: /\w\w*/
+
+	expr: num 
+		| symbol
+		{ $return = $main::symbol{$item{symbol}}->{value}; }
 
 	num: hex 
 		{ $return = hex $item[1]; }
@@ -62,7 +77,10 @@ my $text = <<END;
 
 	org 0x10
 
-	dw -3, 0x34, 4234
+blah	equ	42
+
+
+	dw -3, 0x34, 4234, blah, 3
 
 END
 
@@ -71,12 +89,8 @@ my $result = $parser->asm($text);
 
 print Dumper($result);
 
+print Dumper(\@code);
 
-print Dumper(@code);
-for(@code) {
-	print "$_\n";
-}
-
-print "done.\n";
+print Dumper(\%symbol);
 
 
