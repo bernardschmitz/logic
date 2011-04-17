@@ -1,38 +1,56 @@
 
 use strict;
 
+use vars qw{@code};
+
 use Parse::RecDescent;
+use Data::Dumper;
+
+$::RD_ERRORS = 1;
+$::RD_WARN = 1;
+$::RD_HINT = 1;
+
+
+my $address = 0;
+
+#my @code = ();
 
 my $grammar = q {
 
 	asm: line(s)
+
+	line: statement
+		{ print "line $item{statement}\n\n"; }
+
+	statement: directive
+		{ print "stmt $item[1]\n\n"; }
+
+	directive: org | dw
+
+	org: /org/ num 
 		{
-			print "asm: $item{line}\n";
-		}
-	line: label_spec(?) instruction args
-		{
-			print "label: $item{label}\n";
-			print "instruction: $item{instruction}\n";
-#			print "args: $item{args}\n";
-#			for(@{$item{args}}) {
-#				print "arg: $_\n";
-#			}
-			print "\n";
+			$main::address = $item{num};
+			print "org $item{num}\n";
 		}
 
-	label_spec: label ":"
-	label: /[a-z][a-z0-9]+/i
-
-	instruction: /[a-z]+/
-	args: arg(s /,/)
+	dw: /dw/ num(s /,/)
 		{
-			print "arg: $item{arg}\n";
-#			for(@{$item{arg}}) {
-#				print "arg: $_\n";
-#			}
+			for my $n (@{$item[2]}) {
+				print "addr $main::address\n";
+				print "dw $n\n";
+				$main::code[$main::address] = $n;
+				$main::address++;
+			}
 		}
-	arg: reg(..3) | label
-	reg: /r[0-9][0-9]*/i | /zero/i | /at/i | /v[01]/i | /a[012]/i | /s[012]/i | /t[012]/i | /fp/i | /sp/i | /ra/i
+
+	num: hex 
+		{ $return = hex $item[1]; }
+	| dec
+
+	hex: /0x[0-9a-f]+/
+
+	dec: /-?[0-9]+/
+
 
 };
 
@@ -42,15 +60,23 @@ my $parser = new Parse::RecDescent($grammar) or die "Bad grammar!\n";
 
 my $text = <<END;
 
-	move	v0, a2
-	li	r0, value
-loop:	addi	at, zero, blah
-	j	loop
+	org 0x10
+
+	dw -3, 0x34, 4234
 
 END
 
 
+my $result = $parser->asm($text);
 
-$parser->asm($text) or die "error\n";
+print Dumper($result);
+
+
+print Dumper(@code);
+for(@code) {
+	print "$_\n";
+}
+
+print "done.\n";
 
 
