@@ -7,6 +7,7 @@ my %instruction = (
 	org => { },
 	dw => { },
 	align => { },
+	equ => { },
 
 	add => { code => 0, size => 2, type => 0 },
 	addi => { code => 1, size => 2, type => 1 },
@@ -191,6 +192,14 @@ sub collect_symbol {
 		}
 		elsif($ins eq 'align') {
 			$address = $address % 2 == 0 ? $address : $address+1;
+		}
+		elsif($ins eq 'equ') {
+			if(scalar @{$ops} == 1 && $ops->[0] =~ m/^[0-9a-f]+$/i) {
+				$symbols{$sym} = hex $ops->[0];
+			}
+			else {
+				die "line $line invalid equate: ".join(' ', @{$ops})."\n";
+			}
 		}
 
 #		print "$address\n";
