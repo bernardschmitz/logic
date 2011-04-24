@@ -1,18 +1,29 @@
 
-	sw	zero, zero, 0ffff	; clear screen
+charout:	equ	0fffe
+charclr:	equ	0ffff
 
-	li	t0, count
-	clear	t1
-loop:
-	lw	t2, t1, message
-	sw	t2, zero, 0fffe
-	inc	t1
 
-	blt	t1, t0, loop
+	macro	clr
+	sw	zero, zero, charclr	; clear screen
+	endm
 
+	macro	cout, ptr, mess
+	clear	ptr
+loop:	 lw	at, ptr, mess
+	beq	at, zero, out
+	sw	at, zero, charout
+	inc	ptr
+	j	loop
+out:	nop
+	endm
+
+
+	clr
+	cout	t0, message
+	cout	t0, w
 	halt
 
 
-count:	dw 12
-message:	dw "Hello Sheep!"
+message:	dw "Hello Sheep!", 0
+w:	dw "Yeah yeah this is awesome.", 0
 

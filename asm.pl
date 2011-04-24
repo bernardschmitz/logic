@@ -3,6 +3,8 @@ use strict;
 #use warnings;
 use integer;
 
+use Data::Dumper;
+
 my %instruction = (
 	org => { },
 	dw => { },
@@ -311,6 +313,10 @@ sub encode_instruction {
 	elsif($desc->{type} == 2) {
 		($code, $oper) = type_3_instruction($desc, $ins, $ops);
 	}
+
+	
+
+	print STDERR sprintf("%s %s\n", $ins, join(', ', @{$ops}));
 
 	output_word($code);
 	output_word($oper);
@@ -655,10 +661,11 @@ sub collect_macro {
 
 		my $l = "";
 		if(defined $sym) {
+			push @{$current_macro->{symbols}}, $sym;
 			$l .= "$sym: ";
 		}
 
-		$l .= "$ins ".join(', ', @{$ops});	
+		$l .= "$ins ".join(', ', @{$ops});
 
 		push @{$current_macro->{code}}, $l;
 
@@ -676,6 +683,8 @@ sub process_macro {
 	my $m = $macros{$ins};
 
 	if(defined $m) {
+
+#		print Dumper($m);
 
 #		print "replace ".$m->{name}."\n";
 #		for(@{$m->{code}}) {
@@ -695,7 +704,11 @@ sub process_macro {
 
 		my $id = $macro_id++;
 
-		$mac =~ s/([a-z][a-z0-9]):/\1$id:/i;
+		for(@{$m->{symbols}}) {
+#			print "\t$_\n";
+			$mac =~ s/\b($_)/\1$id/gi;
+		}
+
 
 #		print "[$mac]\n";
 	
