@@ -8,6 +8,8 @@ my %instruction = (
 	dw => { },
 	align => { },
 	equ => { },
+	macro => { },
+	endm => { },
 
 	add => { code => 0, size => 2, type => 0 },
 	addi => { code => 1, size => 2, type => 1 },
@@ -101,6 +103,8 @@ print "v2.0 raw\n";
 
 for my $pass (0..3) {
 
+#print "\npass $pass\n\n";
+
 	$address = 0;
 	$line = 0;
 
@@ -112,6 +116,8 @@ for my $pass (0..3) {
 		s/;.*$//g;
 
 		next if m/^\s*$/;
+
+#print "[$_]\n";
 
 		my ($sym, $ins, $ops) = parse($_);
 
@@ -131,6 +137,17 @@ for my $pass (0..3) {
 			}
 		}
 	}
+
+
+#	if($pass == 1) {
+#
+#		for(@lines) {
+#			chomp;
+#			s/;.*$//g;
+#			next if m/^\s*$/;
+#			print "\t\t|$_|\n";
+#		}
+#	}
 }
 
 
@@ -610,21 +627,27 @@ sub collect_macro {
 			die "line $line nested macro definition: $ins ".join(' ', @{$ops})."\n";
 		}
 
-		$current_macro = { name => shift @{$ops}, parameters => $ops, code => [] };
+		$current_macro = { name => shift @{$ops}, parameters => $ops, code => [], start => $line };
 
-		print "defining ".$current_macro->{name}."\n";
+		$lines[$line-1] =~ s/^/;/;
+
+#		print "defining ".$current_macro->{name}."\n";
 	}	
 	elsif($ins eq 'endm') {
 		if(!defined $current_macro) {
 			die "line $line endm without macro definition\n";
 		}
 
+		$current_macro->{end} = $line;
+
 		$macros{$current_macro->{name}} = $current_macro;
 
-		print "done ".$current_macro->{name}."\n";
+#		print "done ".$current_macro->{name}."\n";
 		for(@{$current_macro->{code}}) {
-			print "$_\n";
+#			print "$_\n";
 		}
+
+		$lines[$line-1] =~ s/^/;/;
 
 		$current_macro = undef;
 	}
@@ -635,11 +658,13 @@ sub collect_macro {
 			$l .= "$sym: ";
 		}
 
-		$l .= "$ins ".join(' ', @{$ops});	
+		$l .= "$ins ".join(', ', @{$ops});	
 
 		push @{$current_macro->{code}}, $l;
 
-		print "$l\n";
+		$lines[$line-1] =~ s/^/;/;
+
+#		print "$l\n";
 	}
 
 }
@@ -652,7 +677,7 @@ sub process_macro {
 
 	if(defined $m) {
 
-		print "replace ".$m->{name}."\n";
+#		print "replace ".$m->{name}."\n";
 #		for(@{$m->{code}}) {
 #			print "$_\n";
 #		}
@@ -672,7 +697,11 @@ sub process_macro {
 
 		$mac =~ s/([a-z][a-z0-9]):/\1$id:/i;
 
-		print "[$mac]\n";
+#		print "[$mac]\n";
+	
+		$lines[$line-1] =~ s/^/;/;
+		splice(@lines, $line, 0, split('\n', $mac));
+
 	}
 }
 

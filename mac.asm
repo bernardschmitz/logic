@@ -9,7 +9,7 @@ ok:	clear	arg1
 
 	nop
 
-	blah	a0, v3, sp
+	blah	a2, v0, t1
 
 	halt
 

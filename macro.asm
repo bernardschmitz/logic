@@ -1,11 +1,11 @@
 
-define(`cout', `
-	sw	t0, zero, charout	; write char
-	inc	t0
-')
-
 charout:	equ	0fffe
 clear:		equ	0ffff
+
+	macro	cout
+	sw	t0, zero, charout	; write char
+	inc	t0
+	endm
 
 start:
 	li	t0, 20		; char ascii space
@@ -23,7 +23,7 @@ loop:
 	dec	t1
 	bne	t1, zero, loop
 
-	;sw	t0, zero, clear ; clear screen
+;	sw	t0, zero, clear ; clear screen
 	j	start
 
 
