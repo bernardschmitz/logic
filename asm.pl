@@ -83,6 +83,12 @@ my %register = (
 
 my %symbols = ();
 
+my %macros = ();
+
+my $current_macro;
+
+my $macro_id = 100;
+
 my @lines = <>;
 my $address = 0;
 my $line = 0;
@@ -93,7 +99,7 @@ my @plines = map { process_pseudo_instructions($_); } @lines;
 
 print "v2.0 raw\n";
 
-for my $pass (0..1) {
+for my $pass (0..3) {
 
 	$address = 0;
 	$line = 0;
@@ -110,6 +116,12 @@ for my $pass (0..1) {
 		my ($sym, $ins, $ops) = parse($_);
 
 		if($pass == 0) {
+			collect_macro($sym, $ins, $ops);
+		}
+		elsif($pass == 1) {
+			process_macro($sym, $ins, $ops);
+		}
+		elsif($pass == 2) {
 			collect_symbol($sym, $ins, $ops);
 		}
 		else {
@@ -587,6 +599,81 @@ sub output_word {
 
 	print sprintf("%04x\n", $val);
 	$address++;
+}
+
+sub collect_macro {
+
+	my ($sym, $ins, $ops) = @_;
+
+	if($ins eq 'macro') {
+		if(defined $current_macro) {
+			die "line $line nested macro definition: $ins ".join(' ', @{$ops})."\n";
+		}
+
+		$current_macro = { name => shift @{$ops}, parameters => $ops, code => [] };
+
+		print "defining ".$current_macro->{name}."\n";
+	}	
+	elsif($ins eq 'endm') {
+		if(!defined $current_macro) {
+			die "line $line endm without macro definition\n";
+		}
+
+		$macros{$current_macro->{name}} = $current_macro;
+
+		print "done ".$current_macro->{name}."\n";
+		for(@{$current_macro->{code}}) {
+			print "$_\n";
+		}
+
+		$current_macro = undef;
+	}
+	elsif(defined $current_macro) {
+
+		my $l = "";
+		if(defined $sym) {
+			$l .= "$sym: ";
+		}
+
+		$l .= "$ins ".join(' ', @{$ops});	
+
+		push @{$current_macro->{code}}, $l;
+
+		print "$l\n";
+	}
+
+}
+
+sub process_macro {
+
+	my ($sym, $ins, $ops) = @_;
+
+	my $m = $macros{$ins};
+
+	if(defined $m) {
+
+		print "replace ".$m->{name}."\n";
+#		for(@{$m->{code}}) {
+#			print "$_\n";
+#		}
+
+		my $mac = "";
+
+		for(@{$m->{code}}) {
+			$mac .= "$_\n";	
+		}
+
+		for(@{$m->{parameters}}) {
+			my $r = shift @{$ops};
+			$mac =~ s/\b$_/$r/g;
+		}
+
+		my $id = $macro_id++;
+
+		$mac =~ s/([a-z][a-z0-9]):/\1$id:/i;
+
+		print "[$mac]\n";
+	}
 }
 
 
