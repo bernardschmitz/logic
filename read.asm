@@ -1,13 +1,17 @@
 
+
+bufferclr:	equ	0fffb
+charrdy:	equ	0fffc
+charin:		equ	0fffd
 charout:	equ	0fffe
-charclr:	equ	0ffff
+screenclr:	equ	0ffff
 
         define(`id', 0)
         define(`l', `$1`'id')
 
 
         define(`clr', `define(`id', incr(id))
-	sw	zero, zero, charclr	; clear screen
+	sw	zero, zero, screenclr	; clear screen
 	')
 
         define(`cout', `define(`id', incr(id))
@@ -22,6 +26,16 @@ l(out):	nop
 
 
 	clr
+
+wait:
+	lw	at, zero, charrdy
+	beq	at, zero, wait
+	lw	at, zero, charin
+
+	sw	at, zero, charout
+
+	j	wait
+
 	cout(t0, message)
 	cout(t0, w)
 	halt

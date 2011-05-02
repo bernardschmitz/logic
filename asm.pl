@@ -123,11 +123,14 @@ for my $pass (0..3) {
 
 		my ($sym, $ins, $ops) = parse($_);
 
+# disabling macro processing as it's buggy
+# use m4 instead
+
 		if($pass == 0) {
-			collect_macro($sym, $ins, $ops);
+	#		collect_macro($sym, $ins, $ops);
 		}
 		elsif($pass == 1) {
-			process_macro($sym, $ins, $ops);
+	#		process_macro($sym, $ins, $ops);
 		}
 		elsif($pass == 2) {
 			collect_symbol($sym, $ins, $ops);
@@ -219,7 +222,18 @@ sub collect_symbol {
 			}
 		}
 		elsif($ins eq 'dw') {
-			$address += scalar @{$ops};
+#			$address += scalar @{$ops};
+			for(@{$ops}) {
+				if(m/^\s*\"[^\"]*\"\s*$/i) {
+					s/\"//g;
+					for my $c (split //) {
+						$address++;
+					}
+				}
+				else {
+					$address++;
+				}
+			}
 		}
 		elsif($ins eq 'align') {
 			$address = $address % 2 == 0 ? $address : $address+1;

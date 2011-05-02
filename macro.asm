@@ -2,10 +2,10 @@
 charout:	equ	0fffe
 clear:		equ	0ffff
 
-	macro	cout
+	define(`cout', `
 	sw	t0, zero, charout	; write char
 	inc	t0
-	endm
+	')
 
 start:
 	li	t0, 20		; char ascii space
