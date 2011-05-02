@@ -214,7 +214,8 @@ sub collect_symbol {
 			$address += $desc->{size};
 		}
 		elsif($ins eq 'org') {
-			if(scalar @{$ops} == 1 && $ops->[0] =~ m/^[0-9a-f]+$/i && $ops->[0] >= $address) {
+
+			if(scalar @{$ops} == 1 && $ops->[0] =~ m/^\s*[0-9a-f]+\s*$/i) { # && $ops->[0] >= $address) {
 				$address = hex $ops->[0];
 			}
 			else {

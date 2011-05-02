@@ -1,4 +1,5 @@
 
+stack:		equ	0a000
 
 charout:	equ	0fffe
 charclr:	equ	0ffff
@@ -12,8 +13,7 @@ charclr:	equ	0ffff
 	')
 
         define(`cout', `define(`id', incr(id))
-	clear	$1
-l(loop):	 lw	at, $1, $2
+l(loop):	 lw	at, $1, 0
 	beq	at, zero, l(out)
 	sw	at, zero, charout
 	inc	$1
@@ -23,12 +23,16 @@ l(out):	nop
 
 
 	clr
-	cout(t0, message)
+	li	sp, stack
+	li	t0, message
+	cout(t0)
 
 	clear	a0
+#	li	a0, 0cafe
 forever:
 	jal	number
-	li	at, 0a
+	#li	at, 0a
+	li	at, 020
 	sw	at, zero, charout
 	inc	a0
 	j	forever
@@ -43,16 +47,28 @@ w:	dw "Yeah yeah this is awesome.", 0
 
 number:
 	li	t0, 0a
+	li	a1, buf
 	move	t1, a0
 again:
+	dec	a1
 	div	t1, t0
 	mflo	t1
 	mfhi	t2
-	lw	at, t2, digits
-	sw	at, zero, charout
+	addi	at, t2, 30
+	sw	at, a1, 0
+	#sw	at, zero, charout
 	bne	t1, zero, again
+
+	cout(a1)
+
 	jr	ra	
 
+	dw	0,0,0,0,0,0,0,0
+	dw	0,0,0,0,0,0,0,0
+	dw	0,0,0,0,0,0,0,0
+	dw	0,0,0,0,0,0,0,0
+	dw	0,0,0,0,0,0,0,0
+	dw	0,0,0,0,0,0,0,0
+buf:	dw	0
 
-digits:	dw	"0123456789"
 
