@@ -1,5 +1,6 @@
 
 regs
+----
 
 0000 r0		zero
 0001 r1		at
@@ -17,5 +18,41 @@ regs
 1101 r13	fp
 1110 r14	sp
 1111 r15	ra
+
+
+subroutine
+----------
+
+	li	sp, stack	;	init stack pointer
+
+	li	a0, 0cafe	;	args in a0, a1, a2
+	li	a1, 0babe
+	jal	subroutine	;	return address in ra
+
+	move	t0, v0		;	result in v0, v1
+
+subroutine:
+        addi    sp, sp, -4	;	allocate space on stack for local variables and saved registers and saved args
+        sw      fp, sp, 0	;	save existing frame pointer
+        sw      ra, sp, 1	;	save return address
+        sw      a1, sp, 2	;	save args
+	sw	a0, sp, 3
+
+	add	fp, sp, 4	;	setup frame pointer
+
+	lw	t0, fp, 0	;	arg0
+	lw	t1, fp, 1	;	arg1
+
+	...
+
+	li	v0, 0cafe	;	result in v0, v1
+	li	v0, 0babe
+
+        lw      fp, sp, 0	;	restore frame pointer
+        lw      ra, sp, 1	;	restore	return address
+        addi    sp, sp, 4	;	restore stack pointer
+
+        jr      ra		;	return
+
 
 
