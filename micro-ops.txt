@@ -1,0 +1,139 @@
+  add 00000
+	t 0100 result_wrt 1 
+	t 0101 t_reset 1 fetch 1 reg_wrt 1 
+	
+
+ addi 00001
+	t 0100 alu_b_src 1 result_wrt 1 
+	t 0101 t_reset 1 fetch 1 reg_wrt 1 
+	
+
+  sub 00010
+	t 0100 alu_op 0001 result_wrt 1 
+	t 0101 t_reset 1 fetch 1 reg_wrt 1 
+	
+
+  mul 00011
+	t 0100 t_reset 1 fetch 1 alu_op 1001 lo_wrt 1 hi_wrt 1 
+	
+
+  div 00100
+	t 0100 t_reset 1 fetch 1 alu_op 1010 lo_wrt 1 hi_wrt 1 
+	
+
+  sll 00101
+	t 0100 alu_b_src 1 alu_op 0010 result_wrt 1 
+	t 0101 t_reset 1 fetch 1 reg_wrt 1 
+	
+
+  srl 00110
+	t 0100 alu_b_src 1 alu_op 0011 result_wrt 1 
+	t 0101 t_reset 1 fetch 1 reg_wrt 1 
+	
+
+  sra 00111
+	t 0100 alu_b_src 1 alu_op 0100 result_wrt 1 
+	t 0101 t_reset 1 fetch 1 reg_wrt 1 
+	
+
+ sllv 01000
+	t 0100 alu_op 0010 result_wrt 1 
+	t 0101 t_reset 1 fetch 1 reg_wrt 1 
+	
+
+ srlv 01001
+	t 0100 alu_op 0011 result_wrt 1 
+	t 0101 t_reset 1 fetch 1 reg_wrt 1 
+	
+
+ srav 01010
+	t 0100 alu_op 0100 result_wrt 1 
+	t 0101 t_reset 1 fetch 1 reg_wrt 1 
+	
+
+  beq 01011
+	t 0100 t_reset 1 fetch 1 pc_src 01 pc_wrt 10 reg_src2_src 1 
+	
+
+  bne 01100
+	t 0100 t_reset 1 fetch 1 pc_src 01 pc_wrt 11 reg_src2_src 1 
+	
+
+  slt 01101
+	t 0100 t_reset 1 fetch 1 reg_src 001 reg_wrt 1 
+	
+
+ slti 01110
+	t 0100 t_reset 1 fetch 1 reg_src 001 reg_wrt 1 alu_b_src 1 
+	
+
+  and 01111
+	t 0100 alu_op 0101 result_wrt 1 
+	t 0101 t_reset 1 fetch 1 reg_wrt 1 
+	
+
+ andi 10000
+	t 0100 alu_b_src 1 alu_op 0101 result_wrt 1 
+	t 0101 t_reset 1 fetch 1 reg_wrt 1 
+	
+
+   or 10001
+	t 0100 alu_op 0110 result_wrt 1 
+	t 0101 t_reset 1 fetch 1 reg_wrt 1 
+	
+
+  ori 10010
+	t 0100 alu_b_src 1 alu_op 0110 result_wrt 1 
+	t 0101 t_reset 1 fetch 1 reg_wrt 1 
+	
+
+  xor 10011
+	t 0100 alu_op 1000 result_wrt 1 
+	t 0101 t_reset 1 fetch 1 reg_wrt 1 
+	
+
+  nor 10100
+	t 0100 alu_op 0111 result_wrt 1 
+	t 0101 t_reset 1 fetch 1 reg_wrt 1 
+	
+
+    j 10101
+	t 0100 t_reset 1 fetch 1 pc_src 10 pc_wrt 01 
+	
+
+   jr 10110
+	t 0100 t_reset 1 fetch 1 pc_src 11 pc_wrt 01 
+	
+
+  jal 10111
+	t 0100 reg_src 010 reg_wrt 1 
+	t 0101 t_reset 1 fetch 1 pc_src 10 pc_wrt 01 
+	
+
+ jalr 11000
+	t 0100 reg_src 010 reg_wrt 1 
+	t 0101 t_reset 1 fetch 1 pc_src 11 pc_wrt 01 
+	
+
+   lw 11001
+	t 0100 alu_b_src 1 result_wrt 1 
+	t 0101 t_reset 1 fetch 1 mar_src 1 reg_src 101 reg_wrt 1 
+	
+
+   sw 11010
+	t 0100 alu_b_src 1 result_wrt 1 
+	t 0101 t_reset 1 fetch 1 mar_src 1 mem_wrt 1 reg_src2_src 1 
+	
+
+ mfhi 11011
+	t 0100 t_reset 1 fetch 1 reg_src 011 reg_wrt 1 
+	
+
+ mflo 11100
+	t 0100 t_reset 1 fetch 1 reg_src 100 reg_wrt 1 
+	
+
+ halt 11110
+	t 0100 halt 1 
+	
+

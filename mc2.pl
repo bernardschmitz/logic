@@ -313,16 +313,24 @@ for my $ins (sort { $microcode{$a}[0]->{op} <=> $microcode{$b}[0]->{op} } keys %
 
 		$t++;
 
-		if($_->{halt}) {
-			$fmt .= "halt %b ";
-			push @args, $_->{halt};
-		}
 
-
-		if($_->{t_reset}) {
-			$fmt .= "t_reset %b ";
-			push @args, $_->{t_reset};
-		}
+		out($_, 'halt', 1, \$fmt, \@args);
+		out($_, 't_reset', 1, \$fmt, \@args);
+		out($_, 'fetch', 1, \$fmt, \@args);
+		out($_, 'pc_src', 2, \$fmt, \@args);
+		out($_, 'pc_wrt', 2, \$fmt, \@args);
+		out($_, 'mar_src', 1, \$fmt, \@args);
+		out($_, 'mem_wrt', 1, \$fmt, \@args);
+		out($_, 'ir_wrt', 1, \$fmt, \@args);
+		out($_, 'op_wrt', 1, \$fmt, \@args);
+		out($_, 'reg_src', 3, \$fmt, \@args);
+		out($_, 'reg_wrt', 1, \$fmt, \@args);
+		out($_, 'alu_b_src', 1, \$fmt, \@args);
+		out($_, 'reg_src2_src', 1, \$fmt, \@args);
+		out($_, 'alu_op', 4, \$fmt, \@args);
+		out($_, 'result_wrt', 1, \$fmt, \@args);
+		out($_, 'lo_wrt', 1, \$fmt, \@args);
+		out($_, 'hi_wrt', 1, \$fmt, \@args);
 
 
 		$fmt .= "\n\t";
@@ -344,6 +352,16 @@ for my $ins (sort { $microcode{$a}[0]->{op} <=> $microcode{$b}[0]->{op} } keys %
 exit;
 
 
+sub out {
+
+	my ($x, $k, $n, $fmt, $args) = @_;
+
+	if($x->{$k}) {
+		${$fmt} .= "$k %0${n}b ";
+		push @{$args}, $x->{$k};
+	}
+
+}
 
 
 
