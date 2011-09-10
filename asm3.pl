@@ -19,30 +19,51 @@ my $address = 0;
 
 my $grammar = q {
 
-	arg : /[a-z][a-z0-9]+/
+	number : /[0-9]+/
+		{
+			print "number: $item[1]\n";
+		}
+
+	reg : /at|zero|ra/
+		{
+			print "reg: $item[1]\n";
+		}
+
+	arg : reg | label | number 
+
+	arg0 : arg
+	arg1 : arg
+	arg2 : arg
 
 	opcode : /[a-z]+/
+		{
+			print "opcode: $item[1]\n";
+		}
 
-	instruction : opcode arg(s /,/)
-#		{
-#			print $item{opcode}."\n"; 
-#			print join(' ', @item{arg})."\n";
-#		}
+	instruction : opcode arg0 /,/ arg1 /,/ arg2 /\n/ 
+		{
+			print "ins: $item{opcode}, $item{arg0}, $item{arg1}, $item{arg2}\n";
+		}
+		| opcode arg0 /,/ arg1 /\n/ 
+		{
+			print "ins: $item{opcode}, $item{arg0}, $item{arg1}\n";
+		}
+		| opcode arg0 /\n/ 
+		{
+			print "ins: $item{opcode}, $item{arg0}\n";
+		}
+		| opcode /\n/
+		{
+			print "ins: $item{opcode}\n";
+		}
 
 	label : /[a-z][a-z0-9]+/ 
-#		{
-#			print "label: ".$item[1]."\n";
-#		}
+		{
+			print "label: $item[1]\n";
+		}
 
-	line : instruction 
-		{
-			print "ins: ".join(' ', @{$item[1]})."\n";
-		}
-		| label ':' instruction
-		{
-			print "label: ".$item[1]."\n";
-			print "ins: ".join(' ', @{$item[3]})."\n";
-		}
+	#line : label /:/ instruction | instruction
+	line : instruction
 
 	asm : line(s)
 
@@ -53,17 +74,16 @@ my $grammar = q {
 my $parser = new Parse::RecDescent($grammar) or die "Bad grammar!\n";
 
 my $text = <<END;
-
+	nop
+	nop
 	addi	at, zero, zero
-l0:	li	at, 23
+	li	at, 23
 	nop
 	jr	ra
-
-
 END
 
 
-my $result = $parser->asm($text);
+my $result = $parser->asm($text) or die "y u no parse?\n";
 
 print Dumper($result);
 
