@@ -293,7 +293,7 @@ my %microcode = (
 
 for my $ins (sort { $microcode{$a}[0]->{op} <=> $microcode{$b}[0]->{op} } keys %microcode) {
 
-	next if $ins eq 'fetch';
+	#next if $ins eq 'fetch';
 
 
 	my $addr_desc = $microcode{$ins}->[0];
