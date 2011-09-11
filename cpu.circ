@@ -3035,6 +3035,7 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
     <wire from="(610,2750)" to="(610,3020)"/>
     <wire from="(1650,2380)" to="(1750,2380)"/>
     <wire from="(5340,2510)" to="(6420,2510)"/>
+    <wire from="(4100,2300)" to="(6500,2300)"/>
     <wire from="(5340,2510)" to="(5340,2970)"/>
     <wire from="(1680,1670)" to="(1680,2370)"/>
     <wire from="(3730,820)" to="(3730,2910)"/>
@@ -3123,7 +3124,6 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
     <wire from="(1020,3340)" to="(3370,3340)"/>
     <wire from="(1130,720)" to="(1200,720)"/>
     <wire from="(2670,720)" to="(2670,1260)"/>
-    <wire from="(4100,2280)" to="(4100,2770)"/>
     <wire from="(3220,2370)" to="(3360,2370)"/>
     <wire from="(2180,720)" to="(2180,1470)"/>
     <wire from="(6450,2190)" to="(6500,2190)"/>
@@ -3239,6 +3239,7 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
     <wire from="(2590,2380)" to="(2730,2380)"/>
     <wire from="(3190,4150)" to="(3190,4300)"/>
     <wire from="(380,740)" to="(440,740)"/>
+    <wire from="(4180,2220)" to="(4180,2320)"/>
     <wire from="(5140,3540)" to="(6440,3540)"/>
     <wire from="(5180,2950)" to="(6430,2950)"/>
     <wire from="(2390,720)" to="(2390,1380)"/>
@@ -3362,6 +3363,7 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
     <wire from="(420,2890)" to="(3380,2890)"/>
     <wire from="(440,2210)" to="(460,2210)"/>
     <wire from="(780,720)" to="(850,720)"/>
+    <wire from="(4180,2320)" to="(4180,2790)"/>
     <wire from="(2960,1150)" to="(2970,1150)"/>
     <wire from="(3180,4330)" to="(3180,4340)"/>
     <wire from="(3170,1060)" to="(3180,1060)"/>
@@ -3407,6 +3409,7 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
     <wire from="(5660,3010)" to="(6430,3010)"/>
     <wire from="(1140,1930)" to="(1140,2700)"/>
     <wire from="(550,3180)" to="(1240,3180)"/>
+    <wire from="(4100,2280)" to="(4100,2300)"/>
     <wire from="(5260,1410)" to="(5260,2500)"/>
     <wire from="(640,720)" to="(640,2130)"/>
     <wire from="(2530,720)" to="(2600,720)"/>
@@ -3444,7 +3447,6 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
     <wire from="(1000,1990)" to="(1010,1990)"/>
     <wire from="(3650,720)" to="(3720,720)"/>
     <wire from="(1490,1780)" to="(1500,1780)"/>
-    <wire from="(4180,2220)" to="(4180,2790)"/>
     <wire from="(660,3740)" to="(1020,3740)"/>
     <wire from="(610,2750)" to="(1840,2750)"/>
     <wire from="(1270,720)" to="(1340,720)"/>
@@ -3709,6 +3711,7 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
     <wire from="(510,3260)" to="(510,3650)"/>
     <wire from="(910,2380)" to="(1190,2380)"/>
     <wire from="(3080,1070)" to="(3110,1070)"/>
+    <wire from="(4100,2300)" to="(4100,2770)"/>
     <wire from="(720,2110)" to="(720,2660)"/>
     <wire from="(5820,2580)" to="(5820,3040)"/>
     <wire from="(450,2230)" to="(460,2230)"/>
@@ -3767,6 +3770,7 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
     <wire from="(3720,810)" to="(3740,810)"/>
     <wire from="(3300,720)" to="(3370,720)"/>
     <wire from="(6460,2930)" to="(6510,2930)"/>
+    <wire from="(4180,2320)" to="(6500,2320)"/>
     <wire from="(450,2230)" to="(450,2350)"/>
     <wire from="(2800,2370)" to="(2940,2370)"/>
     <wire from="(420,2700)" to="(470,2700)"/>
@@ -3901,6 +3905,12 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
       <a name="size" val="30"/>
       <a name="inputs" val="3"/>
       <a name="label" val="mul"/>
+    </comp>
+    <comp lib="0" loc="(6500,2320)" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="label" val="OP WRT"/>
+      <a name="labelloc" val="east"/>
     </comp>
     <comp lib="6" loc="(5280,2727)" name="Text">
       <a name="text" val="andi t4"/>
@@ -4088,6 +4098,12 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
     </comp>
     <comp lib="6" loc="(4210,2742)" name="Text">
       <a name="text" val="t3"/>
+    </comp>
+    <comp lib="0" loc="(6500,2300)" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="label" val="IR WRT"/>
+      <a name="labelloc" val="east"/>
     </comp>
     <comp lib="6" loc="(5560,2717)" name="Text">
       <a name="text" val="xor t5"/>
