@@ -299,16 +299,18 @@ for my $ins (sort { $microcode{$a}[0]->{op} <=> $microcode{$b}[0]->{op} } keys %
 	my $addr_desc = $microcode{$ins}->[0];
 	my $ins_desc = $microcode{$ins}->[1];
 
-	print sprintf("%5s %05b\n", $ins, $addr_desc->{op});
+	#print sprintf("%5s %05b\n", $ins, $addr_desc->{op});
+	
+	my $w = sprintf("%5s %05b", $ins, $addr_desc->{op});
 
-	my $fmt = "\t";
+	my $fmt = "";
 	my @args = (); 
 
 	my $t = $addr_desc->{t};
 
 	for(@{$ins_desc}) {
 
-		$fmt .= "t %04b ";
+		$fmt .= "$w t %04b ";
 		push @args, $t;
 
 		$t++;
@@ -333,17 +335,9 @@ for my $ins (sort { $microcode{$a}[0]->{op} <=> $microcode{$b}[0]->{op} } keys %
 		out($_, 'hi_wrt', 1, \$fmt, \@args);
 
 
-		$fmt .= "\n\t";
-
-		my $code = $_->{halt} << 23 | $_->{t_reset} << 22 | $_->{fetch} << 21 | $_->{pc_src} << 19 |
-				$_->{pc_wrt} << 17 | $_->{mar_src} << 16 | $_->{mem_wrt} << 15 | $_->{ir_wrt} << 14 |
-				$_->{op_wrt} << 13 | $_->{reg_src} << 10 | $_->{reg_wrt} << 9 | $_->{alu_b_src} << 8 |
-				$_->{reg_src2_src} << 7 | $_->{alu_op} << 3 | $_->{result_wrt} << 2 |
-				 $_->{lo_wrt} << 1 | $_->{hi_wrt};
+		$fmt .= "\n";
 
 	}
-
-	$fmt .= "\n\n";
 
 	print sprintf($fmt, @args);
 }
