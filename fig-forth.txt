@@ -1,0 +1,191 @@
+FIG-FORTH Internals
+
+By Jim Brooks  www.jimbrooks.org/forth/
+Foreword
+
+These are my notes from studying the source code of FIG-FORTH (specifically, 8086 FORTH for MSDOS) with the goal of understanding how a FORTH interpreter works internally. The directed-threaded code section is tangential as it wasn't originally implemented in FIG-FORTH.
+[Jim Brooks]
+FIG-FORTH Source Code
+
+FIG-FORTH is written in assembly language. Standard FIG-FORTH colon-words are actually embedded in the assembly source itself. This is one of the clever ways the FORTH interpreter was implemented. It is a brilliant solution to the chicken-and-egg problem because FORTH programming is done before the FORTH interpreter is even assembled! For example, the FIG-FORTH word QUIT is responsible for the familiar "ok" prompt. QUIT consists of FORTH words embedded in the assembly source using the assembly directive DW to reference FORTH colon-words. The line "DW ZERO, BLK, STORE" translates to FORTH as "0 BLK !". A beneficial consequence of embedding FORTH code this way, that defies convention, is that much of the FIG-FORTH assembly source is actually portable!
+
+ 
+        DM  84H,"QUIT"
+        DW  PAREN - 4
+QUIT:       DW  DOCOL
+        DW  ZERO,   BLK,    STORE
+        DW  LBRAC
+QUIT1:      DW  RPSTO,  CR, QUERY
+        DW  INTER
+        DW  STATE,  AT, ZEQU
+        DW  ZBRAN,  QUIT2-$-2
+        DW  PDOTQ
+        DB  2,"ok"
+QUIT2:  DW  BRAN,   QUIT1-$-2
+
+Starting the Virtual FORTH Processor
+
+When FORTH is started, it begins execution in the native machine-code of the host CPU. The FORTH registers {IP,SP,RP} are initialized during startup, in order to ready the virtual FORTH processor for executing FORTH words. The system words COLD, WARM, ABORT are then executed, which completes the initialization. ABORT then executes QUIT.
+Top-level of FORTH
+QUIT, ironically, is one of the first words to be executed once the virtual FORTH processor is ready. QUIT is the top-most word and the main loop of the FORTH interpreter. QUIT is responsible for clearing the return stack. QUIT accepts input from the input stream (keyboard/block), calls INTERPRET to parse the input stream, emits "OK" (if no error), then iterates.
+Interpreters
+
+FORTH has an "inner interpreter" and a "outer interpreter". The inner interpreter executes all kinds of defined FORTH words -- the inner interpreter is the engine. The outer interpreter is both an interpreter and a compiler: it parses the input stream, executes defined words (if interpreting), or adds new words to the dictionary (if compiling). Significant words that comprise the outer interpreter are: QUIT, INTERPRET, -FIND, WORD, ENCLOSE, and NUMBER.
+Outer Interpreter
+
+During the execution of COLD which starts a FIG-FORTH system, QUIT creates the command prompt. QUIT contains the words QUERY INTERPRET. QUERY accepts commands, and INTERPRET interprets or compiles them. QUIT emits the "OK" message after INTERPRET returns.
+
+The FORTH outer interpreter per se is a colon definition: the word INTERPRET. INTERPRET parses the next word from the input stream. If the interpreter is compiling (between ":" and ";"), the parsed word is compiled into the word currently being defined. Otherwise, the interpreter is interpreting, so it tries to execute the word. But if the parsed word does not exist in the dictionary, the interpreter will try to convert it into a number and push it onto the stack. If the word is not a number, then an undefined error message is shown. Finally, the interpreter checks that the stack is within bounds (the word ?STACK), then the interpreter iterates.
+
+Whether the interpreter is compiling or interpreting is determined by the variable STATE. COLON ":" actually does little work as virtually all of the compiling is done by the interpreter in the compiling state. COLON merely calls CREATE, which removes from the input stream the name of the word to be defined (which the interpreter would incorrectly process). Next it makes the interpreter enter the compiling state, ie, instead of executing the CFA of a looked-up word, the interpreter appends the CFA into the dictionary. Then when SEMICOLON ";" is encountered, the interpreter reverts to the interpret-state.
+Outer Interpreter Steps
+
+    QUIT executes.
+        Input source is set to the keyboard.
+        Enter intepret-mode.
+        Emit "OK".
+        Clear R-stack
+        Accept keyboard input until is pressed or buffer is filled.
+        Interpret keyboard input by executing INTERPRET.
+            If in interpret-mode then branch to step Emit OK.
+            If in compile-mode then branch to step Clear R-stack.
+    INTERPRET executes.
+        Error if S-stack is out-of-bounds.
+        Parse next word in input stream.
+        Lookup the word in the dictionary.
+            If found:
+                If compiling:
+                    Execute word if it is marked IMMEDIATE.
+                    Else add word to dictionary.
+                If interpreting:
+                    Execute the word if not NULL
+                    If word was NULL, then INTERPRET returns to QUIT.
+            If not found:
+                Try to convert the word into a double-cell number.
+                    Convert to a single-cell number if word is numeric but does not contain ".".
+                If the word is not numeric then error.
+
+Inner Interpreter
+
+Instruction Pointer (IP)
+
+The virtual FORTH processor has an Instruction Pointer (IP) which points to Code Field Addresses. IP is held in a register of the host processor. The FORTH IP points to the pending CFA, not to the current CFA which is being executed (see Execution of Colon-Words). This is the ESI/SI register on Intel x86 processors.
+Direct-Threaded Code (DTC)
+
+A method to improve the speed of a FORTH system is Direct-Threaded Code (DTC). Early FORTH systems and FIG-FORTH implemented Indirect-Threaded Code, in which Code Field Addresses held a pointer to machine code. DTC eliminates this indirection by placing machine code at Code Field Addresses. Implementing DTC on Intel x86 processors reduced NEXT to a LODS/JMP AX sequence.
+
+DTC can significantly improve performance, but DTC lacks the flexibility of ITC. ITC allows all defined words to be revectored to new definitions. A new definition can supplant an older definition. Or, a new definition become an extension as it can execute the older definition in addition to itself. Revectoring an old definition affects all words which include it in their definitions.
+
+Revectoring can be accomplished in DTC by defining words which are candidates for revectoring candidates using DEFER, or by placing a CFA in a variable and defining a word to execute that CFA.
+NEXT
+
+A machine code routine named NEXT is the part of the inner interpreter that executes the next FORTH word.
+
+The NEXT routine:
+
+    Fetch CFA held in the cell pointed to by the FORTH IP.
+    Increment the FORTH IP to the following cell.
+    Branch to the fetched CFA.
+
+Execution of Code Words
+
+Code words are directly executed by the host processor. The inner interpreter's NEXT routine, the words EXECUTE, BRANCH, EXIT, transfer the host processor's execution to a code word. Code words execute atomically -- they do not nest as do colon definitions. The code word completes itself by executing NEXT.
+Execution of Non-Code Words
+
+Non-code words are native instructions for the virtual FORTH processor. They are indirectly executed through machine-code of the host CPU.
+
+A non-code word is started from machine-code by calling a machine-code procedure. The procedure is specific to the function of the word. In DTC, the CFA of non code words contain a single machine-code instruction that calls (through the host CPU's CALL instruction, or equivalent) the procedure. The return address points to the PFA. The machine-code procedure never returns after the CALL instruction. Instead, the return address from the CALL is used as an input parameter to obtain the PFA. The procedure carries out an action appropiate to the word, and exits through NEXT.
+Execution of Colon-Words
+
+A colon-word begins at DOCOL (do colon-word), and ends at SEMIS (semicolon). DOCOL pushes the FORTH IP onto the R-stack. Note that when IP is pushed, it points to the next (pending) CFA, not the CFA which is to be executed. The words which define the currently executing word are executed, until SEMIS is reached. SEMIS will pop IP from the R-stack, and execution will begin at the CFA pointed to by IP.
+
+The CFAs that are executed in the current word can be that of other colon-words. These other colon-words likewise will execute DOCOL and SEMIS, and in during execution can execute still more colon-words, ad infin. This is why FORTH is called a threaded language. The R-stack is used to hold the return addresses for the nested colon definitions.
+
+Note that code works do almost all of the work. For example, colon definitions nest down to other colon definitions, and so on, until a code word is reached, which performs the actual work.
+
+ 
+DOCOL:    SUB     @RP, @N         ;push @IP onto R-stack
+          MOV     [@RP], @IP
+          POP     @IP             ;@IP = return addr from CALL DOCOL
+          @NEXT
+SEMIS:    MOV     @IP, [@RP]      ;pop @IP from R-stack
+          ADD     @RP, @N                 
+          @NEXT
+
+Execution of Variables
+
+Executing a variable or a constant sounds strange but a FORTH interpreter executes everything.
+
+The procedure DOVAR contains just NEXT, which deceptively creates the impression that variables do nothing. are executed in such a simple way that it seems that variables do nothing whatsoever. A word invokes a variable through NEXT.
+Execution of Constants
+
+Similar to a variable, put it uses the return address from the CALL DOCON to fetch to value of the constant.
+Execution of creations of <BUILDS DOES>
+
+Words whichs follow DOES> expect an address to be present on the stack. The kernel procedure DODOE is responsible for pushing this address. During the compilation of a creation of <BUILDS DOES>, <BUILDS first executes 0 CONSTANT. Later, DOES> overwrites the zero with address to the first word compiled after DOES> . This means the PFA of the creation holds the address which will be loaded into the FORTH IP which will execute the words after DOES>.
+
+DODOE first pushes IP to the R-stack, as done with colon definitions. DODOE then loads IP with CFA held in the PFA, and pushes the address -after- the PFA, i.e., the cell immediately after the PFA. This address points to the start of the data compiled by any compiling words specified after <BUILDS. DODOE then executes NEXT to execute the CFA held in the PFA.
+IMMEDIATE Words
+
+IMMEDIATE words are always executed, regardless if compiling or interpreting. INTERPRET issues -FIND, which returns the NFA length/word-type byte of the found word. STATE is then subtracted from this character. The word STATE will be 0 when executing, else C0 (hex) when interpreting. The smallest value for the NFA length/word-type will be C1 (hex), for IMMEDIATE one-letter words. Only if STATE is smaller, will the word get compiled, thus if it is marked IMMEDATE, it will always EXECUTE.
+Numeric Conversion
+
+Pictured Numeric Output
+
+See "Pictured Numeric Output"
+(NUMBER)
+
+(NUMBER) processes pure numerical text. (NUMBER) basically will convert an ASCII numerical character (0,1,..9,[A,B,..]) in the current number BASE into a double-word. The double-word is added to a double-word word accumulator. Every iteration the accumaltor is multiplied by BASE. The conversion process starts with the most significant digit, to the least significant digit.
+
+(NUMBER) will begin incrementing DPL (Decimal Point Locator) whenever DPL is non zero. This is part of the interaction between (NUMBER) and NUMBER. NUMER will reset DPL to 0 after (NUMBER) finds a period. The end result is that DPL is set to the count of characters after the last period.
+
+(NUMBER) stops whenever a non numerical character is encountered (DIGIT will return 0). Typically, either space, null, or a period will be encountered. (NUMBER) sets DPL when a period is encountered.
+NUMBER
+
+NUMBER expects the input address to point to numerical text delimited by either a space or a null. DPL is set equal the amount of chars after the last decimal point. (See (NUMBER) above). If there was no decimal point, NUMBER will set DPL to -1, which signifies a single-length value.
+
+Examples:
+
+ 
+123.45          DPL = 2
+1.2345          DPL = 4
+123.45.67       DPL = 2
+12.456.7890     DPL = 4
+12345.          DPL = 0 (there are no chars after the decimal point)
+
+Quirk: NUMBER will convert a blank to a double-length 0 !
+ENCLOSE
+
+ENCLOSE encloses a word in a stream of text. ENCLOSE is the text processing engine of FORTH's interpreter/compiler. ENCLOSE is the primitive of WORD. An address and delimiter is input to ENCLOSE, typically IN and 32 (32=ASCII space).
+
+ENCLOSE begins by scanning through the text starting at input address for the first non delimiter character. This marks the start of the word to be enclosed. Next, ENCLOSE scans to the trailing delimiter, which conversely marks the end of the word.
+
+ENCLOSE is designed as an iteration primitve, since it automatically returns the next address after the enclosed word. The contents of IN holds the address, either into the TIB (Terminal Input Buffer) or memory of LOAD file. (LOAD file is not part of standard FIG-FORTH).
+
+ENCLOSE does have an inherent quirk. T his quirk causes " " to fail (dquote, space, dquote). The quirk is that when the word " (dqoute) is interpreted and then executed, ENCLOSE will cause IN to be moved to the second " (dquote). But, ENCLOSE will incorrectly first scan to the first non delimiter, which causes ENCLOSE to go beyond the second ". This quirk may exist in other FORTH implementations.
+Vocabularies
+
+CURRENT, CONTEXT
+
+Optionally, FORTH words can be combined into separate vocabularies, in order to segregate words when searching, or when defining. Vocabularies are defined using the FORTH word VOCABULARY, which is construct of <BUILDS DOES>. Vocabulary words are linked only with other vocabulary words. The LFA of the lastest vocabulary holds the NFA of the previous vocabulary, and so on until the FORTH vocabulary, which has a null in its LFA to mark the end of the vocabulary linked list. Non-vocabulary words are not linked with vocabulary words; vocabularies have their own search order. This how vocabularies are able to segregate words.
+
+The default search and defining order is of the "FORTH" vocabulary. Note that the kernel word "FORTH" is a vocabulary word. When a new vocabulary is defined using VOCABULARY, the search and defining order is not immediately changed. But when new vocabulary word is executed, it causes further searches of the dictionary to begin in its vocabulary. If target of the search was not found in the new vocabulary, then another search is begun from the FORTH vocabulary. Lastly, if the search target was not found in the FORTH vocabulary, then the list of vocabulary words is searched, in case the search target is a vocabulary word.
+
+To define definitions into a vocabulary, the word DEFINITIONS is used. DEFINITIONS makes the defining vocabulary equal to the search vocabulary. Typically, a vocabulary word is used in conjunction with DEFINITIONS; for example: FORTH DEFINITIONS.
+
+There are three global variables which support vocabularies:
+
+    CONTEXT:
+
+    CONTEXT addresses a cell which holds the NFA from where a dictionary search begins. The term "CONTEXT" vocabulary is the first vocabulary to be searched. Specifically, CONTEXT points into a vocabulary header; the vocabulary header holds the NFA of the vocabulary's LATEST definition.
+    CURRENT:
+
+    CURRENT addresses a cell which is updated to hold the NFA a new word, addressed in a manner similar to CONTEXT. The term "CURRENT vocabulary" is the vocabulary in which new words are added. The word CREATE is responsible for updating CURRENT.
+    VOC-LINK:
+
+    VOC-LINK holds the NFA of the latest vocabulary. It is used to set the LFA of a new vocabulary word, and is updated whenever a new vocabulary is defined. 
+
+CONTEXT and CURRENT can address the same vocabulary header, and usually, and by default, indeed do. CONTEXT supports having up to two seach orders, with the vocabulary referenced by CONTEXT given precedence over the default FORTH vocabulary. If CONTEXT references the FORTH vocabulary, in effect there is only the default search order. CURRENT supports selectively adding to any vocabulary, even retroactively. For example, if the CURRENT vocabulary happens to be NEW-VOCAB, the FORTH vocabulary can specified as the defining vocabulary via: FORTH DEFINITIONS. New words will be added to the kernel's FORTH vocabulary; in so doing they do not become a part of NEW-VOCAB.
+
+Vocabularies should be named uniquely, if not older vocabulary words in effect will be lost! The responsibility is delegated to the FORTH programmer!
+index   home
