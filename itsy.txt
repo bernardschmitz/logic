@@ -1,0 +1,48 @@
+                 \ Just for reference:
+variable state   \ compilation/interpretation state
+variable dp      \ first free cell of memory after dictionary
+variable last    \ address of previous word defined
+variable >in     \ current position in input stream
+variable #tib    \ number of characters in the input buffer
+? constant tib   \ start of input buffer
+
+: read? (     -- f   )  #tib @ >in @ = ;                                  \ do we need to read more chars?
+: read! (     --     )  tib 50 accept #tib ! 0 >in !;                     \ read more chars
+: word> (     -- a t )  read? if read! then 32 word find ;                \ read a word and check the dictionary
+: call  ( a t --     )  state @ = if , else execute then ;                \ compile a call or execute an immediate
+: nope  (     --     )  state @ if last @ dup @ last ! dp ! then abort ;  \ discard current definition and abort
+: val!  (   v -- ?v  )  state @ if ['] lit , , then ;                     \ if we're compiling, compile a literal
+: val?  ( 0 t --     )  dup rot count >number if nope then 2drop val ;    \ try to parse the word as a number
+: interpret             begin word> dup if call else val? then again ;    \ interpret commands
+
+
+: interpret
+begin
+    #tib @ >in @ =
+    if
+        tib 50 accept #tib ! 0 >in !
+    then
+    32 word find dup
+    if
+        state @ =
+        if
+            ,
+        else
+            execute
+        then
+    else
+        dup rot count >number
+        if
+            state @
+            if
+                last @ dup @ last ! dp !
+            then
+            abort
+        then
+        drop drop state @
+        if
+            ['] lit , ,
+        then
+    then
+again
+;
