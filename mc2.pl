@@ -1,7 +1,7 @@
 
 use strict;
 
-my $op_t = 4;
+my $op_t = 2;
 
 my $reg_src2_src_rt = 0;
 my $reg_src2_src_rd = 1;
@@ -76,14 +76,22 @@ my $ins_halt = 30;
 
 my %microcode = (
 
+#	fetch => [
+#		{ fetch => 1, op => 0, t => 0 }, [
+#			{ fetch => 1, mar_src => $mar_src_pc, ir_wrt => 1 },
+#			{ fetch => 1, pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 },
+#			{ fetch => 1, mar_src => $mar_src_pc, op_wrt => 1 },
+#			{ fetch => 0, pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 },
+#		]
+#	],
+
 	fetch => [
 		{ fetch => 1, op => 0, t => 0 }, [
-			{ fetch => 1, mar_src => $mar_src_pc, ir_wrt => 1 },
-			{ fetch => 1, pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 },
-			{ fetch => 1, mar_src => $mar_src_pc, op_wrt => 1 },
-			{ fetch => 0, pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 },
+			{ fetch => 1, mar_src => $mar_src_pc, ir_wrt => 1, pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 },
+			{ fetch => 0, mar_src => $mar_src_pc, op_wrt => 1, pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 },
 		]
 	],
+
 
 	add => [
 		{ fetch => 0, op => $ins_add, t => $op_t }, [ 
@@ -339,11 +347,11 @@ for my $ins (sort { $microcode{$a}[0]->{op} <=> $microcode{$b}[0]->{op} } keys %
 
 	}
 
-	print sprintf($fmt, @args);
+	print STDERR sprintf($fmt, @args);
 }
 
 
-exit;
+#exit;
 
 
 sub out {
