@@ -54,7 +54,7 @@ my $rt = 0;
 init();
 
 
-while(1) {
+while($pc >= 0 && $pc <= 0xffff) {
 
 	$ir = read_mem($pc);
 	$pc++;
@@ -69,7 +69,6 @@ while(1) {
 	$rs = $ir & 0xf;
 	$rt = ($op >> 12) & 0xf;
 
-
 	printf STDERR "%04x %08x %02x %01x %01x %01x %04x\n", $pc, $clock, $ins, $rd, $rs, $rt, $op;
 
 	if(!defined $instruction{$ins}) {
@@ -81,11 +80,19 @@ while(1) {
 	$reg[0] = 0;
 
 	for(@reg) {
+		$_ &= 0xffff;
+	}
+
+	for(@reg) {
 		printf STDERR "%04x ", $_;
 	}
 	print STDERR  "\n";
 
 }
+
+printf STDERR "%04x\n", $pc;
+
+
 
 sub read_mem($) {
 
@@ -125,16 +132,174 @@ sub init() {
 		$clock += 2;
 	};
 
+	$instruction{0x02} = sub() {
+		print STDERR "sub\n";	
+		$reg[$rd] = $reg[$rs] - $reg[$rt];
+		$clock += 2;
+	};
+
+	$instruction{0x03} = sub() {
+		print STDERR "mul\n";	
+		$result = $reg[$rs] * $reg[$rt];
+		$hi = ($result >> 16) & 0xffff;
+		$lo = $result & 0xffff;
+		$clock++;
+	};
+
+	$instruction{0x04} = sub() {
+		print STDERR "div\n";	
+
+		if($reg[$rt] == 0) {
+			$hi = 0;
+			$lo = 0;
+		}
+		else {
+			$hi = int($reg[$rs] / $reg[$rt]) & 0xffff;
+			$lo = int($reg[$rs] % $reg[$rt]) & 0xffff;
+		}
+		$clock++;
+	};
+
+	$instruction{0x05} = sub() {
+		print STDERR "sll\n";
+		$reg[$rd] = $reg[$rs] << ($op & 0xf);	
+		$clock += 2;	
+	};
+
+	$instruction{0x06} = sub() {
+		print STDERR "srl\n";
+		$reg[$rd] = $reg[$rs] >> ($op & 0xf);	
+		$clock += 2;	
+	};
+
+	$instruction{0x07} = sub() {
+		print STDERR "sra\n";
+		$reg[$rd] = $reg[$rs] >> ($op & 0xf);	
+		my $mask = 0xffff >> ($op & 0xf);
+		$reg[$rd] &= $mask;
+		$clock += 2;	
+	};
+
+	$instruction{0x08} = sub() {
+		print STDERR "sllv\n";	
+		$reg[$rd] = $reg[$rs] << ($reg[$rt] & 0xf);
+		$clock += 2;
+	};
+
+	$instruction{0x09} = sub() {
+		print STDERR "srlv\n";	
+		$reg[$rd] = $reg[$rs] >> ($reg[$rt] & 0xf);
+		$clock += 2;
+	};
+
+	$instruction{0x0a} = sub() {
+		print STDERR "srav\n";
+		$reg[$rd] = $reg[$rs] >> ($reg[$rt] & 0xf);	
+		my $mask = 0xffff >> ($op & 0xf);
+		$reg[$rd] &= $mask;
+		$clock += 2;	
+	};
+
+	$instruction{0x0b} = sub() {
+		print STDERR "beq\n";	
+		if($reg[$rs] == $reg[$rd]) {
+			$pc += $op << 1;
+		}
+		$clock += 2;
+	};
+
+	$instruction{0x0c} = sub() {
+		print STDERR "bne\n";	
+		if($reg[$rs] != $reg[$rd]) {
+			$pc += $op << 1;
+		}
+		$clock += 2;
+	};
+
+	$instruction{0x0d} = sub() {
+		print STDERR "slt\n";	
+		if($reg[$rs] < $reg[$rt]) {
+			$reg[$rd] = 1;
+		}
+		else {
+			$reg[$rd] = 0;
+		}
+		$clock += 2;
+	};
+
+	$instruction{0x0e} = sub() {
+		print STDERR "slti\n";	
+		if($reg[$rs] < $op) {
+			$reg[$rd] = 1;
+		}
+		else {
+			$reg[$rd] = 0;
+		}
+		$clock += 2;
+	};
+
+
+	$instruction{0x0f} = sub() {
+		print STDERR "and\n";	
+		$reg[$rd] = $reg[$rs] & $reg[$rt];
+		$clock += 2;
+	};
+
 	$instruction{0x10} = sub() {
 		print STDERR "andi\n";	
 		$reg[$rd] = $reg[$rs] & $op;
 		$clock += 2;
 	};
 
+	$instruction{0x11} = sub() {
+		print STDERR "or\n";	
+		$reg[$rd] = $reg[$rs] | $reg[$rt];
+		$clock += 2;
+	};
+
+	$instruction{0x12} = sub() {
+		print STDERR "ori\n";	
+		$reg[$rd] = $reg[$rs] | $op;
+		$clock += 2;
+	};
+
+	$instruction{0x13} = sub() {
+		print STDERR "xor\n";	
+		$reg[$rd] = $reg[$rs] ^ $reg[$rt];
+		$clock += 2;
+	};
+
+	$instruction{0x14} = sub() {
+		print STDERR "nor\n";	
+		$reg[$rd] = ~($reg[$rs] | $reg[$rt]);
+		$clock += 2;
+	};
+
+
 	$instruction{0x15} = sub() {
 		print STDERR "j\n";	
 		$pc = $op;
 		$clock++;
+	};
+
+	$instruction{0x16} = sub() {
+		print STDERR "jr\n";	
+		$pc = $reg[$rs];
+		$clock++;
+	};
+
+	$instruction{0x17} = sub() {
+		print STDERR "jal\n";	
+		$reg[$rd] = $pc;
+		$pc = $op;
+		$clock += 2;
+	};
+
+	$instruction{0x18} = sub() {
+		print STDERR "jalr\n";	
+		$reg[$rd] = $pc;
+		$pc = $reg[$rs];
+		$clock += 2;
 	};
 
 	$instruction{0x19} = sub() {
@@ -148,7 +313,24 @@ sub init() {
 		write_mem($reg[$rs]+$op, $reg[$rd]);
 		$clock += 2;
 	};
-
+ 
+	$instruction{0x1b} = sub() {
+		print STDERR "mfhi\n";	
+		$reg[$rd] = $hi;
+		$clock++;
+	};
+ 
+	$instruction{0x1c} = sub() {
+		print STDERR "mflo\n";	
+		$reg[$rd] = $lo;
+		$clock++;
+	};
+ 
+	$instruction{0x1f} = sub() {
+		print STDERR "halt\n";	
+		exit(0);
+	};
+ 
 
 }
 
