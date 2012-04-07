@@ -51,18 +51,23 @@ my $rd = 0;
 my $rs = 0;
 my $rt = 0;
 
+my %read_memory = ();
+my %written_memory = ();
+
 init();
 
+my $halt = 0;
 
-while($pc >= 0 && $pc <= 0xffff) {
+
+while(!$halt) {
 
 	$ir = read_mem($pc);
 	$pc++;
-	$clock++;
+	$clock += 2;
 
 	$op = read_mem($pc);
 	$pc++;
-	$clock++;
+	$clock += 2;
 
 	$ins = ($ir >> 8) & 0x1f;
 	$rd = ($ir >> 4) & 0xf;
@@ -88,9 +93,28 @@ while($pc >= 0 && $pc <= 0xffff) {
 	}
 	print STDERR  "\n";
 
+
+	$pc &= 0xffff;
+	printf STDERR "%04x\n", $pc;
+
 }
 
-printf STDERR "%04x\n", $pc;
+
+print STDERR "\nread mem\n";
+
+for(sort { $a <=> $b } keys %read_memory) {
+	printf STDERR "%04x %08x %04x\n", $_, $read_memory{$_}, $mem[$_];
+}
+
+print "\n";
+
+print STDERR "\nwrite mem\n";
+for(sort { $a <=> $b } keys %written_memory) {
+	printf STDERR "%04x %08x %04x\n", $_, $written_memory{$_}, $mem[$_];
+}
+
+print "\n";
+
 
 
 
@@ -98,8 +122,17 @@ sub read_mem($) {
 
 	my $addr = shift;
 
+	$addr &= 0xffff;
+	$read_memory{$addr}++;	
+
 	if($addr == $random) {
 		return int(rand(0x10000));
+	}
+	elsif($addr == $timer_lo) {
+		return $clock & 0xffff;
+	}
+	elsif($addr == $timer_hi) {
+		return ($clock >> 16) & 0xffff;
 	}
 
 	return $mem[$addr];
@@ -108,6 +141,9 @@ sub read_mem($) {
 sub write_mem($ $) {
 
 	my ($addr, $x) = @_;
+
+	$addr &= 0xffff;
+	$written_memory{$addr}++;	
 
 	if($addr == $char_out) {
 		print chr($x & 0x7f);
@@ -203,15 +239,17 @@ sub init() {
 	$instruction{0x0b} = sub() {
 		print STDERR "beq\n";	
 		if($reg[$rs] == $reg[$rd]) {
-			$pc += $op << 1;
+			$pc += ($op << 1);
 		}
 		$clock += 2;
+
+
 	};
 
 	$instruction{0x0c} = sub() {
 		print STDERR "bne\n";	
 		if($reg[$rs] != $reg[$rd]) {
-			$pc += $op << 1;
+			$pc += ($op << 1);
 		}
 		$clock += 2;
 	};
@@ -328,7 +366,7 @@ sub init() {
  
 	$instruction{0x1f} = sub() {
 		print STDERR "halt\n";	
-		exit(0);
+		$halt = 1;
 	};
  
 
