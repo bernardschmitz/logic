@@ -22,20 +22,20 @@ l(out):	nop
 	')
 
 
-	clr
-	li	sp, stack
-	li	t0, message
-	cout(t0)
+#	clr
+#	li	sp, stack
+#	li	t0, message
+#	cout(t0)
 
-	clear	a0
-#	li	a0, 0cafe
+#	clear	a0
+	li	a0, 0cafe
 forever:
 	jal	number
 	#li	at, 0a
-	li	at, 020
-	sw	at, zero, charout
-	inc	a0
-	j	forever
+#	li	at, 020
+#	sw	at, zero, charout
+#	inc	a0
+#	j	forever
 
 	halt
 
@@ -73,4 +73,5 @@ again:
 	dw	0,0,0,0,0,0,0,0
 buf:	dw	0
 
+	dw	0cafe, 0babe
 

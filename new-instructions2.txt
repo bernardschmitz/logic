@@ -238,9 +238,9 @@ execute:
 
 	OP -> PC
 
-0010110	jr	s	X
+0010110	jr	t	X
 
-	Rs -> PC
+	Rt -> PC
 
 0010111	jal	d, C	Y
 
@@ -250,7 +250,7 @@ execute:
 0011000	jalr	d, s	X
 
 	PC -> Rd
-	Rs -> PC
+	Rt -> PC
 
 0011001	lw	d, s, C	Y	d <- [s+C]
 

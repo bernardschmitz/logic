@@ -74,7 +74,7 @@ while(!$halt) {
 	$rs = $ir & 0xf;
 	$rt = ($op >> 12) & 0xf;
 
-	printf STDERR "%04x %08x %02x %01x %01x %01x %04x\n", $pc, $clock, $ins, $rd, $rs, $rt, $op;
+	printf STDERR "%04x %02x %01x %01x %01x %04x %08x\n", $pc-2, $ins, $rd, $rs, $rt, $op, $clock;
 
 	if(!defined $instruction{$ins}) {
 		die "invalid instruction";
@@ -92,7 +92,6 @@ while(!$halt) {
 		printf STDERR "%04x ", $_;
 	}
 	print STDERR  "\n";
-
 
 	$pc &= 0xffff;
 	printf STDERR "%04x\n", $pc;
@@ -190,8 +189,8 @@ sub init() {
 			$lo = 0;
 		}
 		else {
-			$hi = int($reg[$rs] / $reg[$rt]) & 0xffff;
-			$lo = int($reg[$rs] % $reg[$rt]) & 0xffff;
+			$lo = int($reg[$rs] / $reg[$rt]) & 0xffff;
+			$hi = int($reg[$rs] % $reg[$rt]) & 0xffff;
 		}
 		$clock++;
 	};
@@ -322,7 +321,7 @@ sub init() {
 
 	$instruction{0x16} = sub() {
 		print STDERR "jr\n";	
-		$pc = $reg[$rs];
+		$pc = $reg[$rt];
 		$clock++;
 	};
 
@@ -336,7 +335,7 @@ sub init() {
 	$instruction{0x18} = sub() {
 		print STDERR "jalr\n";	
 		$reg[$rd] = $pc;
-		$pc = $reg[$rs];
+		$pc = $reg[$rt];
 		$clock += 2;
 	};
 
