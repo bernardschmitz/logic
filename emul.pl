@@ -186,7 +186,7 @@ sub init() {
 
 		if($reg[$rt] == 0) {
 			$hi = 0;
-			$lo = 0;
+			$lo = $reg[$rs];
 		}
 		else {
 			$lo = int($reg[$rs] / $reg[$rt]) & 0xffff;
