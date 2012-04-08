@@ -1,6 +1,8 @@
 
 use strict;
 
+use Term::ReadKey;
+
 my @mem = ();
 
 my @bin = <>;
@@ -54,6 +56,8 @@ my $rt = 0;
 my %read_memory = ();
 my %written_memory = ();
 
+my $keyboard_buf = '';
+
 init();
 
 my $halt = 0;
@@ -96,6 +100,15 @@ while(!$halt) {
 	$pc &= 0xffff;
 	printf STDERR "%04x\n", $pc;
 
+
+#	ReadMode('cbreak');
+#	my $char = ReadKey(-1);
+#	ReadMode('normal');
+
+#	if($char != undef) {
+#		$keyboard_buf .= $char;
+#	}
+
 }
 
 
@@ -133,6 +146,28 @@ sub read_mem($) {
 	elsif($addr == $timer_hi) {
 		return ($clock >> 16) & 0xffff;
 	}
+#	elsif($addr == $char_in) {
+
+#		if($keyboard_buf eq '') {
+#			ReadMode('cbreak');
+#			my $char = ReadKey(0);
+#			ReadMode('normal');
+#			return $char;
+#		}
+
+#		my $ch = substr($keyboard_buf, 0, 1);
+#		substr($keyboard_buf, 0, 1) = '';
+
+#		return $ch;
+#	}
+#	elsif($addr == $char_ready) {
+
+#		if($keyboard_buf eq '') {
+#			return 0;
+#		}
+
+#		return 1;
+#	}
 
 	return $mem[$addr];
 }
@@ -146,6 +181,16 @@ sub write_mem($ $) {
 
 	if($addr == $char_out) {
 		print chr($x & 0x7f);
+		return;
+	}
+	elsif($addr == $buffer_clear) {
+		$keyboard_buf = '';
+		return;
+	}
+	elsif($addr == $screen_clear) {
+		for(0..20) {
+			print "\n";
+		}
 		return;
 	}
 
