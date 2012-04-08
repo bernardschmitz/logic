@@ -2,18 +2,31 @@
 use strict;
 
 use Term::ReadKey;
+use Time::HiRes qw(usleep);
 
 my @mem = ();
 
-my @bin = <>;
+
+print "$ARGV[0]\n";
+
+open IN, "<$ARGV[0]" or die "$!";
+
+my @bin = <IN>;
+
+close IN;
 
 shift @bin;
 
 for(@bin) {
 	chomp;
 	push @mem, hex $_;
-
 }
+
+for(0..1024) {
+	push @mem, 0x1f00;
+	push @mem, 0x0000;
+}
+
 
 
 #for(@mem) {
@@ -101,14 +114,17 @@ while(!$halt) {
 	printf STDERR "%04x\n", $pc;
 
 
-#	ReadMode('cbreak');
-#	my $char = ReadKey(-1);
-#	ReadMode('normal');
+	ReadMode 3;
+	my $char = ReadKey(-1);
+	ReadMode 0;
 
-#	if($char != undef) {
-#		$keyboard_buf .= $char;
-#	}
+	if(defined $char) {
+		$keyboard_buf .= $char;
+#print "kb: $keyboard_buf\n";
+	}
 
+
+#	usleep(200);
 }
 
 
@@ -146,28 +162,32 @@ sub read_mem($) {
 	elsif($addr == $timer_hi) {
 		return ($clock >> 16) & 0xffff;
 	}
-#	elsif($addr == $char_in) {
+	elsif($addr == $char_in) {
 
-#		if($keyboard_buf eq '') {
-#			ReadMode('cbreak');
-#			my $char = ReadKey(0);
-#			ReadMode('normal');
-#			return $char;
-#		}
+#print "char in\n";
 
-#		my $ch = substr($keyboard_buf, 0, 1);
-#		substr($keyboard_buf, 0, 1) = '';
+		if($keyboard_buf eq '') {
+			ReadMode 3;
+			my $char = ReadKey(-1);
+			ReadMode 0;
+			return $char;
+		}
 
-#		return $ch;
-#	}
-#	elsif($addr == $char_ready) {
+		my $ch = substr($keyboard_buf, 0, 1);
+	 	$keyboard_buf = substr($keyboard_buf, 1);
+#print "ch: $ch\n";
+		return ord $ch;
+	}
+	elsif($addr == $char_ready) {
 
-#		if($keyboard_buf eq '') {
-#			return 0;
-#		}
+#print "char rdy\n";
 
-#		return 1;
-#	}
+		if($keyboard_buf eq '') {
+			return 0;
+		}
+
+		return 1;
+	}
 
 	return $mem[$addr];
 }
@@ -180,6 +200,7 @@ sub write_mem($ $) {
 	$written_memory{$addr}++;	
 
 	if($addr == $char_out) {
+#print "char: $x\n";
 		print chr($x & 0x7f);
 		return;
 	}
