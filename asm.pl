@@ -272,7 +272,7 @@ sub assemble {
 						output_word(ord $c);
 					}
 				}
-				elsif(m/^[a-z][a-z0-9]*$/i) {
+				elsif(m/^[a-z_][a-z_0-9]*$/i) {
 					my $val = lookup_symbol($_);
 					output_word($val);
 				}
@@ -566,7 +566,7 @@ sub get_constant {
 
 	my $_ = shift;
 
-	if(m/^[a-z][a-z0-9]*$/i) {
+	if(m/^[a-z_][a-z_0-9]*$/i) {
 		return lookup_symbol($_);
 	}
 	elsif(m/^-[0-9a-f]+$/i) {
@@ -592,7 +592,7 @@ sub parse {
 
 #	print "[$_]\n";
 
-	if(m/^([a-z][a-z0-9]*):/i) {
+	if(m/^([a-z_][a-z_0-9]*):/i) {
 		$sym = $1;
 		s/^\s*$sym://i;
 #		print "sym $sym [$_]\n";
