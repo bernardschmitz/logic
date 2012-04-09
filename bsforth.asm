@@ -28,31 +28,31 @@ f_hidden:	equ	00001
 ; dsp r14
 
 	define(NEXT, {
-	lw	r11, r10, 0
-	inc	r10
-	lw	r12, r11, 0
-	jr	r12
+	 lw	r11, r10, 0
+	 inc	r10
+	 lw	r12, r11, 0
+	 jr	r12
 	})dnl
 
 
 	define(PUSHRSP, {
-	dec	r13
-	sw	$1, r13, 0	
+	 dec	r13
+	 sw	$1, r13, 0	
 	})dnl
 
 	define(POPRSP, {
-	lw	$1, r13, 0	
-	inc	r13
+	 lw	$1, r13, 0	
+	 inc	r13
 	})dnl
 
 	define(PUSHDSP, {
-	dec	r14
-	sw	$1, r14, 0	
+	 dec	r14
+	 sw	$1, r14, 0	
 	})dnl
 
 	define(POPDSP, {
-	lw	$1, r14, 0	
-	inc	r14
+	 lw	$1, r14, 0	
+	 inc	r14
 	})dnl
 
 	j	start
@@ -65,51 +65,38 @@ DOCOL:
 	NEXT
 
 
-
 start:
 	halt
 
 
 
 	define(DEFWORD, {
-
 	align
 name_$3:
 	dw	LINK
 	define({LINK}, name_$3)dnl
-
 	dw	$2
-
 	dw	len($1)
 	dw"$1"
-
 	align
 $3:
 	dw	DOCOL
-
-	
 	})dnl
 
 
 	define(DEFCODE, {
-
 	align
 name_$3:
 	dw	LINK
 	define({LINK}, name_$3)dnl
-
 	dw	$2
-
 	dw	len($1)
 	dw"$1"
-
 	align
 $3:
 	dw	code_$3
-
 	align
 code_$3:
-
 	})dnl
 
 
