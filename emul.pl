@@ -120,11 +120,11 @@ while(!$halt) {
 
 	if(defined $char) {
 		$keyboard_buf .= $char;
-#print "kb: $keyboard_buf\n";
+#print "\nkb: $keyboard_buf\n";
 	}
 
 
-#	usleep(200);
+	usleep(100);
 }
 
 
