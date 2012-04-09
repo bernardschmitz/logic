@@ -407,12 +407,14 @@ sub init() {
 
 	$instruction{0x19} = sub() {
 		print STDERR "lw\n";	
+		printf STDERR "%04x %04x\n", $reg[$rs]+$op, read_mem($reg[$rs]+$op);
 		$reg[$rd] = read_mem($reg[$rs]+$op);
 		$clock += 2;
 	};
 
 	$instruction{0x1a} = sub() {
 		print STDERR "sw\n";	
+		printf STDERR "%04x %04x %04x\n", $reg[$rs]+$op, read_mem($reg[$rs]+$op), $reg[$rd];
 		write_mem($reg[$rs]+$op, $reg[$rd]);
 		$clock += 2;
 	};
