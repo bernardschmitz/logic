@@ -15,6 +15,7 @@ f_hidden:	equ	00001
 
 data_stack:	equ	08000
 return_stack:	equ	09000
+buffer:		equ	0a000
 
         define(id, 0)dnl
         define(l, {$1{}id})dnl
@@ -32,7 +33,6 @@ return_stack:	equ	09000
 	define(NEXT, {
 	 lw	r11, r10, 0
 	 inc	r10
-;	 jr	r11
 	 lw	r12, r11, 0
 	 jr	r12
 	})dnl
@@ -104,19 +104,28 @@ start:
 
 	li	r13, return_stack
 	li	r14, data_stack
-
-	li	r1, 0babe
-	PUSHDSP(r1)
+	sw	r14, zero, var_s0
 
 	li	r10, yeah
 	NEXT
 	halt
 
-yeah:	dw	TEST, HALT
+yeah:	dw	TEST4, HALT
 ;yeah:	dw	TWODUP, PLUS, TEST, HALT
 
 	DEFWORD(test, 0, TEST)
-	dw DUP, EXIT
+	dw LIT, 0cafe, LIT, 0babe, NOT_EQUALS, EXIT
+
+	DEFWORD(test2, 0, TEST2)
+	dw LIT, 0a, LIT, 01000, STORE, LIT, 01, LIT, 01000, PLUS_STORE, EXIT
+	
+	DEFWORD(test3, 0, TEST3)
+	dw STATE, FETCH, VERSION, BASE, FETCH, EXIT
+
+	DEFWORD(test4, 0, TEST4)
+	dw KEY, EMIT, EXIT
+
+
 
 	DEFCODE(halt, 0, HALT)
 	halt
@@ -253,23 +262,88 @@ l(EQUALS):
 	sw	r3, r14, 0
 	NEXT
 
-;	DEFCODE(<>, 0, NOT_EQUALS)
-;	lw	r1, r14, 0
-;	lw	r2, r14, 1
-;	clear	r3
-;	beq	r1, r2, l(NOT_EQUALS)	
-;	not	r3
-;l(NOT_EQUALS):
-;	inc	r14
-;	sw	r3, r14, 0
-;	NEXT
-
+	DEFWORD(<>, 0, NOT_EQUALS)
+	dw EQUALS, INVERT, EXIT
 
 	DEFCODE(exit, 0, EXIT)
 	POPRSP(r10)
 	NEXT
 
+	DEFCODE(lit, 0, LIT)
+	lw	r1, r10, 0
+	inc	r10
+	PUSHDSP(r1)	
+	NEXT
 
-	DEFWORD(<>, 0, NOT_EQUALS)
-	dw EQUALS, INVERT, EXIT
+	DEFCODE(!, 0, STORE)
+	lw	r1, r14, 0
+	lw	r2, r14, 1
+	addi	r14, r14, 2
+	sw	r2, r1, 0
+	NEXT
 
+	DEFCODE(@, 0, FETCH)
+	lw	r1, r14, 0
+	lw	r2, r1, 0
+	sw	r2, r14, 0
+	NEXT
+
+	DEFWORD(+!, 0, PLUS_STORE)
+	dw	DUP, FETCH, ROT, PLUS, SWAP, STORE, EXIT
+
+
+	define(DEFVAR, {
+	DEFCODE($1, $2, $3)
+	li	r1, var_$1
+	PUSHDSP(r1)
+	NEXT
+var_$1:	dw	$4
+	})dnl
+
+
+	DEFVAR(state, 0, STATE, 0)
+	DEFVAR(here, 0, HERE, 0)
+	DEFVAR(latest, 0, LATEST, 0)
+	DEFVAR(s0, 0, SZ, 0)
+	DEFVAR(base, 0, BASE, 0a)
+
+
+	define(DEFCONST, {
+	DEFCODE($1, $2, $3)
+	li	r1, $4
+	PUSHDSP(r1)
+	NEXT
+	})dnl
+
+	DEFCONST(version, 0, VERSION, 1)
+	DEFCONST(r0, 0, RZ, return_stack)
+	DEFCONST(docol, 0, _DOCOL, DOCOL)
+	DEFCONST(bl, 0, BL, 020)
+
+	DEFCODE(>r, 0, TO_R)
+	POPDSP(r1)
+	PUSHRSP(r1)
+	NEXT
+
+	DEFCODE(r>, 0, FROM_R)
+	POPRSP(r1)
+	PUSHDSP(r1)
+	NEXT
+
+
+	DEFCODE(key, 0, KEY)
+	jal	_key
+	PUSHDSP(r1)
+	NEXT
+_key:
+	lw	r1, zero, charrdy
+	beq	r1, zero, _key
+	lw	r1, zero, charin
+	ret
+
+	DEFCODE(emit, 0, EMIT)
+	POPDSP(r1)
+	sw	r1, zero, charout
+	NEXT
+
+	
