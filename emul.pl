@@ -183,17 +183,19 @@ sub read_mem($ $) {
 		print "kb: $keyboard_buf\n";
 
 		if(length($keyboard_buf) == 0) {
-			print "char in\n";
-			ReadMode 3;
-			my $char = ReadKey(0);
-			ReadMode 0;
-			print "ch: $char\n";
-			return $char;
+			return 0;
+
+#			print "char in\n";
+#			ReadMode 3;
+#			my $char = ReadKey(0);
+#			ReadMode 0;
+#			print "ch: $char\n";
+#			return $char;
 		}
 
 		my $ch = substr($keyboard_buf, 0, 1);
 	 	$keyboard_buf = substr($keyboard_buf, 1);
-		print "ch: $ch\n";
+		print "ch: $ch ", ord $ch, "\n";
 		return ord $ch;
 	}
 	elsif($addr == $char_ready) {

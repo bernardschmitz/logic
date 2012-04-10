@@ -123,7 +123,7 @@ yeah:	dw	TEST4, HALT
 	dw STATE, FETCH, VERSION, BASE, FETCH, EXIT
 
 	DEFWORD(test4, 0, TEST4)
-	dw KEY, EMIT, EXIT
+	dw LIT, 01000, LIT, 0a, ACCEPT, EXIT
 
 
 
@@ -332,18 +332,46 @@ var_$1:	dw	$4
 
 
 	DEFCODE(key, 0, KEY)
-	jal	_key
+	jal	r15, _key
 	PUSHDSP(r1)
 	NEXT
 _key:
 	lw	r1, zero, charrdy
 	beq	r1, zero, _key
 	lw	r1, zero, charin
-	ret
+	jr	r15
+
+	DEFCODE(?key, 0, QUESTION_KEY)
+	lw	r1, zero, charrdy
+	PUSHDSP(r1)
+	NEXT
 
 	DEFCODE(emit, 0, EMIT)
 	POPDSP(r1)
 	sw	r1, zero, charout
 	NEXT
 
-	
+	DEFCODE(accept, 0, ACCEPT)
+	POPDSP(r1)
+	POPDSP(r2)
+	jal	r15, _accept
+	PUSHDSP(r1)
+	NEXT
+_accept:
+	move	r9, r15
+	move	r3, r1
+	clear	r4
+	li	r5, 0a	
+_accept0:
+	jal	r15, _key
+	beq	r1, r5, eol0
+
+	sw	r1, r2, 0
+	inc	r4
+	inc	r2
+	dec	r3
+	bne	r3, zero, _accept0
+eol0:
+	move	r1, r4
+	jr	r9
+

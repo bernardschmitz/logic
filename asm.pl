@@ -174,9 +174,9 @@ sub process_pseudo_instructions {
 	s/\bnop\b/add zero, zero, zero/gi;
 	s/\binc\s+([a-z0-9]+)/addi \1, \1, 1/gi;
 	s/\bdec\s+([a-z0-9]+)/addi \1, \1, -1/gi;
-	s/\bjal\s+([a-z_0-9]+)/jal ra, \1/gi;
-	s/\bret\b/jr ra/gi;
-	s/\bjalr\s+([a-z_0-9]+)/jalr ra, \1/gi;
+#	s/\bjal\s+([a-z_0-9]+)/jal ra, \1/gi;
+#	s/\bret\b/jr ra/gi;
+#	s/\bjalr\s+([a-z_0-9]+)/jalr ra, \1/gi;
 	s/\bclear\s+([a-z0-9]+)/add \1, zero, zero/gi;
 	s/\bmove\s+([a-z0-9]+),\s*([a-z0-9]+)/add \1, \2, zero/gi;
 	s/\bli\s+([a-z0-9]+),\s*([a-z0-9]+)/addi \1, zero, \2/gi;
