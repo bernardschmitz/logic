@@ -66,6 +66,7 @@ my $rd = 0;
 my $rs = 0;
 my $rt = 0;
 
+my %fetch_memory = ();
 my %read_memory = ();
 my %written_memory = ();
 
@@ -78,11 +79,11 @@ my $halt = 0;
 
 while(!$halt) {
 
-	$ir = read_mem($pc);
+	$ir = read_mem($pc, 1);
 	$pc++;
 	$clock += 2;
 
-	$op = read_mem($pc);
+	$op = read_mem($pc, 1);
 	$pc++;
 	$clock += 2;
 
@@ -128,6 +129,14 @@ while(!$halt) {
 }
 
 
+print STDERR "\nfetch mem\n";
+
+for(sort { $a <=> $b } keys %fetch_memory) {
+	printf STDERR "%04x %08x %04x\n", $_, $fetch_memory{$_}, $mem[$_];
+}
+
+print "\n";
+
 print STDERR "\nread mem\n";
 
 for(sort { $a <=> $b } keys %read_memory) {
@@ -146,12 +155,18 @@ print "\n";
 
 
 
-sub read_mem($) {
+sub read_mem($ $) {
 
-	my $addr = shift;
+
+	my ($addr, $fetch) = @_;
 
 	$addr &= 0xffff;
-	$read_memory{$addr}++;	
+	if($fetch) {
+		$fetch_memory{$addr}++;	
+	}
+	else {
+		$read_memory{$addr}++;	
+	}
 
 	if($addr == $random) {
 		return int(rand(0x10000));
@@ -407,14 +422,14 @@ sub init() {
 
 	$instruction{0x19} = sub() {
 		print STDERR "lw\n";	
-		printf STDERR "%04x %04x\n", $reg[$rs]+$op, read_mem($reg[$rs]+$op);
-		$reg[$rd] = read_mem($reg[$rs]+$op);
+		printf STDERR "%04x %04x\n", $reg[$rs]+$op, read_mem($reg[$rs]+$op, 0);
+		$reg[$rd] = read_mem($reg[$rs]+$op, 0);
 		$clock += 2;
 	};
 
 	$instruction{0x1a} = sub() {
 		print STDERR "sw\n";	
-		printf STDERR "%04x %04x %04x\n", $reg[$rs]+$op, read_mem($reg[$rs]+$op), $reg[$rd];
+		printf STDERR "%04x %04x %04x\n", $reg[$rs]+$op, read_mem($reg[$rs]+$op, 0), $reg[$rd];
 		write_mem($reg[$rs]+$op, $reg[$rd]);
 		$clock += 2;
 	};
