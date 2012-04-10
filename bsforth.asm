@@ -351,6 +351,9 @@ _key:
 	sw	r1, zero, charout
 	NEXT
 
+delete:		equ 08
+newline:	equ 0a
+
 	DEFCODE(accept, 0, ACCEPT)
 	POPDSP(r1)
 	POPDSP(r2)
@@ -358,20 +361,31 @@ _key:
 	PUSHDSP(r1)
 	NEXT
 _accept:
-	move	r9, r15
-	move	r3, r1
-	clear	r4
-	li	r5, 0a	
+	move	r9, r15			; save return address
+	move	r3, r1			; save max count
+	clear	r4			; zero char count
+	li	r5, newline		; eol char
+	li	r6, delete		; bs char
 _accept0:
-	jal	r15, _key
-	beq	r1, r5, eol0
+	jal	r15, _key		; get key code in r1
+	sw	r1, zero, charout	; output char
+	beq	r1, r5, eol0		; is it eol char?
 
-	sw	r1, r2, 0
-	inc	r4
-	inc	r2
-	dec	r3
-	bne	r3, zero, _accept0
+	beq	r1, r6, bs0		; is it bs char?
+
+	sw	r1, r2, 0		; store char
+	inc	r4			; count char
+	inc	r2			; inc buffer address
+	dec	r3			; decr max count
+	bne	r3, zero, _accept0	; if not collect max chars then fetch again
 eol0:
-	move	r1, r4
-	jr	r9
+	move	r1, r4			; save actual char count
+	jr	r9			; return
+bs0:
+	beq	r4, zero, _accept0	; ignore bs if first key
+	dec	r4			; backspace buffer
+	dec	r2
+	inc	r3
+	j	_accept0		; continue
+
 
