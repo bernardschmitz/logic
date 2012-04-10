@@ -180,12 +180,12 @@ sub process_pseudo_instructions {
 	s/\bclear\s+([a-z0-9]+)/add \1, zero, zero/gi;
 	s/\bmove\s+([a-z0-9]+),\s*([a-z0-9]+)/add \1, \2, zero/gi;
 	s/\bli\s+([a-z0-9]+),\s*([a-z0-9]+)/addi \1, zero, \2/gi;
-	s/\bbgt\s+([a-z0-9]+),\s*([a-z0-9]+),\s*([a-z0-9]+)/slt at, \2, \1\nbne at, zero, \3/gi;
-	s/\bblt\s+([a-z0-9]+),\s*([a-z0-9]+),\s*([a-z0-9]+)/slt at, \1, \2\nbne at, zero, \3/gi;
-	s/\bbge\s+([a-z0-9]+),\s*([a-z0-9]+),\s*([a-z0-9]+)/slt at, \1, \2\nbeq at, zero, \3/gi;
-	s/\bble\s+([a-z0-9]+),\s*([a-z0-9]+),\s*([a-z0-9]+)/slt at, \2, \1\nbeq at, zero, \3/gi;
-	s/\bmul\s+([a-z0-9]+),\s*([a-z0-9]+),\s*([a-z0-9]+)/mul \2, \3\nmflo \1/gi;
-	s/\bdiv\s+([a-z0-9]+),\s*([a-z0-9]+),\s*([a-z0-9]+)/mul \2, \3\nmflo \1/gi;
+	s/\bbgt\s+([a-z0-9]+),\s*([a-z0-9]+),\s*([a-z_0-9]+)/slt at, \2, \1\nbne at, zero, \3/gi;
+	s/\bblt\s+([a-z0-9]+),\s*([a-z0-9]+),\s*([a-z_0-9]+)/slt at, \1, \2\nbne at, zero, \3/gi;
+	s/\bbge\s+([a-z0-9]+),\s*([a-z0-9]+),\s*([a-z_0-9]+)/slt at, \1, \2\nbeq at, zero, \3/gi;
+	s/\bble\s+([a-z0-9]+),\s*([a-z0-9]+),\s*([a-z_0-9]+)/slt at, \2, \1\nbeq at, zero, \3/gi;
+	s/\bmul\s+([a-z0-9]+),\s*([a-z0-9]+),\s*([a-z_0-9]+)/mul \2, \3\nmflo \1/gi;
+	s/\bdiv\s+([a-z0-9]+),\s*([a-z0-9]+),\s*([a-z_0-9]+)/mul \2, \3\nmflo \1/gi;
 	s/\bpush\s+([a-z0-9]+)/addi sp, sp, -1\nsw \1, sp, 0/gi;
 	s/\bpop\s+([a-z0-9]+)/lw \1, sp, 0\naddi sp, sp, -1/gi;
 	s/\bnot\s+([a-z0-9]+)/nor \1, \1, \1/gi;

@@ -110,8 +110,7 @@ start:
 	NEXT
 	halt
 
-yeah:	dw	TEST4, HALT
-;yeah:	dw	TWODUP, PLUS, TEST, HALT
+yeah:	dw	TEST5, HALT
 
 	DEFWORD(test, 0, TEST)
 	dw LIT, 0cafe, LIT, 0babe, NOT_EQUALS, EXIT
@@ -125,6 +124,10 @@ yeah:	dw	TEST4, HALT
 	DEFWORD(test4, 0, TEST4)
 	dw LIT, 01000, LIT, 0a, ACCEPT, EXIT
 
+	DEFWORD(test5, 0, TEST5)
+	dw LIT, msg, LIT, 01a, TYPE, EXIT
+
+msg:	dw"Hi there",02c," this is bsforth!"
 
 
 	DEFCODE(halt, 0, HALT)
@@ -389,3 +392,20 @@ bs0:
 	j	_accept0		; continue
 
 
+	DEFCODE(type, 0, TYPE)
+	POPDSP(r1)
+	POPDSP(r2)
+	jal	r15, _type
+	NEXT
+_type:
+	beq	r1, zero, _type0
+_type1:
+	lw	r3, r2, 0
+	sw	r3, zero, charout
+	inc	r2
+	dec	r1
+	bne	r1, zero, _type1
+_type0:
+	jr	r15
+
+	
