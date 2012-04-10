@@ -121,7 +121,7 @@ while(!$halt) {
 
 	if(defined $char) {
 		$keyboard_buf .= $char;
-#print "\nkb: $keyboard_buf\n";
+print "\nchar: $char\nkb: $keyboard_buf\n";
 	}
 
 
@@ -179,27 +179,31 @@ sub read_mem($ $) {
 	}
 	elsif($addr == $char_in) {
 
-#print "char in\n";
+		print "read char in\n";
+		print "kb: $keyboard_buf\n";
 
-		if($keyboard_buf eq '') {
+		if(length($keyboard_buf) == 0) {
+			print "char in\n";
 			ReadMode 3;
-			my $char = ReadKey(-1);
+			my $char = ReadKey(0);
 			ReadMode 0;
+			print "ch: $char\n";
 			return $char;
 		}
 
 		my $ch = substr($keyboard_buf, 0, 1);
 	 	$keyboard_buf = substr($keyboard_buf, 1);
-#print "ch: $ch\n";
+		print "ch: $ch\n";
 		return ord $ch;
 	}
 	elsif($addr == $char_ready) {
 
-#print "char rdy\n";
 
-		if($keyboard_buf eq '') {
+		if(length($keyboard_buf) == 0) {
 			return 0;
 		}
+
+		print "char rdy\n";
 
 		return 1;
 	}
@@ -422,14 +426,14 @@ sub init() {
 
 	$instruction{0x19} = sub() {
 		print STDERR "lw\n";	
-		printf STDERR "%04x %04x\n", $reg[$rs]+$op, read_mem($reg[$rs]+$op, 0);
+	#	printf STDERR "%04x %04x\n", $reg[$rs]+$op, read_mem($reg[$rs]+$op, 0);
 		$reg[$rd] = read_mem($reg[$rs]+$op, 0);
 		$clock += 2;
 	};
 
 	$instruction{0x1a} = sub() {
 		print STDERR "sw\n";	
-		printf STDERR "%04x %04x %04x\n", $reg[$rs]+$op, read_mem($reg[$rs]+$op, 0), $reg[$rd];
+	#	printf STDERR "%04x %04x %04x\n", $reg[$rs]+$op, read_mem($reg[$rs]+$op, 0), $reg[$rd];
 		write_mem($reg[$rs]+$op, $reg[$rd]);
 		$clock += 2;
 	};
