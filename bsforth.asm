@@ -112,7 +112,7 @@ start:
 	NEXT
 	halt
 
-yeah:	dw	TEST, HALT
+yeah:	dw	TEST5, HALT
 
 	DEFWORD(test, 0, TEST)
 	dw LIT, 0cafe, LIT, 0babe, OVER, EXIT
@@ -130,7 +130,7 @@ yeah:	dw	TEST, HALT
 	dw LIT, 01000, LIT, 0a, ACCEPT, EXIT
 
 	DEFWORD(test5, 0, TEST5)
-	dw LIT, msg, LIT, 01a, TYPE, EXIT
+	dw LIT, 05, LIT, msg, LIT, 01a, TYPE, CR, ONE_MINUS, DUP, LIT, 0, EQUALS, ZBRANCH, -0c, EXIT
 
 msg:	dw"Hi there",02c," this is bsforth!"
 
@@ -140,133 +140,114 @@ msg:	dw"Hi there",02c," this is bsforth!"
 
 	DEFCODE(drop, 0, DROP)
 	inc	r14
-	lw	r9, r14, 0
+	lw	r8, r14, 0
 	NEXT
 
 	DEFCODE(swap, 0, SWAP)
-	move	r1, r9
-	lw	r9, r14, 0
+	move	r1, r8
+	lw	r8, r14, 0
 	sw	r1, r14, 0
 	NEXT
 
 	DEFCODE(dup, 0, DUP)
-	PUSHDSP(r9)
+	PUSHDSP(r8)
 	NEXT
 
 	DEFCODE(over, 0, OVER)
-	PUSHDSP(r9)
-	lw	r9, r14, 1
+	PUSHDSP(r8)
+	lw	r8, r14, 1
 	NEXT
 
 	DEFCODE(rot, 0, ROT)
 	lw	r1, r14, 1
 	lw	r2, r14, 0
 	sw	r2, r14, 1
-	sw	r9, r14, 0
-	move	r9, r1
+	sw	r8, r14, 0
+	move	r8, r1
 	NEXT
 
 	DEFCODE(2drop, 0, TWODROP)
+	lw	r8, r14, 1
 	addi	r14, r14, 2
 	NEXT
 
 	DEFCODE(2dup, 0, TWODUP)
-	lw	r1, r14, 1
-	lw	r2, r14, 0
-	sw	r1, r14, -1
-	sw	r2, r14, -2
+	lw	r1, r14, 0
+	sw	r8, r14, -1
+	sw	r1, r14, -2
 	addi	r14, r14, -2
 	NEXT
 
 	DEFCODE(2swap, 0, TWOSWAP)
-	lw	r1, r14, 3
-	lw	r2, r14, 2
-	lw	r3, r14, 1
-	lw	r4, r14, 0
-	sw	r3, r14, 3
-	sw	r4, r14, 2
+	move	r1, r8
+	lw	r8, r14, 1
 	sw	r1, r14, 1
+	lw	r1, r14, 0
+	lw	r2, r14, 2
+	sw	r1, r14, 2
 	sw	r2, r14, 0
 	NEXT
 
-	DEFCODE(?dup, 0, QDUP)
-	nl
-	lw	r1, r14, 0
-	beq	r1, zero, l(QDUP)
-	PUSHDSP(r1)
-l(QDUP):
+	DEFCODE(?dup, 0, QUESTION_DUP)
+	beq	r8, zero, qdup0
+	PUSHDSP(r8)
+qdup0:
 	NEXT
 
 	DEFCODE(1+, 0, ONE_PLUS)
-	lw	r1, r14, 0
-	inc	r1
-	sw	r1, r14, 0
+	inc	r8
 	NEXT
 
 	DEFCODE(1-, 0, ONE_MINUS)
-	lw	r1, r14, 0
-	dec	r1
-	sw	r1, r14, 0
+	dec	r8
 	NEXT
 
 	DEFCODE(+, 0, PLUS)
 	lw	r1, r14, 0
-	lw	r2, r14, 1
-	add	r1, r1, r2
+	add	r8, r8, r1
 	inc	r14
-	sw	r1, r14, 0
 	NEXT
 
 	DEFCODE(-, 0, MINUS)
 	lw	r1, r14, 0
-	lw	r2, r14, 1
-	sub	r1, r1, r2
+	sub	r8, r8, r1
 	inc	r14
-	sw	r1, r14, 0
 	NEXT
 
 	DEFCODE(*, 0, STAR)
 	lw	r1, r14, 0
-	lw	r2, r14, 1
-	mul	r1, r1, r2
+	mul	r8, r8, r1
 	inc	r14
-	sw	r1, r14, 0
 	NEXT
 
 	DEFCODE(/, 0, SLASH)
 	lw	r1, r14, 0
-	lw	r2, r14, 1
-	div	r1, r1, r2
+	div	r8, r8, r1
 	inc	r14
-	sw	r1, r14, 0
 	NEXT
 	
 	
 	DEFCODE(/mod, 0, SLASH_MOD)
 	lw	r1, r14, 0
-	lw	r2, r14, 1
-	div	r1, r1, r2
-	mfhi	r2
-	sw	r2, r14, 0
-	sw	r1, r14, 1
-	NEXT
-
-	DEFCODE(invert, 0, INVERT)
-	lw	r1, r14, 0
-	not	r1
+	div	r8, r8, r1
+	mfhi	r1
 	sw	r1, r14, 0
 	NEXT
 
-	DEFCODE(=, 0, EQUALS)
-	lw	r1, r14, 0
-	lw	r2, r14, 1
-	clear	r3
-	bne	r1, r2, l(EQUALS)	
-	not	r3
-l(EQUALS):
-	inc	r14
-	sw	r3, r14, 0
+	DEFCODE(invert, 0, INVERT)
+	not	r8
 	NEXT
+
+	DEFCODE(=, 0, EQUALS)
+	clear	r1
+	lw	r2, r14, 0
+	bne	r8, r2, equals0
+	not	r1
+equals0:
+	inc	r14
+	move	r8, r1
+	NEXT
+
 
 	DEFWORD(<>, 0, NOT_EQUALS)
 	dw EQUALS, INVERT, EXIT
@@ -276,32 +257,36 @@ l(EQUALS):
 	NEXT
 
 	DEFCODE(lit, 0, LIT)
-	PUSHDSP(r9)
-	lw	r9, r10, 0
+	PUSHDSP(r8)
+	lw	r8, r10, 0
 	inc	r10
 	NEXT
 
 	DEFCODE(!, 0, STORE)
 	lw	r1, r14, 0
-	lw	r2, r14, 1
+	sw	r1, r8, 0
+	lw	r8, r14, 1
 	addi	r14, r14, 2
-	sw	r2, r1, 0
 	NEXT
 
 	DEFCODE(@, 0, FETCH)
-	lw	r1, r14, 0
-	lw	r2, r1, 0
-	sw	r2, r14, 0
+	lw	r8, r8, 0
 	NEXT
 
-	DEFWORD(+!, 0, PLUS_STORE)
-	dw	DUP, FETCH, ROT, PLUS, SWAP, STORE, EXIT
+	DEFCODE(+!, 0, PLUS_STORE)
+	lw	r1, r8, 0
+	lw	r2, r14, 0
+	add	r1, r1, r2
+	sw	r1, r8, 0
+	lw	r8, r14, 1
+	addi	r14, r14, 2
+	NEXT
 
 
 	define(DEFVAR, {
 	DEFCODE($1, $2, $3)
-	li	r1, var_$1
-	PUSHDSP(r1)
+	PUSHDSP(r8)
+	li	r8, var_$1
 	NEXT
 var_$1:	dw	$4
 	})dnl
@@ -316,8 +301,8 @@ var_$1:	dw	$4
 
 	define(DEFCONST, {
 	DEFCODE($1, $2, $3)
-	li	r1, $4
-	PUSHDSP(r1)
+	PUSHDSP(r8)
+	li	r8, $4
 	NEXT
 	})dnl
 
@@ -332,28 +317,29 @@ var_$1:	dw	$4
 	NEXT
 
 	DEFCODE(>r, 0, TO_R)
-	POPDSP(r1)
-	PUSHRSP(r1)
+	PUSHRSP(r8)
+	POPDSP(r8)
 	NEXT
 
 	DEFCODE(r>, 0, FROM_R)
-	POPRSP(r1)
-	PUSHDSP(r1)
+	PUSHDSP(r8)
+	POPRSP(r8)
 	NEXT
 
 	DEFCODE(key?, 0, KEY_QUESTION)
-	clear	r2
+	PUSHDSP(r8)
+	clear	r8
 	lw	r1, zero, charrdy
 	beq	r1, zero, _keyq0
-	not	r2
+	not	r8
 _keyq0:
-	PUSHDSP(r2)
 	NEXT
 
 
 	DEFCODE(key, 0, KEY)
+	PUSHDSP(r8)
 	jal	r15, _key
-	PUSHDSP(r1)
+	move	r8, r1
 	NEXT
 _key:
 	lw	r1, zero, charrdy
@@ -361,24 +347,21 @@ _key:
 	lw	r1, zero, charin
 	jr	r15
 
-	DEFCODE(?key, 0, QUESTION_KEY)
-	lw	r1, zero, charrdy
-	PUSHDSP(r1)
-	NEXT
 
 	DEFCODE(emit, 0, EMIT)
-	POPDSP(r1)
-	sw	r1, zero, charout
+	sw	r8, zero, charout
+	POPDSP(r8)
 	NEXT
 
 delete:		equ 08
 newline:	equ 0a
 
 	DEFCODE(accept, 0, ACCEPT)
-	POPDSP(r1)
-	POPDSP(r2)
+	move	r1, r8
+	lw	r2, r14, 0
 	jal	r15, _accept
-	PUSHDSP(r1)
+	move	r8, r1
+	inc	r14
 	NEXT
 _accept:
 	move	r9, r15			; save return address
@@ -411,16 +394,20 @@ bs0:
 
 
 	DEFCODE(source, 0, SOURCE)
+	sw	r8, r14, -1
 	li	r1, buffer
-	PUSHDSP(r1)
-	li	r1, bufferlen
-	PUSHDSP(r1)
+	sw	r1, r14, -2
+	li	r8, bufferlen
+	addi	r14, r14, -2
 	NEXT
 
 
 	DEFCODE(type, 0, TYPE)
-	POPDSP(r1)
-	POPDSP(r2)
+	move	r1, r8
+	lw	r2, r14, 0
+	lw	r8, r14, 1
+	addi	r14, r14, 2
+
 	jal	r15, _type
 	NEXT
 _type:
@@ -435,12 +422,31 @@ _type0:
 	jr	r15
 
 	DEFCODE(parse, 0, PARSE)
-	POPDSP(r1)
+	move	r1, r8
 	jal	r15, _parse
+	move	r8, r1
 	PUSHDSP(r2)
-	PUSHDSP(r1)
 	NEXT
 _parse:
 	; TODO
 	halt
-	
+
+
+
+
+	DEFCODE(branch, 0, BRANCH)
+	lw	r1, r10, 0
+	add	r10, r10, r1
+	NEXT	
+
+
+	DEFCODE(0branch, 0, ZBRANCH)
+	move	r1, r8
+	POPDSP(r8)
+	beq	r1, zero, code_BRANCH
+	inc	r10
+	NEXT
+
+
+
+
