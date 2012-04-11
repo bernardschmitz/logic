@@ -104,7 +104,7 @@ my @plines = map { process_pseudo_instructions($_); } @lines;
 
 print "v2.0 raw\n";
 
-for my $pass (0..3) {
+for my $pass (0..1) {
 
 #print "\npass $pass\n\n";
 
@@ -124,16 +124,12 @@ for my $pass (0..3) {
 
 		my ($sym, $ins, $ops) = parse($_);
 
+#	print "$pass $sym, $ins, ".join(', ', @{$ops}), "\n";
+
 # disabling macro processing as it's buggy
 # use m4 instead
 
 		if($pass == 0) {
-	#		collect_macro($sym, $ins, $ops);
-		}
-		elsif($pass == 1) {
-	#		process_macro($sym, $ins, $ops);
-		}
-		elsif($pass == 2) {
 			collect_symbol($sym, $ins, $ops);
 		}
 		else {
@@ -210,7 +206,7 @@ sub collect_symbol {
 
 	if(defined $desc) {
 
-#		print "$address -> ";
+#		print "\n$ins $address -> ";
 
 		if(defined $desc->{size}) {
 			$address += $desc->{size};
@@ -226,13 +222,19 @@ sub collect_symbol {
 		}
 		elsif($ins eq 'dw') {
 			$address += scalar @{$ops};
+#			for(@{$ops}) {
+#				$address++;
+#			}
 		}
 		elsif($ins eq 'ds') {
 			if(scalar @{$ops} == 1 && $ops->[0] =~ m/^\s*\"[^\"]*\"\s*$/i) {
-				s/^\s*\"//g;
-				s/\"\s*$//g;
-				for my $c (split //) {
-					$address++;
+#				s/^\s*\"//g;
+#				s/\"\s*$//g;
+				for my $c (split //, $ops->[0]) {
+					if($c ne '"') {
+		#				print "$c, ";
+						$address++;
+					}
 				}
 			}
 			else {
@@ -260,15 +262,20 @@ sub assemble {
 
 	my ($ins, $ops) = @_;
 
+#print "$ins, ".join(', ', @{$ops}), "\n";
+
 	my $desc = $instruction{$ins};
 
 	if(defined $desc) {
+
+#print "ins $ins\n";
 
 		if(defined $desc->{code}) {
 			encode_instruction($desc, $ins, $ops);
 		}
 		elsif($ins eq 'ds') {
 			for(@{$ops}) {
+#				print "op $_\n";
 				s/\"//g;
 				for my $c (split //) {
 					output_word(ord $c);
