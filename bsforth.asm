@@ -16,6 +16,7 @@ f_hidden:	equ	00001
 data_stack:	equ	08000
 return_stack:	equ	09000
 buffer:		equ	0a000
+bufferlen:	equ	000ff
 
         define(id, 0)dnl
         define(l, {$1{}id})dnl
@@ -323,6 +324,11 @@ var_$1:	dw	$4
 	DEFCONST(docol, 0, _DOCOL, DOCOL)
 	DEFCONST(bl, 0, BL, 020)
 
+	DEFCODE(cr, 0, CR)
+	li	r1, newline
+	sw	r1, zero, charout
+	NEXT
+
 	DEFCODE(>r, 0, TO_R)
 	POPDSP(r1)
 	PUSHRSP(r1)
@@ -331,6 +337,15 @@ var_$1:	dw	$4
 	DEFCODE(r>, 0, FROM_R)
 	POPRSP(r1)
 	PUSHDSP(r1)
+	NEXT
+
+	DEFCODE(key?, 0, KEY_QUESTION)
+	clear	r2
+	lw	r1, zero, charrdy
+	beq	r1, zero, _keyq0
+	not	r2
+_keyq0:
+	PUSHDSP(r2)
 	NEXT
 
 
@@ -392,6 +407,15 @@ bs0:
 	j	_accept0		; continue
 
 
+
+	DEFCODE(source, 0, SOURCE)
+	li	r1, buffer
+	PUSHDSP(r1)
+	li	r1, bufferlen
+	PUSHDSP(r1)
+	NEXT
+
+
 	DEFCODE(type, 0, TYPE)
 	POPDSP(r1)
 	POPDSP(r2)
@@ -408,4 +432,13 @@ _type1:
 _type0:
 	jr	r15
 
+	DEFCODE(parse, 0, PARSE)
+	POPDSP(r1)
+	jal	r15, _parse
+	PUSHDSP(r2)
+	PUSHDSP(r1)
+	NEXT
+_parse:
+	; TODO
+	halt
 	
