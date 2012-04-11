@@ -112,10 +112,13 @@ start:
 	NEXT
 	halt
 
-yeah:	dw	TEST5, HALT
+yeah:	dw	TEST, HALT
 
 	DEFWORD(test, 0, TEST)
-	dw LIT, 0cafe, LIT, 0babe, NOT_EQUALS, EXIT
+	dw LIT, 0cafe, LIT, 0babe, OVER, EXIT
+
+	DEFWORD(test0, 0, TEST0)
+	dw LIT, 0cafe, LIT, 0babe, LIT, 010, ROT, EXIT
 
 	DEFWORD(test2, 0, TEST2)
 	dw LIT, 0a, LIT, 01000, STORE, LIT, 01, LIT, 01000, PLUS_STORE, EXIT
@@ -137,32 +140,30 @@ msg:	dw"Hi there",02c," this is bsforth!"
 
 	DEFCODE(drop, 0, DROP)
 	inc	r14
+	lw	r9, r14, 0
 	NEXT
 
 	DEFCODE(swap, 0, SWAP)
-	lw	r1, r14, 0
-	lw	r2, r14, 1	
-	sw	r1, r14, 1
-	sw	r2, r14, 0
+	move	r1, r9
+	lw	r9, r14, 0
+	sw	r1, r14, 0
 	NEXT
 
 	DEFCODE(dup, 0, DUP)
-	lw	r1, r14, 0
-	PUSHDSP(r1)
+	PUSHDSP(r9)
 	NEXT
 
 	DEFCODE(over, 0, OVER)
-	lw	r1, r14, 1
-	PUSHDSP(r1)
+	PUSHDSP(r9)
+	lw	r9, r14, 1
 	NEXT
 
 	DEFCODE(rot, 0, ROT)
-	lw	r1, r14, 2
-	lw	r2, r14, 1
-	lw	r3, r14, 0
-	sw	r1, r14, 0
-	sw	r3, r14, 1
-	sw	r2, r14, 2	
+	lw	r1, r14, 1
+	lw	r2, r14, 0
+	sw	r2, r14, 1
+	sw	r9, r14, 0
+	move	r9, r1
 	NEXT
 
 	DEFCODE(2drop, 0, TWODROP)
@@ -275,9 +276,9 @@ l(EQUALS):
 	NEXT
 
 	DEFCODE(lit, 0, LIT)
-	lw	r1, r10, 0
+	PUSHDSP(r9)
+	lw	r9, r10, 0
 	inc	r10
-	PUSHDSP(r1)	
 	NEXT
 
 	DEFCODE(!, 0, STORE)
