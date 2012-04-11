@@ -1,0 +1,203 @@
+K 25
+svn:wc:ra_dav:version-url
+V 27
+/svn/!svn/ver/49/trunk/csrc
+END
+pf_io.h
+K 25
+svn:wc:ra_dav:version-url
+V 35
+/svn/!svn/ver/46/trunk/csrc/pf_io.h
+END
+pf_mem.c
+K 25
+svn:wc:ra_dav:version-url
+V 36
+/svn/!svn/ver/36/trunk/csrc/pf_mem.c
+END
+pforth.h
+K 25
+svn:wc:ra_dav:version-url
+V 36
+/svn/!svn/ver/36/trunk/csrc/pforth.h
+END
+pf_mem.h
+K 25
+svn:wc:ra_dav:version-url
+V 36
+/svn/!svn/ver/36/trunk/csrc/pf_mem.h
+END
+pf_text.c
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svn/!svn/ver/47/trunk/csrc/pf_text.c
+END
+pfcompil.c
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/svn/!svn/ver/46/trunk/csrc/pfcompil.c
+END
+pf_core.c
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svn/!svn/ver/46/trunk/csrc/pf_core.c
+END
+pf_text.h
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svn/!svn/ver/46/trunk/csrc/pf_text.h
+END
+pfcompil.h
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/svn/!svn/ver/36/trunk/csrc/pfcompil.h
+END
+pfdicdat_arm.h
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svn/!svn/ver/36/trunk/csrc/pfdicdat_arm.h
+END
+pf_core.h
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svn/!svn/ver/46/trunk/csrc/pf_core.h
+END
+pf_save.c
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svn/!svn/ver/43/trunk/csrc/pf_save.c
+END
+pfinnrfp.h
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/svn/!svn/ver/36/trunk/csrc/pfinnrfp.h
+END
+pf_save.h
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svn/!svn/ver/36/trunk/csrc/pf_save.h
+END
+pf_win32.h
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svn/!svn/ver/2/trunk/csrc/pf_win32.h
+END
+pf_types.h
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/svn/!svn/ver/49/trunk/csrc/pf_types.h
+END
+pf_clib.c
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svn/!svn/ver/36/trunk/csrc/pf_clib.c
+END
+pf_float.h
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svn/!svn/ver/2/trunk/csrc/pf_float.h
+END
+pf_inner.c
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/svn/!svn/ver/49/trunk/csrc/pf_inner.c
+END
+pfcustom.c
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/svn/!svn/ver/43/trunk/csrc/pfcustom.c
+END
+pf_all.h
+K 25
+svn:wc:ra_dav:version-url
+V 35
+/svn/!svn/ver/2/trunk/csrc/pf_all.h
+END
+pf_clib.h
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svn/!svn/ver/36/trunk/csrc/pf_clib.h
+END
+pf_host.h
+K 25
+svn:wc:ra_dav:version-url
+V 36
+/svn/!svn/ver/2/trunk/csrc/pf_host.h
+END
+pf_main.c
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svn/!svn/ver/46/trunk/csrc/pf_main.c
+END
+pf_io_none.c
+K 25
+svn:wc:ra_dav:version-url
+V 39
+/svn/!svn/ver/2/trunk/csrc/pf_io_none.c
+END
+pf_guts.h
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svn/!svn/ver/43/trunk/csrc/pf_guts.h
+END
+pfcompfp.h
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svn/!svn/ver/2/trunk/csrc/pfcompfp.h
+END
+pf_words.c
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/svn/!svn/ver/36/trunk/csrc/pf_words.c
+END
+pf_cglue.c
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/svn/!svn/ver/46/trunk/csrc/pf_cglue.c
+END
+pf_inc1.h
+K 25
+svn:wc:ra_dav:version-url
+V 36
+/svn/!svn/ver/2/trunk/csrc/pf_inc1.h
+END
+pf_words.h
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/svn/!svn/ver/36/trunk/csrc/pf_words.h
+END
+pf_cglue.h
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/svn/!svn/ver/36/trunk/csrc/pf_cglue.h
+END
+pf_io.c
+K 25
+svn:wc:ra_dav:version-url
+V 35
+/svn/!svn/ver/39/trunk/csrc/pf_io.c
+END
