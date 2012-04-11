@@ -25,6 +25,7 @@ bufferlen:	equ	000ff
 	define(LINK, 0)dnl
 
 
+; tos r8
 ; i r10
 ; w r11
 ; x r12
