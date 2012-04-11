@@ -8,6 +8,7 @@ use Data::Dumper;
 my %instruction = (
 	org => { },
 	dw => { },
+	ds => { },
 	align => { },
 	equ => { },
 	macro => { },
@@ -224,17 +225,18 @@ sub collect_symbol {
 			}
 		}
 		elsif($ins eq 'dw') {
-#			$address += scalar @{$ops};
-			for(@{$ops}) {
-				if(m/^\s*\"[^\"]*\"\s*$/i) {
-					s/\"//g;
-					for my $c (split //) {
-						$address++;
-					}
-				}
-				else {
+			$address += scalar @{$ops};
+		}
+		elsif($ins eq 'ds') {
+			if(scalar @{$ops} == 1 && $ops->[0] =~ m/^\s*\"[^\"]*\"\s*$/i) {
+				s/^\s*\"//g;
+				s/\"\s*$//g;
+				for my $c (split //) {
 					$address++;
 				}
+			}
+			else {
+				die "line $line invalid string: ".join(' ', @{$ops})."\n";
 			}
 		}
 		elsif($ins eq 'align') {
@@ -265,15 +267,17 @@ sub assemble {
 		if(defined $desc->{code}) {
 			encode_instruction($desc, $ins, $ops);
 		}
+		elsif($ins eq 'ds') {
+			for(@{$ops}) {
+				s/\"//g;
+				for my $c (split //) {
+					output_word(ord $c);
+				}
+			}
+		}
 		elsif($ins eq 'dw') {
 			for(@{$ops}) {
-				if(m/^\s*\"[^\"]*\"\s*$/i) {
-					s/\"//g;
-					for my $c (split //) {
-						output_word(ord $c);
-					}
-				}
-				elsif(m/^[a-z_][a-z_0-9]*$/i) {
+				if(m/^[a-z_][a-z_0-9]*$/i) {
 					my $val = lookup_symbol($_);
 					output_word($val);
 				}
@@ -607,11 +611,20 @@ sub parse {
 
 	if(m/^([a-z]+)/i) {
 		$ins = $1;
-		s/^$ins//i;
+		s/^$ins\s+//i;
 #		print "ins $ins [$_]\n";
 	}
 
-	my @ops = split(/,/);
+	my @ops = ();
+
+	if($ins eq 'ds') {
+		s/^\s+\"/\"/g;
+		s/\"\s+$/\"/g;
+		push @ops, $_;
+	}
+	else {
+		@ops = split(/,/);
+	}
 
 	map { s/\s+//g unless m/\"/ } @ops;
 
@@ -639,99 +652,4 @@ sub output_word {
 	print sprintf("%04x\n", $val);
 	$address++;
 }
-
-sub collect_macro {
-
-	my ($sym, $ins, $ops) = @_;
-
-	if($ins eq 'macro') {
-		if(defined $current_macro) {
-			die "line $line nested macro definition: $ins ".join(' ', @{$ops})."\n";
-		}
-
-		$current_macro = { name => shift @{$ops}, parameters => $ops, code => [], start => $line };
-
-		$lines[$line-1] =~ s/^/;/;
-
-#		print "defining ".$current_macro->{name}."\n";
-	}	
-	elsif($ins eq 'endm') {
-		if(!defined $current_macro) {
-			die "line $line endm without macro definition\n";
-		}
-
-		$current_macro->{end} = $line;
-
-		$macros{$current_macro->{name}} = $current_macro;
-
-#		print "done ".$current_macro->{name}."\n";
-		for(@{$current_macro->{code}}) {
-#			print "$_\n";
-		}
-
-		$lines[$line-1] =~ s/^/;/;
-
-		$current_macro = undef;
-	}
-	elsif(defined $current_macro) {
-
-		my $l = "";
-		if(defined $sym) {
-			push @{$current_macro->{symbols}}, $sym;
-			$l .= "$sym: ";
-		}
-
-		$l .= "$ins ".join(', ', @{$ops});
-
-		push @{$current_macro->{code}}, $l;
-
-		$lines[$line-1] =~ s/^/;/;
-
-#		print "$l\n";
-	}
-
-}
-
-sub process_macro {
-
-	my ($sym, $ins, $ops) = @_;
-
-	my $m = $macros{$ins};
-
-	if(defined $m) {
-
-#		print Dumper($m);
-
-#		print "replace ".$m->{name}."\n";
-#		for(@{$m->{code}}) {
-#			print "$_\n";
-#		}
-
-		my $mac = "";
-
-		for(@{$m->{code}}) {
-			$mac .= "$_\n";	
-		}
-
-		for(@{$m->{parameters}}) {
-			my $r = shift @{$ops};
-			$mac =~ s/\b$_/$r/g;
-		}
-
-		my $id = $macro_id++;
-
-		for(@{$m->{symbols}}) {
-#			print "\t$_\n";
-			$mac =~ s/\b($_)/\1$id/gi;
-		}
-
-
-#		print "[$mac]\n";
-	
-		$lines[$line-1] =~ s/^/;/;
-		splice(@lines, $line, 0, split('\n', $mac));
-
-	}
-}
-
 

@@ -77,7 +77,7 @@ name_$3:
 	define({LINK}, name_$3)dnl
 	dw	$2
 	dw	len($1)
-	dw"$1"
+	ds "$1"
 	align
 $3:
 	dw	DOCOL
@@ -91,7 +91,7 @@ name_$3:
 	define({LINK}, name_$3)dnl
 	dw	$2
 	dw	len($1)
-	dw"$1"
+	ds "$1"
 	align
 $3:
 	dw	code_$3
@@ -132,7 +132,7 @@ yeah:	dw	TEST5, HALT
 	DEFWORD(test5, 0, TEST5)
 	dw LIT, 05, LIT, msg, LIT, 01a, TYPE, CR, ONE_MINUS, DUP, LIT, 0, EQUALS, ZBRANCH, -0c, EXIT
 
-msg:	dw"Hi there",02c," this is bsforth!"
+msg:	ds "Hi there, this is bsforth!"
 
 
 	DEFCODE(halt, 0, HALT)
