@@ -121,7 +121,7 @@ while(!$halt) {
 
 	if(defined $char) {
 		$keyboard_buf .= $char;
-print "\nchar: $char\nkb: $keyboard_buf\n";
+#print "\nchar: $char\nkb: $keyboard_buf\n";
 	}
 
 
@@ -179,8 +179,8 @@ sub read_mem($ $) {
 	}
 	elsif($addr == $char_in) {
 
-		print "read char in\n";
-		print "kb: $keyboard_buf\n";
+#		print "read char in\n";
+#		print "kb: $keyboard_buf\n";
 
 		if(length($keyboard_buf) == 0) {
 			return 0;
@@ -195,7 +195,7 @@ sub read_mem($ $) {
 
 		my $ch = substr($keyboard_buf, 0, 1);
 	 	$keyboard_buf = substr($keyboard_buf, 1);
-		print "ch: $ch ", ord $ch, "\n";
+#		print "ch: $ch ", ord $ch, "\n";
 		return ord $ch;
 	}
 	elsif($addr == $char_ready) {
@@ -205,7 +205,7 @@ sub read_mem($ $) {
 			return 0;
 		}
 
-		print "char rdy\n";
+#		print "char rdy\n";
 
 		return 1;
 	}
@@ -230,7 +230,7 @@ sub write_mem($ $) {
 		return;
 	}
 	elsif($addr == $screen_clear) {
-		for(0..20) {
+		for(0..25) {
 			print "\n";
 		}
 		return;

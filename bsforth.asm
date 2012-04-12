@@ -112,7 +112,7 @@ start:
 	NEXT
 	halt
 
-yeah:	dw	TEST5, HALT
+yeah:	dw	TEST4, HALT
 
 	DEFWORD(test, 0, TEST)
 	dw LIT, 0cafe, LIT, 0babe, OVER, EXIT
@@ -127,7 +127,7 @@ yeah:	dw	TEST5, HALT
 	dw STATE, FETCH, VERSION, BASE, FETCH, EXIT
 
 	DEFWORD(test4, 0, TEST4)
-	dw LIT, 01000, LIT, 0a, ACCEPT, EXIT
+	dw LIT, 01000, LIT, 0a, ACCEPT, CR, LIT, 01000, SWAP, TYPE, EXIT
 
 	DEFWORD(test5, 0, TEST5)
 	dw LIT, 05, LIT, msg, LIT, 01a, TYPE, CR, ONE_MINUS, DUP, LIT, 0, EQUALS, ZBRANCH, -0c, EXIT
@@ -371,26 +371,31 @@ _accept:
 	li	r6, delete		; bs char
 _accept0:
 	jal	r15, _key		; get key code in r1
-	sw	r1, zero, charout	; output char
 	beq	r1, r5, eol0		; is it eol char?
-
 	beq	r1, r6, bs0		; is it bs char?
+	beq	r3, zero, lim0		; have we reached the char limit?
 
+	sw	r1, zero, charout	; output char
 	sw	r1, r2, 0		; store char
 	inc	r4			; count char
 	inc	r2			; inc buffer address
 	dec	r3			; decr max count
-	bne	r3, zero, _accept0	; if not collect max chars then fetch again
+	j	_accept0		; get next char
+lim0:
+	sw	r6, zero, charout
+	sw	r1, zero, charout	; output char
+	sw	r1, r2, -1
+	j	_accept0		; get next char
 eol0:
 	move	r1, r4			; save actual char count
 	jr	r9			; return
 bs0:
 	beq	r4, zero, _accept0	; ignore bs if first key
+	sw	r6, zero, charout
 	dec	r4			; backspace buffer
 	dec	r2
 	inc	r3
 	j	_accept0		; continue
-
 
 
 	DEFCODE(source, 0, SOURCE)
