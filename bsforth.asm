@@ -412,18 +412,16 @@ bs0:
 	lw	r2, r14, 0
 	lw	r8, r14, 1
 	addi	r14, r14, 2
-
+	beq	r1, zero, _type1 
 	jal	r15, _type
+_type1:
 	NEXT
 _type:
-	beq	r1, zero, _type0
-_type1:
 	lw	r3, r2, 0
 	sw	r3, zero, charout
 	inc	r2
 	dec	r1
-	bne	r1, zero, _type1
-_type0:
+	bne	r1, zero, _type
 	jr	r15
 
 	DEFCODE(parse, 0, PARSE)
