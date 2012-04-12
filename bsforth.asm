@@ -475,12 +475,9 @@ _parse_empty:
 
 
 	DEFCODE(execute, 0, EXECUTE)
-	halt
-	PUSHRSP(r10)
-	move	r10, r8
+	lw	r1, r8, 0
 	POPDSP(r8)
-; TODO
-	j	code_EXIT
+	jr	r1
 
 
 
