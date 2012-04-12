@@ -106,7 +106,7 @@ start:
 
 	li	r13, return_stack
 	li	r14, data_stack
-	sw	r14, zero, var_s0
+	sw	r14, zero, var_SZ
 
 	li	r10, yeah
 	NEXT
@@ -286,9 +286,9 @@ equals0:
 	define(DEFVAR, {
 	DEFCODE($1, $2, $3)
 	PUSHDSP(r8)
-	li	r8, var_$1
+	li	r8, var_$3
 	NEXT
-var_$1:	dw	$4
+var_$3:	dw	$4
 	})dnl
 
 
@@ -297,6 +297,7 @@ var_$1:	dw	$4
 	DEFVAR(latest, 0, LATEST, 0)
 	DEFVAR(s0, 0, SZ, 0)
 	DEFVAR(base, 0, BASE, 0a)
+	DEFVAR(>in, 0, TO_IN, bufferlen)
 
 
 	define(DEFCONST, {
@@ -398,6 +399,7 @@ bs0:
 	j	_accept0		; continue
 
 
+
 	DEFCODE(source, 0, SOURCE)
 	sw	r8, r14, -1
 	li	r1, buffer
@@ -424,6 +426,8 @@ _type:
 	bne	r1, zero, _type
 	jr	r15
 
+
+
 	DEFCODE(parse, 0, PARSE)
 	move	r1, r8
 	jal	r15, _parse
@@ -431,7 +435,21 @@ _type:
 	PUSHDSP(r2)
 	NEXT
 _parse:
-	; TODO
+	li	r3, bufferlen
+	lw	r2, zero, var_TO_IN
+	beq	r2, r3, _parse_empty
+
+	lw	r4, r2, buffer
+	beq	r4, r1, _parse_done
+
+	inc	r2
+;TODO	
+
+_parse_empty:
+	clear	r1
+	jr	r15
+
+
 	halt
 
 
