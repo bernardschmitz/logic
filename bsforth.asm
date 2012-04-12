@@ -127,7 +127,7 @@ yeah:	dw	TEST4, HALT
 	dw STATE, FETCH, VERSION, BASE, FETCH, EXIT
 
 	DEFWORD(test4, 0, TEST4)
-	dw LIT, 01000, LIT, 0a, ACCEPT, CR, LIT, 01000, SWAP, TYPE, EXIT
+	dw LIT, 01000, LIT, 00ff, ACCEPT, BL, PARSE, CR, CR, TYPE, CR, EXIT
 
 	DEFWORD(test5, 0, TEST5)
 	dw LIT, 05, LIT, msg, LIT, 01a, TYPE, CR, ONE_MINUS, DUP, LIT, 0, EQUALS, ZBRANCH, -0c, EXIT
@@ -437,13 +437,21 @@ _type:
 _parse:
 	li	r3, bufferlen
 	lw	r2, zero, var_TO_IN
+	move	r5, r2
 	beq	r2, r3, _parse_empty
 
+_parse_more:
 	lw	r4, r2, buffer
-	beq	r4, r1, _parse_done
-
 	inc	r2
-;TODO	
+	beq	r4, r1, _parse_done
+	bne	r2, r3, _parse_more
+
+_parse_done:
+	sw	r2, zero, var_TO_IN
+	sub	r1, r2, r5		; length of parsed string
+	li	r6, buffer
+	add	r2, r6, r5		; address of start of parsed string
+	jr	r15	
 
 _parse_empty:
 	clear	r1
