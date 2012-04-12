@@ -112,7 +112,7 @@ start:
 	NEXT
 	halt
 
-yeah:	dw	TEST4, HALT
+yeah:	dw	TEST7, HALT
 
 	DEFWORD(test, 0, TEST)
 	dw LIT, 0cafe, LIT, 0babe, OVER, EXIT
@@ -137,6 +137,15 @@ yeah:	dw	TEST4, HALT
 	dw LIT, 05, LIT, msg, LIT, 01a, TYPE, CR, ONE_MINUS, DUP, LIT, 0, EQUALS, ZBRANCH, -0c, EXIT
 
 msg:	ds "Hi there, this is bsforth!"
+
+
+	DEFWORD(test6, 0, TEST6)
+	dw	LIT, buffer, LIT, 00ff, ACCEPT, LIT, 0, TO_IN, STORE
+	dw	BL, PARSE, CR, TYPE
+	dw	EXIT
+
+	DEFWORD(test7, 0, TEST7)
+	dw	LIT, 02a, LIT, EMIT, EXECUTE, EXIT
 
 
 	DEFCODE(halt, 0, HALT)
@@ -464,8 +473,14 @@ _parse_empty:
 	jr	r15
 
 
-	halt
 
+	DEFCODE(execute, 0, EXECUTE)
+	halt
+	PUSHRSP(r10)
+	move	r10, r8
+	POPDSP(r8)
+; TODO
+	j	code_EXIT
 
 
 
