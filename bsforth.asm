@@ -367,8 +367,8 @@ _key:
 	POPDSP(r8)
 	NEXT
 
-delete:		equ 08
-newline:	equ 0a
+delete:		equ 008
+newline:	equ 00a
 
 	DEFCODE(accept, 0, ACCEPT)
 	move	r1, r8
@@ -493,6 +493,36 @@ _parse_empty:
 	beq	r1, zero, code_BRANCH
 	inc	r10
 	NEXT
+
+
+dash:		edu 02d
+
+	DEFCODE(number, 0, NUMBER)
+	move	r1, r8			; length of string
+	lw	r2, r14, 0		; address of string
+	jal	_number
+	move	r8, r2			; count of parsed chars, 0 = success
+	sw	r1, r14, 0		; parsed number
+	NEXT
+_number:
+	clear	r3
+	clear	r4
+
+	beq	r1, zero, _number0
+
+	lw	r5, zero, var_BASE
+
+	; TODO check minus
+
+	
+
+
+
+_number0:
+	move	r1, r3
+	move	r2, r4
+	jr	r15
+	
 
 
 
