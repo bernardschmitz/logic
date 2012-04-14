@@ -112,7 +112,7 @@ start:
 	NEXT
 	halt
 
-yeah:	dw	TEST7, HALT
+yeah:	dw	QUIT, HALT
 
 	DEFWORD(test, 0, TEST)
 	dw LIT, 0cafe, LIT, 0babe, OVER, EXIT
@@ -323,7 +323,15 @@ var_$3:	dw	$4
 	DEFCONST(version, 0, VERSION, 1)
 	DEFCONST(r0, 0, RZ, return_stack)
 	DEFCONST(docol, 0, _DOCOL, DOCOL)
-	DEFCONST(bl, 0, BL, 020)
+
+blank:	equ	020
+
+	DEFCONST(bl, 0, BL, blank)
+
+	DEFCODE(space, 0, SPACE)
+	li	r1, blank
+	sw	r1, zero, charout
+	NEXT
 
 	DEFCODE(cr, 0, CR)
 	li	r1, newline
@@ -495,12 +503,12 @@ _parse_empty:
 	NEXT
 
 
-dash:		edu 02d
+dash:		equ 02d
 
 	DEFCODE(number, 0, NUMBER)
 	move	r1, r8			; length of string
 	lw	r2, r14, 0		; address of string
-	jal	_number
+	jal	r15, _number
 	move	r8, r2			; count of parsed chars, 0 = success
 	sw	r1, r14, 0		; parsed number
 	NEXT
@@ -525,5 +533,8 @@ _number0:
 	
 
 
+	DEFWORD(quit, 0, QUIT)
+	dw	LIT, buffer, DUP, LIT, 00ff, ACCEPT, SPACE, TYPE, CR, BRANCH, -0a, EXIT
+	
 
 
