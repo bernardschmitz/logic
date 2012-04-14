@@ -32,6 +32,7 @@ $SIG{'INT'} = 'INT_handler';
 
 sub INT_handler {
 	dump_cpu_state();
+	ReadMode 0;
 	exit(0);
 }
 

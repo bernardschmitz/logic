@@ -112,7 +112,7 @@ start:
 	NEXT
 	halt
 
-yeah:	dw	RANDCHAR, HALT
+yeah:	dw	RANDCHARS, HALT
 
 	DEFWORD(test, 0, TEST)
 	dw LIT, 0cafe, LIT, 0babe, OVER, EXIT
@@ -570,7 +570,9 @@ _num_fail:
 ;0f002 constant rand
 ;0fffe constant screen
 
-;: random-chars begin rand @ 01f and 020 and screen ! again ;
+; : randchar rand @ 01f and 020 + ;
+
+; : randchars begin pad dup 0a + do randchar i ! loop pad 0a type again ;
 
 	DEFCODE(and, 0, AND)
 	lw	r1, r14, 0
@@ -579,11 +581,22 @@ _num_fail:
 	NEXT
 
 	DEFCONST(rand, 0, RAND, random)
+	DEFCONST(charout, 0, CHAROUT, charout)
 
 
 	DEFWORD(randchar, 0, RANDCHAR)
-	dw	RAND, FETCH, LIT, 01f, AND, LIT, 020, PLUS, EMIT, BRANCH, -0a
+	dw	RAND, FETCH, LIT, 01f, AND, LIT, 020, PLUS, EXIT
 
+	DEFWORD(randchars, 0, RANDCHARS)
+	dw	RANDCHAR, EMIT, BRANCH, -03, EXIT
 
+	DEFCODE(rc, 0, RC)
+loop:
+	lw	t1, zero, random ; get random num
+	andi	t2, t1, 1f
+	addi	t2, t2, 20
+	sw	t2, zero, charout ; write random character
+	j	loop
+	NEXT
 
 
