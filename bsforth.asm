@@ -112,7 +112,7 @@ start:
 	NEXT
 	halt
 
-yeah:	dw	QUIT, HALT
+yeah:	dw	RANDCHAR, HALT
 
 	DEFWORD(test, 0, TEST)
 	dw LIT, 0cafe, LIT, 0babe, OVER, EXIT
@@ -135,7 +135,6 @@ yeah:	dw	QUIT, HALT
 
 	DEFWORD(test5, 0, TEST5)
 	dw LIT, 05, LIT, msg, LIT, 01a, TYPE, CR, ONE_MINUS, DUP, LIT, 0, EQUALS, ZBRANCH, -0c, EXIT
-
 msg:	ds "Hi there, this is bsforth!"
 
 
@@ -146,6 +145,14 @@ msg:	ds "Hi there, this is bsforth!"
 
 	DEFWORD(test7, 0, TEST7)
 	dw	LIT, 02a, LIT, EMIT, EXECUTE, EXIT
+
+
+	
+
+
+	DEFWORD(test8, 0, TEST8)
+	dw	LIT, num, LIT, 04, NUMBER, HALT
+num:	ds	"1234"
 
 
 	DEFCODE(halt, 0, HALT)
@@ -504,6 +511,8 @@ _parse_empty:
 
 
 dash:		equ 02d
+ascii_zero:	equ 030
+ascii_a_0:	equ 031
 
 	DEFCODE(number, 0, NUMBER)
 	move	r1, r8			; length of string
@@ -513,22 +522,40 @@ dash:		equ 02d
 	sw	r1, r14, 0		; parsed number
 	NEXT
 _number:
-	clear	r3
-	clear	r4
-
-	beq	r1, zero, _number0
-
-	lw	r5, zero, var_BASE
-
+	lw	r5, zero, var_BASE	; get number base
+	clear	r6			; clear parsed number
 	; TODO check minus
+_num0:
+	lw	r3, r2, 0		; get next character
+	; TODO convert lower case
 
-	
+	;subi	r3, r3, ascii_zero
+	addi	r3, r3, 0ffd0
+	slt	r4, r3, zero
+	bne	r4, zero, _num_fail
+	;subi	r3, r3, ascii_a_0
+	addi	r3, r3, 0ffcf
 
+	slt	r4, r3, zero
+	bne	r4, zero, _num1
 
+	addi	r3, r3, 0a
 
-_number0:
-	move	r1, r3
-	move	r2, r4
+_num1:
+	slt	r4, r3, r5
+	bne	r4, zero, _num_fail
+
+	mul	r6, r6, r5
+	add	r6, r6, r3
+
+	inc	r2
+	dec	r1
+	bne	r1, zero, _num0
+
+	; TODO negate
+
+_num_fail:
+	move	r1, r6
 	jr	r15
 	
 
@@ -536,5 +563,27 @@ _number0:
 	DEFWORD(quit, 0, QUIT)
 	dw	LIT, buffer, DUP, LIT, 00ff, ACCEPT, SPACE, TYPE, CR, BRANCH, -0a, EXIT
 	
+
+
+
+;hex
+;0f002 constant rand
+;0fffe constant screen
+
+;: random-chars begin rand @ 01f and 020 and screen ! again ;
+
+	DEFCODE(and, 0, AND)
+	lw	r1, r14, 0
+	and	r8, r8, r1
+	inc	r14
+	NEXT
+
+	DEFCONST(rand, 0, RAND, random)
+
+
+	DEFWORD(randchar, 0, RANDCHAR)
+	dw	RAND, FETCH, LIT, 01f, AND, LIT, 020, PLUS, EMIT, BRANCH, -0a
+
+
 
 

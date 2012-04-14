@@ -22,11 +22,18 @@ for(@bin) {
 	push @mem, hex $_;
 }
 
-for(0..1024) {
+for(0..10240) {
 	push @mem, 0x1f00;
 	push @mem, 0x0000;
 }
 
+
+$SIG{'INT'} = 'INT_handler';
+
+sub INT_handler {
+	dump_cpu_state();
+	exit(0);
+}
 
 
 #for(@mem) {
@@ -45,7 +52,6 @@ my $op = 0;
 my $ir = 0;
 
 my $result = 0;
-my $hi = 0;
 my $lo = 0;
 
 my $clock = 0;
@@ -77,6 +83,9 @@ init();
 my $halt = 0;
 
 
+print "\n\n";
+
+
 while(!$halt) {
 
 	$ir = read_mem($pc, 1);
@@ -92,7 +101,7 @@ while(!$halt) {
 	$rs = $ir & 0xf;
 	$rt = ($op >> 12) & 0xf;
 
-	printf STDERR "%04x %02x %01x %01x %01x %04x %08x\n", $pc-2, $ins, $rd, $rs, $rt, $op, $clock;
+#	printf STDERR "%04x %02x %01x %01x %01x %04x %08x\n", $pc-2, $ins, $rd, $rs, $rt, $op, $clock;
 
 	if(!defined $instruction{$ins}) {
 		die "invalid instruction";
@@ -106,13 +115,13 @@ while(!$halt) {
 		$_ &= 0xffff;
 	}
 
-	for(@reg) {
-		printf STDERR "%04x ", $_;
-	}
-	print STDERR  "\n";
+#	for(@reg) {
+#		printf STDERR "%04x ", $_;
+#	}
+#	print STDERR  "\n";
 
 	$pc &= 0xffff;
-	printf STDERR "%04x\n", $pc;
+#	printf STDERR "%04x\n", $pc;
 
 
 	ReadMode 3;
@@ -120,37 +129,49 @@ while(!$halt) {
 	ReadMode 0;
 
 	if(defined $char) {
-		$keyboard_buf .= $char;
+#		if($char eq '\033') {
+#			dump_cpu_state();
+#		}
+#		else {
+			$keyboard_buf .= $char;
 #print "\nchar: $char\nkb: $keyboard_buf\n";
+#		}
 	}
 
+
+	#dump_cpu_state();
 
 	usleep(100);
 }
 
 
-print STDERR "\nfetch mem\n";
+dump_cpu_state();
 
-for(sort { $a <=> $b } keys %fetch_memory) {
-	printf STDERR "%04x %08x %04x\n", $_, $fetch_memory{$_}, $mem[$_];
-}
 
-print "\n";
 
-print STDERR "\nread mem\n";
 
-for(sort { $a <=> $b } keys %read_memory) {
-	printf STDERR "%04x %08x %04x\n", $_, $read_memory{$_}, $mem[$_];
-}
-
-print "\n";
-
-print STDERR "\nwrite mem\n";
-for(sort { $a <=> $b } keys %written_memory) {
-	printf STDERR "%04x %08x %04x\n", $_, $written_memory{$_}, $mem[$_];
-}
-
-print "\n";
+#print STDERR "\nfetch mem\n";
+#
+#for(sort { $a <=> $b } keys %fetch_memory) {
+#	printf STDERR "%04x %08x %04x\n", $_, $fetch_memory{$_}, $mem[$_];
+#}
+#
+#print "\n";
+#
+#print STDERR "\nread mem\n";
+#
+#for(sort { $a <=> $b } keys %read_memory) {
+#	printf STDERR "%04x %08x %04x\n", $_, $read_memory{$_}, $mem[$_];
+#}
+#
+#print "\n";
+#
+#print STDERR "\nwrite mem\n";
+#for(sort { $a <=> $b } keys %written_memory) {
+#	printf STDERR "%04x %08x %04x\n", $_, $written_memory{$_}, $mem[$_];
+#}
+#
+#print "\n";
 
 
 
@@ -243,59 +264,59 @@ sub write_mem($ $) {
 sub init() {
 
 	$instruction{0x00} = sub() {
-		print STDERR "add\n";	
+#		print STDERR "add\n";	
 		$reg[$rd] = $reg[$rs] + $reg[$rt];
 		$clock += 2;
 	};
 
 	$instruction{0x01} = sub() {
-		print STDERR "addi\n";	
+#		print STDERR "addi\n";	
 		$reg[$rd] = $reg[$rs] + $op;
 		$clock += 2;
 	};
 
 	$instruction{0x02} = sub() {
-		print STDERR "sub\n";	
+#		print STDERR "sub\n";	
 		$reg[$rd] = $reg[$rs] - $reg[$rt];
 		$clock += 2;
 	};
 
 	$instruction{0x03} = sub() {
-		print STDERR "mul\n";	
+#		print STDERR "mul\n";	
 		$result = $reg[$rs] * $reg[$rt];
-		$hi = ($result >> 16) & 0xffff;
+		$result = ($result >> 16) & 0xffff;
 		$lo = $result & 0xffff;
 		$clock++;
 	};
 
 	$instruction{0x04} = sub() {
-		print STDERR "div\n";	
+#		print STDERR "div\n";	
 
 		if($reg[$rt] == 0) {
-			$hi = 0;
+			$result = 0;
 			$lo = $reg[$rs];
 		}
 		else {
 			$lo = int($reg[$rs] / $reg[$rt]) & 0xffff;
-			$hi = int($reg[$rs] % $reg[$rt]) & 0xffff;
+			$result = int($reg[$rs] % $reg[$rt]) & 0xffff;
 		}
 		$clock++;
 	};
 
 	$instruction{0x05} = sub() {
-		print STDERR "sll\n";
+#		print STDERR "sll\n";
 		$reg[$rd] = $reg[$rs] << ($op & 0xf);	
 		$clock += 2;	
 	};
 
 	$instruction{0x06} = sub() {
-		print STDERR "srl\n";
+#		print STDERR "srl\n";
 		$reg[$rd] = $reg[$rs] >> ($op & 0xf);	
 		$clock += 2;	
 	};
 
 	$instruction{0x07} = sub() {
-		print STDERR "sra\n";
+#		print STDERR "sra\n";
 		$reg[$rd] = $reg[$rs] >> ($op & 0xf);	
 		my $mask = 0xffff >> ($op & 0xf);
 		$reg[$rd] &= $mask;
@@ -303,19 +324,19 @@ sub init() {
 	};
 
 	$instruction{0x08} = sub() {
-		print STDERR "sllv\n";	
+#		print STDERR "sllv\n";	
 		$reg[$rd] = $reg[$rs] << ($reg[$rt] & 0xf);
 		$clock += 2;
 	};
 
 	$instruction{0x09} = sub() {
-		print STDERR "srlv\n";	
+#		print STDERR "srlv\n";	
 		$reg[$rd] = $reg[$rs] >> ($reg[$rt] & 0xf);
 		$clock += 2;
 	};
 
 	$instruction{0x0a} = sub() {
-		print STDERR "srav\n";
+#		print STDERR "srav\n";
 		$reg[$rd] = $reg[$rs] >> ($reg[$rt] & 0xf);	
 		my $mask = 0xffff >> ($op & 0xf);
 		$reg[$rd] &= $mask;
@@ -323,7 +344,7 @@ sub init() {
 	};
 
 	$instruction{0x0b} = sub() {
-		print STDERR "beq\n";	
+#		print STDERR "beq\n";	
 		if($reg[$rs] == $reg[$rd]) {
 			$pc += ($op << 1);
 		}
@@ -333,7 +354,7 @@ sub init() {
 	};
 
 	$instruction{0x0c} = sub() {
-		print STDERR "bne\n";	
+#		print STDERR "bne\n";	
 		if($reg[$rs] != $reg[$rd]) {
 			$pc += ($op << 1);
 		}
@@ -341,7 +362,7 @@ sub init() {
 	};
 
 	$instruction{0x0d} = sub() {
-		print STDERR "slt\n";	
+#		print STDERR "slt\n";	
 		if($reg[$rs] < $reg[$rt]) {
 			$reg[$rd] = 1;
 		}
@@ -352,7 +373,7 @@ sub init() {
 	};
 
 	$instruction{0x0e} = sub() {
-		print STDERR "slti\n";	
+#		print STDERR "slti\n";	
 		if($reg[$rs] < $op) {
 			$reg[$rd] = 1;
 		}
@@ -364,99 +385,136 @@ sub init() {
 
 
 	$instruction{0x0f} = sub() {
-		print STDERR "and\n";	
+#		print STDERR "and\n";	
 		$reg[$rd] = $reg[$rs] & $reg[$rt];
 		$clock += 2;
 	};
 
 	$instruction{0x10} = sub() {
-		print STDERR "andi\n";	
+#		print STDERR "andi\n";	
 		$reg[$rd] = $reg[$rs] & $op;
 		$clock += 2;
 	};
 
 	$instruction{0x11} = sub() {
-		print STDERR "or\n";	
+#		print STDERR "or\n";	
 		$reg[$rd] = $reg[$rs] | $reg[$rt];
 		$clock += 2;
 	};
 
 	$instruction{0x12} = sub() {
-		print STDERR "ori\n";	
+#		print STDERR "ori\n";	
 		$reg[$rd] = $reg[$rs] | $op;
 		$clock += 2;
 	};
 
 	$instruction{0x13} = sub() {
-		print STDERR "xor\n";	
+#		print STDERR "xor\n";	
 		$reg[$rd] = $reg[$rs] ^ $reg[$rt];
 		$clock += 2;
 	};
 
 	$instruction{0x14} = sub() {
-		print STDERR "nor\n";	
+#		print STDERR "nor\n";	
 		$reg[$rd] = ~($reg[$rs] | $reg[$rt]);
 		$clock += 2;
 	};
 
 
 	$instruction{0x15} = sub() {
-		print STDERR "j\n";	
+#		print STDERR "j\n";	
 		$pc = $op;
 		$clock++;
 	};
 
 	$instruction{0x16} = sub() {
-		print STDERR "jr\n";	
+#		print STDERR "jr\n";	
 		$pc = $reg[$rt];
 		$clock++;
 	};
 
 	$instruction{0x17} = sub() {
-		print STDERR "jal\n";	
+#		print STDERR "jal\n";	
 		$reg[$rd] = $pc;
 		$pc = $op;
 		$clock += 2;
 	};
 
 	$instruction{0x18} = sub() {
-		print STDERR "jalr\n";	
+#		print STDERR "jalr\n";	
 		$reg[$rd] = $pc;
 		$pc = $reg[$rt];
 		$clock += 2;
 	};
 
 	$instruction{0x19} = sub() {
-		print STDERR "lw\n";	
+#		print STDERR "lw\n";	
 	#	printf STDERR "%04x %04x\n", $reg[$rs]+$op, read_mem($reg[$rs]+$op, 0);
 		$reg[$rd] = read_mem($reg[$rs]+$op, 0);
 		$clock += 2;
 	};
 
 	$instruction{0x1a} = sub() {
-		print STDERR "sw\n";	
+#		print STDERR "sw\n";	
 	#	printf STDERR "%04x %04x %04x\n", $reg[$rs]+$op, read_mem($reg[$rs]+$op, 0), $reg[$rd];
 		write_mem($reg[$rs]+$op, $reg[$rd]);
 		$clock += 2;
 	};
  
 	$instruction{0x1b} = sub() {
-		print STDERR "mfhi\n";	
-		$reg[$rd] = $hi;
+#		print STDERR "mfhi\n";	
+		$reg[$rd] = $result;
 		$clock++;
 	};
  
 	$instruction{0x1c} = sub() {
-		print STDERR "mflo\n";	
+#		print STDERR "mflo\n";	
 		$reg[$rd] = $lo;
 		$clock++;
 	};
  
 	$instruction{0x1f} = sub() {
-		print STDERR "halt\n";	
+#		print STDERR "halt\n";	
 		$halt = 1;
 	};
  
 
 }
+
+sub dump_cpu_state {
+
+	print STDERR "\n\n\n------------\n\n";
+
+	printf STDERR " PC: %04x IR: %04x OP: %04x RESULT: %04x LO: %04x\n\n", $pc, $ir, $op, $result, $lo;
+
+	my $i = 0;
+	for(@reg) {
+		printf STDERR "%3s: %04x ", ("R".$i), $_;
+
+		$i++;
+		if($i % 8 == 0) {
+			print "\n";
+		}
+	}
+
+	print STDERR "\n\n";
+
+	print STDERR "DATA STACK: ";
+
+	for($reg[14] .. (0x8000-2)) {
+		printf STDERR "%04x ", $mem[$_];
+	}
+
+	print STDERR "\n\n";
+
+	print STDERR "RETURN STACK: ";
+
+	for($reg[13] .. (0x9000-1)) {
+		printf STDERR "%04x ", $mem[$_];
+	}
+
+	print STDERR "\n\n";
+
+}
+
 
