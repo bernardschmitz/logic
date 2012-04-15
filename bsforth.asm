@@ -112,7 +112,7 @@ start:
 	NEXT
 	halt
 
-yeah:	dw	RANDCHARS, HALT
+yeah:	dw	TEST9, HALT
 
 	DEFWORD(test, 0, TEST)
 	dw LIT, 0cafe, LIT, 0babe, OVER, EXIT
@@ -154,6 +154,11 @@ msg:	ds "Hi there, this is bsforth!"
 	dw	LIT, num, LIT, 04, NUMBER, HALT
 num:	ds	"1234"
 
+
+
+	DEFWORD(test9, 0, TEST9)
+	dw	LIT, msg1, LIT, 5, TYPE, EXIT
+msg1:	ds	"sheep"
 
 	DEFCODE(halt, 0, HALT)
 	halt
