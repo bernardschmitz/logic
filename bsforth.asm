@@ -112,7 +112,7 @@ start:
 	NEXT
 	halt
 
-yeah:	dw	TEST9, HALT
+yeah:	dw	SUM100, HALT
 
 	DEFWORD(test, 0, TEST)
 	dw LIT, 0cafe, LIT, 0babe, OVER, EXIT
@@ -603,5 +603,10 @@ loop:
 	sw	t2, zero, charout ; write random character
 	j	loop
 	NEXT
+
+; : sum100 0 101 0 do i + loop ;
+; 13ba
+	DEFWORD(sum100, 0, SUM100)
+	dw	LIT, 0, LIT, 064, DUP, TO_R, PLUS, FROM_R, ONE_MINUS, DUP, LIT, 0, EQUALS, ZBRANCH, -0a, EXIT
 
 
