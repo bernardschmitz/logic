@@ -112,7 +112,7 @@ start:
 	NEXT
 	halt
 
-yeah:	dw	SUM100, HALT
+yeah:	dw	TEST8, HALT
 
 	DEFWORD(test, 0, TEST)
 	dw LIT, 0cafe, LIT, 0babe, OVER, EXIT
