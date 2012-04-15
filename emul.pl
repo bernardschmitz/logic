@@ -502,7 +502,7 @@ sub dump_cpu_state {
 
 	print STDERR "DATA STACK: ";
 
-	for($reg[14] .. (0x8000-2)) {
+	for($reg[14] .. (0x8000-1)) {
 		printf STDERR "%04x ", $mem[$_];
 	}
 

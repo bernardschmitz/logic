@@ -147,9 +147,6 @@ msg:	ds "Hi there, this is bsforth!"
 	dw	LIT, 02a, LIT, EMIT, EXECUTE, EXIT
 
 
-	
-
-
 	DEFWORD(test8, 0, TEST8)
 	dw	LIT, num, LIT, 04, NUMBER, HALT
 num:	ds	"1234"
@@ -160,117 +157,143 @@ num:	ds	"1234"
 	dw	LIT, msg1, LIT, 5, TYPE, EXIT
 msg1:	ds	"sheep"
 
+
+
 	DEFCODE(halt, 0, HALT)
 	halt
 
 	DEFCODE(drop, 0, DROP)
 	inc	r14
-	lw	r8, r14, 0
 	NEXT
 
 	DEFCODE(swap, 0, SWAP)
-	move	r1, r8
-	lw	r8, r14, 0
-	sw	r1, r14, 0
+	lw	r2, r14, 0
+	lw	r3, r14, 1
+
+	sw	r3, r14, 0
+	sw	r2, r14, 1
 	NEXT
 
 	DEFCODE(dup, 0, DUP)
-	PUSHDSP(r8)
+	lw	r2, r14, 0
+	PUSHDSP(r2)
 	NEXT
 
 	DEFCODE(over, 0, OVER)
-	PUSHDSP(r8)
-	lw	r8, r14, 1
+	lw	r2, r14, 1
+	PUSHDSP(r2)
 	NEXT
 
 	DEFCODE(rot, 0, ROT)
-	lw	r1, r14, 1
 	lw	r2, r14, 0
+	lw	r3, r14, 1
+	lw	r4, r14, 2
+
+	sw	r4, r14, 0
 	sw	r2, r14, 1
-	sw	r8, r14, 0
-	move	r8, r1
+	sw	r3, r14, 2	
 	NEXT
 
 	DEFCODE(2drop, 0, TWODROP)
-	lw	r8, r14, 1
 	addi	r14, r14, 2
 	NEXT
 
 	DEFCODE(2dup, 0, TWODUP)
-	lw	r1, r14, 0
-	sw	r8, r14, -1
-	sw	r1, r14, -2
+	lw	r2, r14, 0
+	lw	r3, r14, 1
 	addi	r14, r14, -2
+	sw	r2, r14, 0
+	sw	r3, r14, 1
 	NEXT
 
 	DEFCODE(2swap, 0, TWOSWAP)
-	move	r1, r8
-	lw	r8, r14, 1
-	sw	r1, r14, 1
-	lw	r1, r14, 0
-	lw	r2, r14, 2
-	sw	r1, r14, 2
-	sw	r2, r14, 0
+	lw	r2, r14, 0
+	lw	r3, r14, 1
+	lw	r4, r14, 2
+	lw	r5, r14, 3
+
+	sw	r4, r14, 0
+	sw	r5, r14, 1
+	sw	r2, r14, 2
+	sw	r3, r14, 3
 	NEXT
 
 	DEFCODE(?dup, 0, QUESTION_DUP)
-	beq	r8, zero, qdup0
-	PUSHDSP(r8)
+	lw	r2, r14, 0
+	beq	r2, zero, qdup0
+	PUSHDSP(r2)
 qdup0:
 	NEXT
 
 	DEFCODE(1+, 0, ONE_PLUS)
-	inc	r8
+	lw	r2, r14, 0
+	inc	r2
+	sw	r2, r14, 0
 	NEXT
 
 	DEFCODE(1-, 0, ONE_MINUS)
-	dec	r8
+	lw	r2, r14, 0
+	dec	r2
+	sw	r2, r14, 0
 	NEXT
 
 	DEFCODE(+, 0, PLUS)
-	lw	r1, r14, 0
-	add	r8, r8, r1
+	lw	r2, r14, 0
+	lw	r3, r14, 1
+	add	r2, r2, r3
 	inc	r14
+	sw	r2, r14, 0
 	NEXT
 
 	DEFCODE(-, 0, MINUS)
-	lw	r1, r14, 0
-	sub	r8, r8, r1
+	lw	r2, r14, 0
+	lw	r3, r14, 1
+	sub	r2, r2, r3
 	inc	r14
+	sw	r2, r14, 0
 	NEXT
 
 	DEFCODE(*, 0, STAR)
-	lw	r1, r14, 0
-	mul	r8, r8, r1
+	lw	r2, r14, 0
+	lw	r3, r14, 1
+	mul	r2, r2, r3
 	inc	r14
+	sw	r2, r14, 0
 	NEXT
 
 	DEFCODE(/, 0, SLASH)
-	lw	r1, r14, 0
-	div	r8, r8, r1
+	lw	r2, r14, 0
+	lw	r3, r14, 1
+	div	r2, r2, r3
 	inc	r14
+	sw	r2, r14, 0
 	NEXT
 	
 	
 	DEFCODE(/mod, 0, SLASH_MOD)
-	lw	r1, r14, 0
-	div	r8, r8, r1
-	mfhi	r1
-	sw	r1, r14, 0
+	lw	r2, r14, 0
+	lw	r3, r14, 1
+	div	r2, r2, r3
+	mfhi	r3
+	sw	r2, r14, 0
+	sw	r3, r14, 1
 	NEXT
 
 	DEFCODE(invert, 0, INVERT)
-	not	r8
+	lw	r2, r14, 0
+	not	r2
+	sw	r2, r14, 0
 	NEXT
 
 	DEFCODE(=, 0, EQUALS)
-	clear	r1
-	lw	r2, r14, 0
-	bne	r8, r2, equals0
-	not	r1
+	clear	r2
+	lw	r3, r14, 0
+	lw	r4, r14, 1
+	bne	r3, r4, equals0
+	not	r2
 equals0:
 	inc	r14
-	move	r8, r1
+	sw	r2, r14, 0
 	NEXT
 
 
@@ -282,36 +305,38 @@ equals0:
 	NEXT
 
 	DEFCODE(lit, 0, LIT)
-	PUSHDSP(r8)
-	lw	r8, r10, 0
+	lw	r2, r10, 0
 	inc	r10
+	PUSHDSP(r2)
 	NEXT
 
 	DEFCODE(!, 0, STORE)
-	lw	r1, r14, 0
-	sw	r1, r8, 0
-	lw	r8, r14, 1
+	lw	r2, r14, 0
+	lw	r3, r14, 1
+	sw	r3, r2, 0
 	addi	r14, r14, 2
 	NEXT
 
 	DEFCODE(@, 0, FETCH)
-	lw	r8, r8, 0
+	lw	r2, r14, 0
+	lw	r2, r2, 0
+	sw	r2, r14, 0
 	NEXT
 
 	DEFCODE(+!, 0, PLUS_STORE)
-	lw	r1, r8, 0
 	lw	r2, r14, 0
-	add	r1, r1, r2
-	sw	r1, r8, 0
-	lw	r8, r14, 1
+	lw	r3, r14, 1
+	lw	r4, r2, 0
+	add	r4, r4, r3
+	sw	r4, r2, 0
 	addi	r14, r14, 2
 	NEXT
 
 
 	define(DEFVAR, {
 	DEFCODE($1, $2, $3)
-	PUSHDSP(r8)
-	li	r8, var_$3
+	li	r2, var_$3
+	PUSHDSP(r2)
 	NEXT
 var_$3:	dw	$4
 	})dnl
@@ -327,8 +352,8 @@ var_$3:	dw	$4
 
 	define(DEFCONST, {
 	DEFCODE($1, $2, $3)
-	PUSHDSP(r8)
-	li	r8, $4
+	li	r2, $4
+	PUSHDSP(r2)
 	NEXT
 	})dnl
 
@@ -341,176 +366,180 @@ blank:	equ	020
 	DEFCONST(bl, 0, BL, blank)
 
 	DEFCODE(space, 0, SPACE)
-	li	r1, blank
-	sw	r1, zero, charout
+	li	r2, blank
+	sw	r2, zero, charout
 	NEXT
 
 	DEFCODE(cr, 0, CR)
-	li	r1, newline
-	sw	r1, zero, charout
+	li	r2, newline
+	sw	r2, zero, charout
 	NEXT
 
 	DEFCODE(>r, 0, TO_R)
-	PUSHRSP(r8)
-	POPDSP(r8)
+	POPDSP(r2)
+	PUSHRSP(r2)
 	NEXT
 
 	DEFCODE(r>, 0, FROM_R)
-	PUSHDSP(r8)
-	POPRSP(r8)
+	POPRSP(r2)
+	PUSHDSP(r2)
 	NEXT
 
 	DEFCODE(key?, 0, KEY_QUESTION)
-	PUSHDSP(r8)
-	clear	r8
-	lw	r1, zero, charrdy
-	beq	r1, zero, _keyq0
-	not	r8
+	clear	r2
+	lw	r3, zero, charrdy
+	beq	r3, zero, _keyq0
+	not	r2
 _keyq0:
+	PUSHDSP(r2)
 	NEXT
 
 
 	DEFCODE(key, 0, KEY)
-	PUSHDSP(r8)
 	jal	r15, _key
-	move	r8, r1
+	PUSHDSP(r2)
 	NEXT
 _key:
-	lw	r1, zero, charrdy
-	beq	r1, zero, _key
-	lw	r1, zero, charin
+	lw	r2, zero, charrdy
+	beq	r2, zero, _key
+	lw	r2, zero, charin
 	jr	r15
 
 
 	DEFCODE(emit, 0, EMIT)
-	sw	r8, zero, charout
-	POPDSP(r8)
+	POPDSP(r2)
+	sw	r2, zero, charout
 	NEXT
 
 delete:		equ 008
 newline:	equ 00a
 
 	DEFCODE(accept, 0, ACCEPT)
-	move	r1, r8
 	lw	r2, r14, 0
+	lw	r3, r14, 1
 	jal	r15, _accept
-	move	r8, r1
 	inc	r14
+	sw	r2, r14, 0
 	NEXT
 _accept:
 	move	r9, r15			; save return address
-	move	r3, r1			; save max count
-	clear	r4			; zero char count
-	li	r5, newline		; eol char
-	li	r6, delete		; bs char
+	move	r4, r2			; save max count
+	clear	r5			; zero char count
+	li	r6, newline		; eol char
+	li	r7, delete		; bs char
 _accept0:
 	jal	r15, _key		; get key code in r1
-	beq	r1, r5, eol0		; is it eol char?
-	beq	r1, r6, bs0		; is it bs char?
-	beq	r3, zero, lim0		; have we reached the char limit?
+	beq	r2, r6, eol0		; is it eol char?
+	beq	r2, r7, bs0		; is it bs char?
+	beq	r4, zero, lim0		; have we reached the char limit?
 
-	sw	r1, zero, charout	; output char
-	sw	r1, r2, 0		; store char
-	inc	r4			; count char
+	sw	r2, zero, charout	; output char
+	sw	r2, r3, 0		; store char
+	inc	r5			; count char
 	inc	r2			; inc buffer address
-	dec	r3			; decr max count
+	dec	r4			; decr max count
 	j	_accept0		; get next char
 lim0:
-	sw	r6, zero, charout
-	sw	r1, zero, charout	; output char
-	sw	r1, r2, -1
+	sw	r7, zero, charout
+	sw	r2, zero, charout	; output char
+	sw	r2, r3, -1
 	j	_accept0		; get next char
 eol0:
-	move	r1, r4			; save actual char count
+	move	r2, r5			; save actual char count
 	jr	r9			; return
 bs0:
-	beq	r4, zero, _accept0	; ignore bs if first key
-	sw	r6, zero, charout
-	dec	r4			; backspace buffer
-	dec	r2
-	inc	r3
+	beq	r5, zero, _accept0	; ignore bs if first key
+	sw	r7, zero, charout
+	dec	r5			; backspace buffer
+	dec	r3
+	inc	r4
 	j	_accept0		; continue
 
 
 
-	DEFCODE(source, 0, SOURCE)
-	sw	r8, r14, -1
-	li	r1, buffer
-	sw	r1, r14, -2
-	li	r8, bufferlen
-	addi	r14, r14, -2
-	NEXT
+;	DEFCODE(source, 0, SOURCE)
+;	sw	r8, r14, -1
+;	li	r1, buffer
+;	sw	r1, r14, -2
+;	li	r8, bufferlen
+;	addi	r14, r14, -2
+;	NEXT
 
 
 	DEFCODE(type, 0, TYPE)
-	move	r1, r8
 	lw	r2, r14, 0
-	lw	r8, r14, 1
-	addi	r14, r14, 2
-	beq	r1, zero, _type1 
+	beq	r2, zero, _type1
+	lw	r3, r14, 1
 	jal	r15, _type
 _type1:
+	addi	r14, r14, -2
 	NEXT
 _type:
-	lw	r3, r2, 0
-	sw	r3, zero, charout
-	inc	r2
-	dec	r1
-	bne	r1, zero, _type
+	lw	r4, r3, 0
+	sw	r4, zero, charout
+	inc	r3
+	dec	r2
+	bne	r2, zero, _type
 	jr	r15
 
 
 
 	DEFCODE(parse, 0, PARSE)
-	move	r1, r8
+	lw	r2, r14, 0
 	jal	r15, _parse
-	move	r8, r1
+	sw	r3, r14, 0
 	PUSHDSP(r2)
 	NEXT
 _parse:
-	li	r3, bufferlen
-	lw	r2, zero, var_TO_IN
-	move	r5, r2
-	beq	r2, r3, _parse_empty
+	li	r4, bufferlen
+	lw	r3, zero, var_TO_IN
+	move	r6, r3
+	beq	r3, r4, _parse_empty
 
 _parse_more:
-	lw	r4, r2, buffer
-	inc	r2
-	beq	r4, r1, _parse_done
-	bne	r2, r3, _parse_more
+	lw	r5, r3, buffer
+	inc	r3
+	beq	r5, r2, _parse_done
+	bne	r3, r4, _parse_more
 
 _parse_done:
-	sw	r2, zero, var_TO_IN
-	sub	r1, r2, r5		; length of parsed string
-	li	r6, buffer
-	add	r2, r6, r5		; address of start of parsed string
+	sw	r3, zero, var_TO_IN
+	sub	r2, r3, r6		; length of parsed string
+	li	r7, buffer
+	add	r3, r7, r6		; address of start of parsed string
 	jr	r15	
 
 _parse_empty:
-	clear	r1
-	li	r2, buffer
-	add	r2, r2, r3
+	clear	r2
+	li	r3, buffer
+	add	r3, r3, r4
 	jr	r15
 
 
 
 	DEFCODE(execute, 0, EXECUTE)
-	lw	r1, r8, 0
-	POPDSP(r8)
-	jr	r1
+	POPDSP(r2)
+	jr	r2
 
+
+	DEFCODE(@execute, 0, FETCH_EXECUTE)
+	POPDSP(r2)
+	lw	r3, r2, 0
+	beq	r3, zero, exec_skip
+	jr	r3
+exec_skip:
+	NEXT
 
 
 	DEFCODE(branch, 0, BRANCH)
-	lw	r1, r10, 0
-	add	r10, r10, r1
+	lw	r2, r10, 0
+	add	r10, r10, r2
 	NEXT	
 
 
 	DEFCODE(0branch, 0, ZBRANCH)
-	move	r1, r8
-	POPDSP(r8)
-	beq	r1, zero, code_BRANCH
+	POPDSP(r2)
+	beq	r2, zero, code_BRANCH
 	inc	r10
 	NEXT
 
@@ -520,47 +549,47 @@ ascii_zero:	equ 030
 ascii_a_0:	equ 031
 
 	DEFCODE(number, 0, NUMBER)
-	move	r1, r8			; length of string
-	lw	r2, r14, 0		; address of string
+	lw	r2, r14, 0		; length of string
+	lw	r3, r14, 1		; address of string
 	jal	r15, _number
-	move	r8, r2			; count of parsed chars, 0 = success
-	sw	r1, r14, 0		; parsed number
+	sw	r2, r14, 0		; count of parsed chars, 0 = success
+	sw	r1, r14, 1		; parsed number
 	NEXT
 _number:
-	lw	r5, zero, var_BASE	; get number base
-	clear	r6			; clear parsed number
+	lw	r6, zero, var_BASE	; get number base
+	clear	r7			; clear parsed number
 	; TODO check minus
 _num0:
-	lw	r3, r2, 0		; get next character
+	lw	r4, r3, 0		; get next character
 	; TODO convert lower case
 
 	;subi	r3, r3, ascii_zero
-	addi	r3, r3, 0ffd0
-	slt	r4, r3, zero
-	bne	r4, zero, _num_fail
+	addi	r4, r4, 0ffd0
+	slt	r5, r4, zero
+	bne	r5, zero, _num_fail
 	;subi	r3, r3, ascii_a_0
-	addi	r3, r3, 0ffcf
+	addi	r4, r4, 0ffcf
 
-	slt	r4, r3, zero
-	bne	r4, zero, _num1
+	slt	r5, r4, zero
+	bne	r5, zero, _num1
 
-	addi	r3, r3, 0a
+	addi	r4, r4, 0a
 
 _num1:
-	slt	r4, r3, r5
-	bne	r4, zero, _num_fail
+	slt	r5, r4, r5
+	bne	r5, zero, _num_fail
 
-	mul	r6, r6, r5
-	add	r6, r6, r3
+	mul	r7, r7, r6
+	add	r7, r7, r4
 
-	inc	r2
-	dec	r1
-	bne	r1, zero, _num0
+	inc	r3
+	dec	r2
+	bne	r2, zero, _num0
 
 	; TODO negate
 
 _num_fail:
-	move	r1, r6
+	move	r2, r7
 	jr	r15
 	
 
@@ -580,9 +609,11 @@ _num_fail:
 ; : randchars begin pad dup 0a + do randchar i ! loop pad 0a type again ;
 
 	DEFCODE(and, 0, AND)
-	lw	r1, r14, 0
-	and	r8, r8, r1
+	lw	r2, r14, 0
+	lw	r3, r14, 1
+	and	r2, r2, r3
 	inc	r14
+	sw	r2, r14, 0
 	NEXT
 
 	DEFCONST(rand, 0, RAND, random)
@@ -597,16 +628,16 @@ _num_fail:
 
 	DEFCODE(rc, 0, RC)
 loop:
-	lw	t1, zero, random ; get random num
-	andi	t2, t1, 1f
-	addi	t2, t2, 20
-	sw	t2, zero, charout ; write random character
+	lw	r2, zero, random ; get random num
+	andi	r3, r2, 1f
+	addi	r3, r3, 20
+	sw	r3, zero, charout ; write random character
 	j	loop
 	NEXT
 
 ; : sum100 0 101 0 do i + loop ;
 ; 13ba
 	DEFWORD(sum100, 0, SUM100)
-	dw	LIT, 0, LIT, 064, DUP, TO_R, PLUS, FROM_R, ONE_MINUS, DUP, LIT, 0, EQUALS, ZBRANCH, -0a, EXIT
+	dw	LIT, 0, LIT, 064, DUP, TO_R, PLUS, FROM_R, ONE_MINUS, DUP, LIT, 0, EQUALS, ZBRANCH, -0a, DROP, EXIT
 
 
