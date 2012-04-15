@@ -911,8 +911,8 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
     <wire from="(1640,1570)" to="(1640,1670)"/>
     <wire from="(590,550)" to="(640,550)"/>
     <wire from="(280,900)" to="(570,900)"/>
-    <wire from="(370,1160)" to="(370,2080)"/>
     <wire from="(590,450)" to="(640,450)"/>
+    <wire from="(370,1160)" to="(370,2080)"/>
     <wire from="(240,450)" to="(240,550)"/>
     <wire from="(740,280)" to="(740,640)"/>
     <wire from="(430,1760)" to="(430,2140)"/>
