@@ -148,8 +148,8 @@ msg:	ds "Hi there, this is bsforth!"
 
 
 	DEFWORD(test8, 0, TEST8)
-	dw	LIT, num, LIT, 04, NUMBER, HALT
-num:	ds	"1234"
+	dw	BINARY, LIT, num, LIT, 0c, NUMBER, HALT
+num:	ds	"001100000101"
 
 
 
@@ -348,6 +348,19 @@ var_$3:	dw	$4
 	DEFVAR(s0, 0, SZ, 0)
 	DEFVAR(base, 0, BASE, 0a)
 	DEFVAR(>in, 0, TO_IN, bufferlen)
+
+	DEFWORD(binary, 0, BINARY)
+	dw	LIT, 02, BASE, STORE, EXIT
+
+	DEFWORD(octal, 0, OCTAL)
+	dw	LIT, 08, BASE, STORE, EXIT
+
+	DEFWORD(hex, 0, HEX)
+	dw	LIT, 010, BASE, STORE, EXIT
+
+	DEFWORD(decimal, 0, DECIMAL)
+	dw	LIT, 0a, BASE, STORE, EXIT
+
 
 
 	define(DEFCONST, {
@@ -552,12 +565,14 @@ ascii_a_0:	equ 031
 	lw	r2, r14, 0		; length of string
 	lw	r3, r14, 1		; address of string
 	jal	r15, _number
-	sw	r2, r14, 0		; count of parsed chars, 0 = success
-	sw	r1, r14, 1		; parsed number
+	sw	r3, r14, 0		; count of parsed chars, 0 = success
+	sw	r2, r14, 1		; parsed number
 	NEXT
 _number:
 	lw	r6, zero, var_BASE	; get number base
 	clear	r7			; clear parsed number
+	clear	r8
+	li	r9, 09
 	; TODO check minus
 _num0:
 	lw	r4, r3, 0		; get next character
@@ -565,23 +580,22 @@ _num0:
 
 	;subi	r3, r3, ascii_zero
 	addi	r4, r4, 0ffd0
-	slt	r5, r4, zero
-	bne	r5, zero, _num_fail
+	blt	r4, zero, _num_fail
+	ble	r4, r9, _num1	
+
 	;subi	r3, r3, ascii_a_0
 	addi	r4, r4, 0ffcf
-
-	slt	r5, r4, zero
-	bne	r5, zero, _num1
+	blt	r4, zero, _num_fail
 
 	addi	r4, r4, 0a
 
 _num1:
-	slt	r5, r4, r5
-	bne	r5, zero, _num_fail
+	bge	r4, r6, _num_fail
 
 	mul	r7, r7, r6
 	add	r7, r7, r4
 
+	inc	r8
 	inc	r3
 	dec	r2
 	bne	r2, zero, _num0
@@ -590,6 +604,7 @@ _num1:
 
 _num_fail:
 	move	r2, r7
+	move	r3, r8
 	jr	r15
 	
 

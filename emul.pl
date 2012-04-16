@@ -53,7 +53,7 @@ my $op = 0;
 my $ir = 0;
 
 my $result = 0;
-my $lo = 0;
+my $hi = 0;
 
 my $clock = 0;
 
@@ -285,8 +285,8 @@ sub init() {
 	$instruction{0x03} = sub() {
 #		print STDERR "mul\n";	
 		$result = $reg[$rs] * $reg[$rt];
-		$result = ($result >> 16) & 0xffff;
-		$lo = $result & 0xffff;
+		$hi = ($result >> 16) & 0xffff;
+		$result = $result & 0xffff;
 		$clock++;
 	};
 
@@ -294,12 +294,12 @@ sub init() {
 #		print STDERR "div\n";	
 
 		if($reg[$rt] == 0) {
-			$result = 0;
-			$lo = $reg[$rs];
+			$result = $reg[$rs];
+			$hi = 0;
 		}
 		else {
-			$lo = int($reg[$rs] / $reg[$rt]) & 0xffff;
-			$result = int($reg[$rs] % $reg[$rt]) & 0xffff;
+			$result = int($reg[$rs] / $reg[$rt]) & 0xffff;
+			$hi = int($reg[$rs] % $reg[$rt]) & 0xffff;
 		}
 		$clock++;
 	};
@@ -464,13 +464,13 @@ sub init() {
  
 	$instruction{0x1b} = sub() {
 #		print STDERR "mfhi\n";	
-		$reg[$rd] = $result;
+		$reg[$rd] = $hi;
 		$clock++;
 	};
  
 	$instruction{0x1c} = sub() {
 #		print STDERR "mflo\n";	
-		$reg[$rd] = $lo;
+		$reg[$rd] = $result;
 		$clock++;
 	};
  
@@ -486,7 +486,7 @@ sub dump_cpu_state {
 
 	print STDERR "\n\n\n------------\n\n";
 
-	printf STDERR " PC: %04x IR: %04x OP: %04x RESULT: %04x LO: %04x\n\n", $pc, $ir, $op, $result, $lo;
+	printf STDERR " PC: %04x IR: %04x OP: %04x RESULT: %04x LO: %04x\n\n", $pc, $ir, $op, $result, $hi;
 
 	my $i = 0;
 	for(@reg) {
