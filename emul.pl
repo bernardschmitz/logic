@@ -95,7 +95,7 @@ while(!$halt) {
 
 	$op = read_mem($pc, 1);
 	$pc++;
-	$clock += 2;
+	$clock++;
 
 	$ins = ($ir >> 8) & 0x1f;
 	$rd = ($ir >> 4) & 0xf;
@@ -425,27 +425,27 @@ sub init() {
 	$instruction{0x15} = sub() {
 #		print STDERR "j\n";	
 		$pc = $op;
-		$clock++;
+		$clock += 2;
 	};
 
 	$instruction{0x16} = sub() {
 #		print STDERR "jr\n";	
 		$pc = $reg[$rt];
-		$clock++;
+		$clock += 2;
 	};
 
 	$instruction{0x17} = sub() {
 #		print STDERR "jal\n";	
 		$reg[$rd] = $pc;
 		$pc = $op;
-		$clock += 2;
+		$clock += 3;
 	};
 
 	$instruction{0x18} = sub() {
 #		print STDERR "jalr\n";	
 		$reg[$rd] = $pc;
 		$pc = $reg[$rt];
-		$clock += 2;
+		$clock += 3;
 	};
 
 	$instruction{0x19} = sub() {

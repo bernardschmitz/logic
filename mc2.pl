@@ -1,7 +1,7 @@
 
 use strict;
 
-my $op_t = 2;
+my $op_t = 3;
 
 my $reg_src2_src_rt = 0;
 my $reg_src2_src_rd = 1;
@@ -76,219 +76,244 @@ my $ins_halt = 30;
 
 my %microcode = (
 
-#	fetch => [
-#		{ fetch => 1, op => 0, t => 0 }, [
-#			{ fetch => 1, mar_src => $mar_src_pc, ir_wrt => 1 },
-#			{ fetch => 1, pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 },
-#			{ fetch => 1, mar_src => $mar_src_pc, op_wrt => 1 },
-#			{ fetch => 0, pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 },
-#		]
-#	],
-
 	fetch => [
 		{ fetch => 1, op => 0, t => 0 }, [
-			{ fetch => 1, mar_src => $mar_src_pc, ir_wrt => 1, pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 },
-			{ fetch => 0, mar_src => $mar_src_pc, op_wrt => 1, pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 },
+			{ fetch => 1, mar_src => $mar_src_pc, ir_wrt => 1 },
+			{ fetch => 1, pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 },
+#			{ fetch => 1, mar_src => $mar_src_pc, op_wrt => 1 },
+			{ fetch => 0, mar_src => $mar_src_pc, op_wrt => 1 },
+#			{ fetch => 0, pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 },
 		]
 	],
 
 
+
 	add => [
 		{ fetch => 0, op => $ins_add, t => $op_t }, [ 
-			{ alu_b_src => $alu_b_src_reg2, alu_op => $alu_op_add, result_wrt => 1 }, 
+			{ alu_b_src => $alu_b_src_reg2, alu_op => $alu_op_add, result_wrt => 1,
+				pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 }, 
 			{ reg_wrt => 1, reg_src => $reg_src_result, t_reset => 1, fetch => 1 } 
 		]
 	],
 
 	addi => [
 		{ fetch => 0, op => $ins_addi, t => $op_t }, [ 
-			{ alu_b_src => $alu_b_src_op, alu_op => $alu_op_add, result_wrt => 1 }, 
+			{ alu_b_src => $alu_b_src_op, alu_op => $alu_op_add, result_wrt => 1, 
+				pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 }, 
 			{ reg_wrt => 1, reg_src => $reg_src_result, t_reset => 1, fetch => 1 } 
 		]
 	],
 
 	sub => [
 		{ fetch => 0, op => $ins_sub, t => $op_t }, [ 
-			{ alu_b_src => $alu_b_src_reg2, alu_op => $alu_op_sub, result_wrt => 1 }, 
+			{ alu_b_src => $alu_b_src_reg2, alu_op => $alu_op_sub, result_wrt => 1, 
+				pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 }, 
 			{ reg_wrt => 1, reg_src => $reg_src_result, t_reset => 1, fetch => 1 } 
 		]
 	],
 
 	mul => [
 		{ fetch => 0, op => $ins_mul, t => $op_t }, [ 
-			{ alu_b_src => $alu_b_src_reg2, alu_op => $alu_op_mul, lo_wrt => 1, hi_wrt => 1, t_reset => 1, fetch => 1 } 
+			{ alu_b_src => $alu_b_src_reg2, alu_op => $alu_op_mul, lo_wrt => 1, hi_wrt => 1, t_reset => 1, fetch => 1, 
+				pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 } 
 		]
 	],
 
 	div => [
 		{ fetch => 0, op => $ins_div, t => $op_t }, [ 
-			{ alu_b_src => $alu_b_src_reg2, alu_op => $alu_op_div, lo_wrt => 1, hi_wrt => 1, t_reset => 1, fetch => 1 } 
+			{ alu_b_src => $alu_b_src_reg2, alu_op => $alu_op_div, lo_wrt => 1, hi_wrt => 1, t_reset => 1, fetch => 1,  
+				pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 } 
 		]
 	],
 
 	sll => [
 		{ fetch => 0, op => $ins_sll, t => $op_t }, [ 
-			{ alu_b_src => $alu_b_src_op, alu_op => $alu_op_sll, result_wrt => 1 }, 
+			{ alu_b_src => $alu_b_src_op, alu_op => $alu_op_sll, result_wrt => 1, 
+				pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 }, 
 			{ reg_wrt => 1, reg_src => $reg_src_result, t_reset => 1, fetch => 1 } 
 		]
 	],
 
 	srl => [
 		{ fetch => 0, op => $ins_srl, t => $op_t }, [ 
-			{ alu_b_src => $alu_b_src_op, alu_op => $alu_op_srl, result_wrt => 1 }, 
+			{ alu_b_src => $alu_b_src_op, alu_op => $alu_op_srl, result_wrt => 1, 
+				pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 }, 
 			{ reg_wrt => 1, reg_src => $reg_src_result, t_reset => 1, fetch => 1 } 
 		]
 	],
 
 	sra => [
 		{ fetch => 0, op => $ins_sra, t => $op_t }, [ 
-			{ alu_b_src => $alu_b_src_op, alu_op => $alu_op_sra, result_wrt => 1 }, 
+			{ alu_b_src => $alu_b_src_op, alu_op => $alu_op_sra, result_wrt => 1, 
+				pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 }, 
 			{ reg_wrt => 1, reg_src => $reg_src_result, t_reset => 1, fetch => 1 } 
 		]
 	],
 
 	sllv => [
 		{ fetch => 0, op => $ins_sllv, t => $op_t }, [ 
-			{ alu_b_src => $alu_b_src_reg2, reg_src2_src => $reg_src2_src_rt, alu_op => $alu_op_sll, result_wrt => 1 }, 
+			{ alu_b_src => $alu_b_src_reg2, reg_src2_src => $reg_src2_src_rt, alu_op => $alu_op_sll, result_wrt => 1, 
+				pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 }, 
 			{ reg_wrt => 1, reg_src => $reg_src_result, t_reset => 1, fetch => 1 } 
 		]
 	],
 
 	srlv => [
 		{ fetch => 0, op => $ins_srlv, t => $op_t }, [ 
-			{ alu_b_src => $alu_b_src_reg2, reg_src2_src => $reg_src2_src_rt, alu_op => $alu_op_srl, result_wrt => 1 }, 
+			{ alu_b_src => $alu_b_src_reg2, reg_src2_src => $reg_src2_src_rt, alu_op => $alu_op_srl, result_wrt => 1, 
+				pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 }, 
 			{ reg_wrt => 1, reg_src => $reg_src_result, t_reset => 1, fetch => 1 } 
 		]
 	],
 
 	srav => [
 		{ fetch => 0, op => $ins_srav, t => $op_t }, [ 
-			{ alu_b_src => $alu_b_src_reg2, reg_src2_src => $reg_src2_src_rt, alu_op => $alu_op_sra, result_wrt => 1 }, 
+			{ alu_b_src => $alu_b_src_reg2, reg_src2_src => $reg_src2_src_rt, alu_op => $alu_op_sra, result_wrt => 1, 
+				pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 }, 
 			{ reg_wrt => 1, reg_src => $reg_src_result, t_reset => 1, fetch => 1 } 
 		]
 	],
 
 	beq => [
 		{ fetch => 0, op => $ins_beq, t => $op_t }, [ 
+			{ pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 },
 			{ alu_b_src => $alu_b_src_reg2, reg_src2_src => $reg_src2_src_rd, alu_op => $alu_op_add, pc_src => $pc_src_pc_op, pc_wrt => $pc_wrt_alu_eq, t_reset => 1, fetch => 1 } 
 		]
 	],
 
 	bne => [
 		{ fetch => 0, op => $ins_bne, t => $op_t }, [ 
+			{ pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 },
 			{ alu_b_src => $alu_b_src_reg2, reg_src2_src => $reg_src2_src_rd, alu_op => $alu_op_add, pc_src => $pc_src_pc_op, pc_wrt => $pc_wrt_not_alu_eq, t_reset => 1, fetch => 1 } 
 		]
 	],
 
 	slt => [
 		{ fetch => 0, op => $ins_slt, t => $op_t }, [ 
-			{ alu_b_src => $alu_b_src_reg2, alu_op => $alu_op_add, reg_wrt => 1, reg_src => $reg_src_alu_lt, t_reset => 1, fetch => 1 } 
+			{ alu_b_src => $alu_b_src_reg2, alu_op => $alu_op_add, reg_wrt => 1, reg_src => $reg_src_alu_lt, t_reset => 1, fetch => 1, 
+				pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 }, 
 		]
 	],
 
 	slti => [
 		{ fetch => 0, op => $ins_slti, t => $op_t }, [ 
-			{ alu_b_src => $alu_b_src_op, alu_op => $alu_op_add, reg_wrt => 1, reg_src => $reg_src_alu_lt, t_reset => 1, fetch => 1 } 
+			{ alu_b_src => $alu_b_src_op, alu_op => $alu_op_add, reg_wrt => 1, reg_src => $reg_src_alu_lt, t_reset => 1, fetch => 1, 
+				pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 }, 
 		]
 	],
 
 	and => [
 		{ fetch => 0, op => $ins_and, t => $op_t }, [ 
-			{ alu_b_src => $alu_b_src_reg2, alu_op => $alu_op_and, result_wrt => 1 }, 
+			{ alu_b_src => $alu_b_src_reg2, alu_op => $alu_op_and, result_wrt => 1, 
+				pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 }, 
 			{ reg_wrt => 1, reg_src => $reg_src_result, t_reset => 1, fetch => 1 } 
 		]
 	],
 
 	andi => [
 		{ fetch => 0, op => $ins_andi, t => $op_t }, [ 
-			{ alu_b_src => $alu_b_src_op, alu_op => $alu_op_and, result_wrt => 1 }, 
+			{ alu_b_src => $alu_b_src_op, alu_op => $alu_op_and, result_wrt => 1, 
+				pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 }, 
 			{ reg_wrt => 1, reg_src => $reg_src_result, t_reset => 1, fetch => 1 } 
 		]
 	],
 
 	or => [
 		{ fetch => 0, op => $ins_or, t => $op_t }, [ 
-			{ alu_b_src => $alu_b_src_reg2, alu_op => $alu_op_or, result_wrt => 1 }, 
+			{ alu_b_src => $alu_b_src_reg2, alu_op => $alu_op_or, result_wrt => 1, 
+				pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 }, 
 			{ reg_wrt => 1, reg_src => $reg_src_result, t_reset => 1, fetch => 1 } 
 		]
 	],
 
 	ori => [
 		{ fetch => 0, op => $ins_ori, t => $op_t }, [ 
-			{ alu_b_src => $alu_b_src_op, alu_op => $alu_op_or, result_wrt => 1 }, 
+			{ alu_b_src => $alu_b_src_op, alu_op => $alu_op_or, result_wrt => 1, 
+				pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 }, 
 			{ reg_wrt => 1, reg_src => $reg_src_result, t_reset => 1, fetch => 1 } 
 		]
 	],
 
 	xor => [
 		{ fetch => 0, op => $ins_xor, t => $op_t }, [ 
-			{ alu_b_src => $alu_b_src_reg2, alu_op => $alu_op_xor, result_wrt => 1 }, 
+			{ alu_b_src => $alu_b_src_reg2, alu_op => $alu_op_xor, result_wrt => 1, 
+				pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 }, 
 			{ reg_wrt => 1, reg_src => $reg_src_result, t_reset => 1, fetch => 1 } 
 		]
 	],
 
 	nor => [
 		{ fetch => 0, op => $ins_nor, t => $op_t }, [ 
-			{ alu_b_src => $alu_b_src_reg2, alu_op => $alu_op_nor, result_wrt => 1 }, 
+			{ alu_b_src => $alu_b_src_reg2, alu_op => $alu_op_nor, result_wrt => 1, 
+				pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 }, 
 			{ reg_wrt => 1, reg_src => $reg_src_result, t_reset => 1, fetch => 1 } 
 		]
 	],
 
 	j => [
 		{ fetch => 0, op => $ins_j, t => $op_t }, [ 
+			{ pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 },
 			{ pc_src => $pc_src_op, pc_wrt => $pc_wrt_1, t_reset => 1, fetch => 1 } 
 		]
 	],
 
 	jr => [
 		{ fetch => 0, op => $ins_jr, t => $op_t }, [ 
+			{ pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 },
 			{ pc_src => $pc_src_reg2, pc_wrt => $pc_wrt_1, t_reset => 1, fetch => 1 } 
 		]
 	],
 
 	jal => [
 		{ fetch => 0, op => $ins_jal, t => $op_t }, [ 
-			{ reg_src => $reg_src_pc, reg_wrt => 1 }, 
+				{ pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 },
+			{ reg_src => $reg_src_pc, reg_wrt => 1 },
 			{ pc_src => $pc_src_op, pc_wrt => $pc_wrt_1, t_reset => 1, fetch => 1 } 
 		]
 	],
 
 	jalr => [
 		{ fetch => 0, op => $ins_jalr, t => $op_t }, [ 
-			{ reg_src => $reg_src_pc, reg_wrt => 1 }, 
+				{ pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 },
+			{ reg_src => $reg_src_pc, reg_wrt => 1 },
 			{ pc_src => $pc_src_reg2, pc_wrt => $pc_wrt_1, t_reset => 1, fetch => 1 } 
 		]
 	],
 
 	lw => [
 		{ fetch => 0, op => $ins_lw, t => $op_t }, [ 
-			{ alu_b_src => $alu_b_src_op, alu_op => $alu_op_add, result_wrt => 1 }, 
+			{ alu_b_src => $alu_b_src_op, alu_op => $alu_op_add, result_wrt => 1, 
+				pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 }, 
 			{ mar_src => $mar_src_result, reg_wrt => 1, reg_src => $reg_src_mem, t_reset => 1, fetch => 1 } 
 		]
 	],
 
 	sw => [
 		{ fetch => 0, op => $ins_sw, t => $op_t }, [ 
-			{ alu_b_src => $alu_b_src_op, alu_op => $alu_op_add, result_wrt => 1 }, 
+			{ alu_b_src => $alu_b_src_op, alu_op => $alu_op_add, result_wrt => 1,
+				pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 }, 
 			{ mar_src => $mar_src_result, reg_src2_src => $reg_src2_src_rd, mem_wrt => 1, t_reset => 1, fetch => 1 } 
 		]
 	],
 
 	mfhi => [
 		{ fetch => 0, op => $ins_mfhi, t => $op_t }, [
-			{ reg_wrt => 1, reg_src => $reg_src_hi, t_reset => 1, fetch => 1 }
+			{ reg_wrt => 1, reg_src => $reg_src_hi, t_reset => 1, fetch => 1, 
+				pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 } 
 		]
 	],
 
 	mflo => [
 		{ fetch => 0, op => $ins_mflo, t => $op_t }, [
-			{ reg_wrt => 1, reg_src => $reg_src_lo, t_reset => 1, fetch => 1 }
+			{ reg_wrt => 1, reg_src => $reg_src_lo, t_reset => 1, fetch => 1, 
+				pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 },
 		]
 	],
 
 	halt => [
 		{ fetch => 0, op => $ins_halt, t => $op_t }, [ 
-			{ halt => 1 }
+			{ halt => 1, 
+				pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 }
 		]
 	],
 
