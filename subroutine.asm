@@ -13,13 +13,13 @@ timer1:	equ	0f001
 
 	li	a0, 64
 #	push	a0
-	jal	target
+	jal	r15, target
 #	addi	sp, sp, 1
 
 	;sw	v0, zero, result
 
 	move	a0, v0
-	jal	number
+	jal	r15, number
 
 	lw	v0, zero, timer0
 	lw	v1, zero, timer1
@@ -28,10 +28,12 @@ timer1:	equ	0f001
 	sub	v1, v1, s1
 
 	move	a0, v0
-	jal	number
+	jal	r15, number
 
 	move	a0, v1
-	jal	number
+	jal	r15, number
+
+	brk
 	
 	li	at, 0a
 	sw	at, zero, charout
@@ -50,7 +52,7 @@ loop:
 	dec	a1
 	bne	a1, zero, loop
 
-	jal	number
+	jal	r15, number
 
 	lw	v0, zero, timer0
 	lw	v1, zero, timer1
@@ -59,10 +61,10 @@ loop:
 	sub	v1, v1, s1
 
 	move	a0, v0
-	jal	number
+	jal	r15, number
 
 	move	a0, v1
-	jal	number
+	jal	r15, number
 	
 	li	at, 0a
 	sw	at, zero, charout
@@ -92,7 +94,7 @@ notone:
 	#sw	a0, sp, 2
 	addi	a0, a0, -1
 #	push	a0
-	jal	target
+	jal	ra, target
 #	addi	sp, sp, 1
 
 	lw	a0, sp, 2

@@ -489,7 +489,7 @@ sub init() {
 
 sub dump_cpu_state {
 
-	print STDERR "\n\n\n------------\n\n";
+	print STDERR "\n\n==========\n\n";
 
 	printf STDERR " PC: %04x IR: %04x OP: %04x RESULT: %04x LO: %04x\n\n", $pc, $ir, $op, $result, $hi;
 
@@ -525,7 +525,7 @@ sub dump_cpu_state {
 
 	$tos = 0x9000 - 1;
 	if(($tos - $reg[13]) > 0x20) {
-		$tos = $reg[14] + 0x20-1;
+		$tos = $reg[13] + 0x20-1;
 	}
 
 	$i = 0;
@@ -535,7 +535,7 @@ sub dump_cpu_state {
 		print "\n" if $i%8 == 0;
 	}
 
-	print STDERR "\n\n";
+	print STDERR "\n\n==========\n\n";
 
 }
 
