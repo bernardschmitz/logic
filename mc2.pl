@@ -1,13 +1,14 @@
 
 use strict;
 
-my $op_t = 3;
+my $op_t = 2;
 
 my $reg_src2_src_rt = 0;
 my $reg_src2_src_rd = 1;
 
 my $mar_src_pc = 0;
-my $mar_src_result = 1;
+my $mar_src_pc_plus_one = 1;
+my $mar_src_result = 2;
 
 my $alu_b_src_reg2 = 0;
 my $alu_b_src_op = 1;
@@ -79,9 +80,9 @@ my %microcode = (
 	fetch => [
 		{ fetch => 1, op => 0, t => 0 }, [
 			{ fetch => 1, mar_src => $mar_src_pc, ir_wrt => 1 },
-			{ fetch => 1, pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 },
+#			{ fetch => 1, pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 },
 #			{ fetch => 1, mar_src => $mar_src_pc, op_wrt => 1 },
-			{ fetch => 0, mar_src => $mar_src_pc, op_wrt => 1 },
+			{ fetch => 0, mar_src => $mar_src_pc_plus_one, op_wrt => 1 },
 #			{ fetch => 0, pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 },
 		]
 	],
@@ -354,7 +355,7 @@ for my $ins (sort { $microcode{$a}[0]->{op} <=> $microcode{$b}[0]->{op} } keys %
 		out($_, 'fetch', 1, \$fmt, \@args);
 		out($_, 'pc_src', 2, \$fmt, \@args);
 		out($_, 'pc_wrt', 2, \$fmt, \@args);
-		out($_, 'mar_src', 1, \$fmt, \@args);
+		out($_, 'mar_src', 2, \$fmt, \@args);
 		out($_, 'mem_wrt', 1, \$fmt, \@args);
 		out($_, 'ir_wrt', 1, \$fmt, \@args);
 		out($_, 'op_wrt', 1, \$fmt, \@args);
@@ -392,7 +393,7 @@ sub out {
 
 
 
-my @bin =  map { 0x800000 } (0 .. 4095) ;
+my @bin =  map { 0x1000000 } (0 .. 4095) ;
 
 for my $ins (keys %microcode) {
 
@@ -406,8 +407,8 @@ for my $ins (keys %microcode) {
 	
 	for(@{$ins_desc}) {
 
-		my $code = $_->{halt} << 23 | $_->{t_reset} << 22 | $_->{fetch} << 21 | $_->{pc_src} << 19 |
-				$_->{pc_wrt} << 17 | $_->{mar_src} << 16 | $_->{mem_wrt} << 15 | $_->{ir_wrt} << 14 |
+		my $code = $_->{halt} << 24 | $_->{t_reset} << 23 | $_->{fetch} << 22 | $_->{pc_src} << 20 |
+				$_->{pc_wrt} << 18 | $_->{mar_src} << 16 | $_->{mem_wrt} << 15 | $_->{ir_wrt} << 14 |
 				$_->{op_wrt} << 13 | $_->{reg_src} << 10 | $_->{reg_wrt} << 9 | $_->{alu_b_src} << 8 |
 				$_->{reg_src2_src} << 7 | $_->{alu_op} << 3 | $_->{result_wrt} << 2 | $_->{lo_wrt} << 1 |
 				$_->{hi_wrt};
