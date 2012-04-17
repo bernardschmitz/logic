@@ -13,8 +13,10 @@ B: R2, OP
 		1 OP
 
 Madr: PC, RESULT
-	Madr src:	0 PC
-			1 RESULT
+	Madr src:	00 PC
+			01 PC+1
+			10 RESULT
+			11 undef
 
 Mem: R2
 
@@ -74,12 +76,12 @@ INSTRUCTION 00000
 
 output
 
-HALT 0			23
-T RESET 0		22
-FETCH 0			21
-PC SRC 00		19
-PC WRT 00		17
-MAR SRC 0		16
+HALT 0			24
+T RESET 0		23
+FETCH 0			22
+PC SRC 00		20
+PC WRT 00		18
+MAR SRC 00		16
 MEM WRT 0		15
 IR WRT 0		14
 OP WRT 0		13
@@ -97,9 +99,8 @@ add
 
 fetch:
 	PC -> Madr ; Mem -> IR
-	PC + 1 -> PC
 	PC -> Madr ; Mem -> OP
-	PC + 1 -> PC
+	PC + 2 -> PC (overlaps first cycle of instruction execution)
 
 execute:
 
