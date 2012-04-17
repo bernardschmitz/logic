@@ -71,7 +71,7 @@ my $ins_lw = 25;
 my $ins_sw = 26;
 my $ins_mfhi = 27;
 my $ins_mflo = 28;
-my $ins_unused = 29;
+my $ins_brk = 29;
 my $ins_halt = 30;
 
 
@@ -311,10 +311,15 @@ my %microcode = (
 		]
 	],
 
+	brk => [
+		{ fetch => 0, op => $ins_brk, t => $op_t }, [ 
+			{ pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1, t_reset => 1, fetch => 1 } 
+		]
+	],
+
 	halt => [
 		{ fetch => 0, op => $ins_halt, t => $op_t }, [ 
-			{ halt => 1, 
-				pc_src => $pc_src_pc_inc, pc_wrt => $pc_wrt_1 }
+			{ halt => 1 }
 		]
 	],
 

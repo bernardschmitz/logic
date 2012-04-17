@@ -43,7 +43,8 @@ my %instruction = (
 	sw => { code => 26, size => 2, type => 1 },
 	mfhi => { code => 27, size => 2, type => 2 },
 	mflo => { code => 28, size => 2, type => 2 },
-	halt => { code => 31, size => 2, type => 2 },
+	brk => { code => 29, size => 2, type => 2 },
+	halt => { code => 30, size => 2, type => 2 },
 );
 
 
@@ -417,6 +418,10 @@ sub type_3_instruction {
 		return jalr($desc, $ins, $ops);
 	}
 
+	if($ins eq 'brk') {
+		return brk($desc, $ins, $ops);
+	}
+
 	if($ins eq 'halt') {
 		return halt($desc, $ins, $ops);
 	}
@@ -545,13 +550,19 @@ sub jalr {
 	return ($code, $oper);
 }
 
-sub halt {
+sub brk {
 
 	my ($desc, $ins, $ops) = @_;
 
-#	if(scalar @{$ops} != 0) {
-#		die "line $line expected 0 operands for: '$ins' '".join(' ', @{$ops})."'\n";
-#	}
+	my $code = $desc->{code} << 8;
+	my $oper = 0;
+
+	return ($code, $oper);
+}
+
+sub halt {
+
+	my ($desc, $ins, $ops) = @_;
 
 	my $code = $desc->{code} << 8;
 	my $oper = 0;

@@ -105,7 +105,7 @@ while(!$halt) {
 #	printf STDERR "%04x %02x %01x %01x %01x %04x %08x\n", $pc-2, $ins, $rd, $rs, $rt, $op, $clock;
 
 	if(!defined $instruction{$ins}) {
-		die "invalid instruction";
+		die "invalid instruction $ins";
 	}
 
 	$instruction{$ins}();
@@ -473,8 +473,13 @@ sub init() {
 		$reg[$rd] = $result;
 		$clock++;
 	};
+
+	$instruction{0x1d} = sub() {
+#		print STDERR "brk\n";	
+		dump_cpu_state();
+	};
  
-	$instruction{0x1f} = sub() {
+	$instruction{0x1e} = sub() {
 #		print STDERR "halt\n";	
 		$halt = 1;
 	};
@@ -500,18 +505,34 @@ sub dump_cpu_state {
 
 	print STDERR "\n\n";
 
-	print STDERR "DATA STACK: ";
+	print STDERR "DATA STACK:\n";
 
-	for($reg[14] .. (0x8000-1)) {
+	my $tos = 0x8000 - 1;
+	if(($tos - $reg[14]) > 0x20) {
+		$tos = $reg[14] + 0x20-1;
+	}
+
+	my $i = 0;
+	for($reg[14] .. $tos) {
 		printf STDERR "%04x ", $mem[$_];
+		$i++;
+		print "\n" if $i%8 == 0;
 	}
 
 	print STDERR "\n\n";
 
-	print STDERR "RETURN STACK: ";
+	print STDERR "RETURN STACK:\n";
 
-	for($reg[13] .. (0x9000-1)) {
+	$tos = 0x9000 - 1;
+	if(($tos - $reg[13]) > 0x20) {
+		$tos = $reg[14] + 0x20-1;
+	}
+
+	$i = 0;
+	for($reg[13] .. $tos) {
 		printf STDERR "%04x ", $mem[$_];
+		$i++;
+		print "\n" if $i%8 == 0;
 	}
 
 	print STDERR "\n\n";
