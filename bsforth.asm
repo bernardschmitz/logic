@@ -148,8 +148,8 @@ msg:	ds "Hi there, this is bsforth!"
 
 
 	DEFWORD(test8, 0, TEST8)
-	dw	BINARY, LIT, num, LIT, 0c, NUMBER, HALT
-num:	ds	"001100000101"
+	dw	BINARY, LIT, num, LIT, 0f, NUMBER, HALT
+num:	ds	"-001100000101xx"
 
 
 
@@ -569,40 +569,60 @@ ascii_a_0:	equ 031
 	sw	r2, r14, 1		; parsed number
 	NEXT
 _number:
-	lw	r6, zero, var_BASE	; get number base
 	clear	r7			; clear parsed number
-	clear	r8
-	li	r9, 09
-	; TODO check minus
+	clear	r8			; count of chars processed
+	li	r9, 09			; store a 9 for future comparison
+
+	clear	r12			; clear negative flag
+	li	r6, 02d			; load ascii minus
+	lw	r4, r3, 0		; get first char
+	bne	r4, r6, _pos		; is first char ascii minus sign?
+	not	r12			; set negative flag
+
+brk
+
+	inc	r8			; update counts and pointers
+	inc	r3			
+	dec	r2
+	beq	r2, zero, _num_fail	; contunue?
+
+_pos:
+	lw	r6, zero, var_BASE	; get number base
 _num0:
 	lw	r4, r3, 0		; get next character
-	; TODO convert lower case
 
 	;subi	r3, r3, ascii_zero
-	addi	r4, r4, 0ffd0
-	blt	r4, zero, _num_fail
-	ble	r4, r9, _num1	
+	addi	r4, r4, 0ffd0		; subtract ascii zero char
+	blt	r4, zero, _num_fail	; finish if < 0
+	ble	r4, r9, _num1		; skip if <= 9
 
 	;subi	r3, r3, ascii_a_0
-	addi	r4, r4, 0ffcf
-	blt	r4, zero, _num_fail
+	addi	r4, r4, 0ffcf		; substract difference between ascii a and 0
+	blt	r4, zero, _num_fail	; finish if < 0
 
-	addi	r4, r4, 0a
+	addi	r4, r4, 0a		; add 10
 
 _num1:
-	bge	r4, r6, _num_fail
+	bge	r4, r6, _num_fail	; finish if >= base
 
-	mul	r7, r7, r6
-	add	r7, r7, r4
+	mul	r7, r7, r6		; multiple current number by base
+	add	r7, r7, r4		; add new digit
 
-	inc	r8
+brk
+
+_over:
+	inc	r8			; update counters and pointers
 	inc	r3
 	dec	r2
-	bne	r2, zero, _num0
-
-	; TODO negate
+	bne	r2, zero, _num0		; repeat if still got digits to process
 
 _num_fail:
+	beq	r12, zero, _not_neg	; negative flag set?
+
+	not	r7			; negate number
+	inc	r7
+_not_neg:
+brk
 	move	r2, r7
 	move	r3, r8
 	jr	r15
