@@ -112,7 +112,7 @@ start:
 	NEXT
 	halt
 
-yeah:	dw	TEST8, HALT
+yeah:	dw	TEST10, HALT
 
 	DEFWORD(test, 0, TEST)
 	dw LIT, 0cafe, LIT, 0babe, OVER, EXIT
@@ -156,6 +156,10 @@ num:	ds	"-001100000101xx"
 	DEFWORD(test9, 0, TEST9)
 	dw	LIT, msg1, LIT, 5, TYPE, EXIT
 msg1:	ds	"sheep"
+
+
+	DEFWORD(test10, 0, TEST10)
+	dw	LIT, 0, LIT, 0, FIND, EXIT
 
 
 
@@ -343,9 +347,9 @@ var_$3:	dw	$4
 
 
 	DEFVAR(state, 0, STATE, 0)
-	DEFVAR(here, 0, HERE, 0)
-	DEFVAR(latest, 0, LATEST, 0)
-	DEFVAR(s0, 0, SZ, 0)
+	DEFVAR(here, 0, HERE, start_dp)
+	DEFVAR(latest, 0, LATEST, name_LAST_WORD)
+	DEFVAR(s0, 0, SZ, data_stack)
 	DEFVAR(base, 0, BASE, 0a)
 	DEFVAR(>in, 0, TO_IN, bufferlen)
 
@@ -675,4 +679,38 @@ loop:
 	DEFWORD(sum100, 0, SUM100)
 	dw	LIT, 0, LIT, 064, DUP, TO_R, PLUS, FROM_R, ONE_MINUS, DUP, LIT, 0, EQUALS, ZBRANCH, -0a, DROP, EXIT
 
+
+	DEFCODE(find, 0, FIND)
+	lw	r2, r14, 0	; length
+	lw	r3, r14, 1	; string address
+	jal	r15, _find0
+	inc	r14
+	sw	r2, r14, 0
+	NEXT
+_find0:
+	lw	r6, zero, var_LATEST	; address of latest word
+
+_find2:
+	lw	r2, r6, 2		; get name length
+	addi	r3, r6, 3		; get name address
+;	jal	r15, _type		; print
+_find1:
+	lw	r4, r3, 0
+	sw	r4, zero, charout
+	inc	r3
+	dec	r2
+	bne	r2, zero, _find1
+
+	li	r4, newline
+	sw	r4, zero, charout
+
+	lw	r6, r6, 0		; get link
+	bne	r6, zero, _find2	; done if link zero
+
+	jr	r15
+
+
+	DEFWORD(last_word, 0, LAST_WORD)
+	dw	QUIT
+start_dp:
 
