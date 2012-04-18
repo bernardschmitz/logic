@@ -432,8 +432,8 @@ delete:		equ 008
 newline:	equ 00a
 
 	DEFCODE(accept, 0, ACCEPT)
-	lw	r2, r14, 0
-	lw	r3, r14, 1
+	lw	r2, r14, 0		; count
+	lw	r3, r14, 1		; address
 	jal	r15, _accept
 	inc	r14
 	sw	r2, r14, 0
