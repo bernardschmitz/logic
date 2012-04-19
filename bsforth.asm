@@ -507,11 +507,12 @@ _type:
 
 
 	DEFCODE(parse, 0, PARSE)
-	lw	r2, r14, 0
+	lw	r2, r14, 0		; delimiter
 	jal	r15, _parse
-	sw	r3, r14, 0
-	PUSHDSP(r2)
+	sw	r3, r14, 0		; addr
+	PUSHDSP(r2)			; length
 	NEXT
+	; TODO enable different buffers
 _parse:
 	li	r4, bufferlen
 	lw	r3, zero, var_TO_IN
