@@ -144,7 +144,8 @@ msg:	ds "Hi there, this is bsforth!"
 	dw	EXIT
 
 	DEFWORD(test7, 0, TEST7)
-	dw	LIT, 02a, LIT, EMIT, EXECUTE, EXIT
+	#dw	LIT, 02a, LIT, EMIT, EXECUTE, EXIT
+	dw	LIT, TEST9, BRK, EXECUTE, EXIT
 
 
 	DEFWORD(test8, 0, TEST8)
@@ -159,12 +160,16 @@ msg1:	ds	"sheep"
 
 
 	DEFWORD(test10, 0, TEST10)
-	dw	LIT, 0, LIT, 0, FIND, EXIT
-
+	dw	LIT, msg2, LIT, 5, FIND, DROP, EXECUTE, EXIT
+msg2:	ds	"test9"
 
 
 	DEFCODE(halt, 0, HALT)
 	halt
+
+	DEFCODE(brk, 0, BRK)
+	brk
+	NEXT
 
 	DEFCODE(drop, 0, DROP)
 	inc	r14
@@ -535,8 +540,9 @@ _parse_empty:
 
 
 	DEFCODE(execute, 0, EXECUTE)
-	POPDSP(r2)
-	jr	r2
+	POPDSP(r11)
+	lw	r12, r11, 0
+	jr	r12
 
 
 	DEFCODE(@execute, 0, FETCH_EXECUTE)
@@ -583,8 +589,6 @@ _number:
 	bne	r4, r6, _pos		; is first char ascii minus sign?
 	not	r12			; set negative flag
 
-brk
-
 	inc	r8			; update counts and pointers
 	inc	r3			
 	dec	r2
@@ -611,8 +615,6 @@ _num1:
 
 	mul	r7, r7, r6		; multiple current number by base
 	add	r7, r7, r4		; add new digit
-
-brk
 
 _over:
 	inc	r8			; update counters and pointers
@@ -684,28 +686,50 @@ loop:
 	lw	r2, r14, 0	; length
 	lw	r3, r14, 1	; string address
 	jal	r15, _find0
-	inc	r14
 	sw	r2, r14, 0
+	sw	r3, r14, 1
 	NEXT
 _find0:
 	lw	r6, zero, var_LATEST	; address of latest word
 
 _find2:
-	lw	r2, r6, 2		; get name length
-	addi	r3, r6, 3		; get name address
-;	jal	r15, _type		; print
+	lw	r4, r6, 2		; get name length
+	bne	r4, r2, _find_len1	; next if lengths don't match
+	addi	r5, r6, 3		; get name address
+
+	move	r8, r3
 _find1:
-	lw	r4, r3, 0
-	sw	r4, zero, charout
-	inc	r3
-	dec	r2
-	bne	r2, zero, _find1
+	lw	r1, r5, 0
+	sw	r1, zero, charout
+	lw	r7, r8, 0
+	bne	r1, r7, _find_ne1
+	inc	r5
+	inc	r8
+	dec	r4
+	bne	r4, zero, _find1
 
-	li	r4, newline
-	sw	r4, zero, charout
+	li	r1, 02a
+	sw	r1, zero, charout
 
+	; TODO get immediate flag
+	addi	r3, r6, 3		; get addr of name
+	add	r3, r3, r2		; add length
+	inc	r3			; align address
+	andi	r3, r3, 0fffe
+;	lw	r3, r3, 0		; get execution token
+	li	r2, 1			; success flag
+
+	jr	r15
+
+_find_ne1:
+	li	r1, newline
+	sw	r1, zero, charout
+
+_find_len1:
 	lw	r6, r6, 0		; get link
 	bne	r6, zero, _find2	; done if link zero
+
+	clear	r2
 
 	jr	r15
 

@@ -23,7 +23,7 @@ for(@bin) {
 }
 
 for(0..10240) {
-	push @mem, 0x1f00;
+	push @mem, 0x1e00;
 	push @mem, 0x0000;
 }
 
@@ -82,6 +82,42 @@ my $keyboard_buf = '';
 
 init();
 
+my @dis = (
+
+	'add',
+	'addi',
+	'sub',
+	'mul',
+	'div',
+	'sll',
+	'srl',
+	'sra',
+	'sllv',
+	'srlv',
+	'srav',
+	'beq',
+	'bne',
+	'slt',
+	'slti',
+	'and',
+	'andi',
+	'or',
+	'ori',
+	'xor',
+	'nor',
+	'j',
+	'jr',
+	'jal',
+	'jalr',
+	'lw',
+	'sw',
+	'mfhi',
+	'mflo',
+	'brk',
+	'halt'
+
+);
+
 my $halt = 0;
 
 
@@ -102,6 +138,8 @@ while(!$halt) {
 	$rd = ($ir >> 4) & 0xf;
 	$rs = $ir & 0xf;
 	$rt = ($op >> 12) & 0xf;
+
+	printf STDERR "%04x %s r%d, r%d, r%d %04x %04x \n", $pc-2, $dis[$ins], $rd, $rs, $rt, $op, $ir;
 
 #	printf STDERR "%04x %02x %01x %01x %01x %04x %08x\n", $pc-2, $ins, $rd, $rs, $rt, $op, $clock;
 
