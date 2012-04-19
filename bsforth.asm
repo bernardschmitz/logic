@@ -700,7 +700,7 @@ _find2:
 	move	r8, r3
 _find1:
 	lw	r1, r5, 0
-	sw	r1, zero, charout
+;	sw	r1, zero, charout
 	lw	r7, r8, 0
 	bne	r1, r7, _find_ne1
 	inc	r5
@@ -708,8 +708,8 @@ _find1:
 	dec	r4
 	bne	r4, zero, _find1
 
-	li	r1, 02a
-	sw	r1, zero, charout
+;	li	r1, 02a
+;	sw	r1, zero, charout
 
 	; TODO get immediate flag
 	addi	r3, r6, 3		; get addr of name
@@ -722,8 +722,8 @@ _find1:
 	jr	r15
 
 _find_ne1:
-	li	r1, newline
-	sw	r1, zero, charout
+;	li	r1, newline
+;	sw	r1, zero, charout
 
 _find_len1:
 	lw	r6, r6, 0		; get link
