@@ -112,7 +112,7 @@ start:
 	NEXT
 	halt
 
-yeah:	dw	TEST12, HALT
+yeah:	dw	INTERPRET, HALT
 
 	DEFWORD(test, 0, TEST)
 	dw LIT, 0cafe, LIT, 0babe, OVER, EXIT
@@ -747,6 +747,21 @@ _find_next:
 
 	DEFWORD(>DFA, 0, TO_DFA)
 	dw	TO_CFA, LIT, 4, PLUS, EXIT
+
+
+	DEFWORD(interpret, 0, INTERPRET)
+back:	dw	LIT, buffer, LIT, 00ff, ACCEPT, LIT, 0, TO_IN, STORE
+	dw	BL, PARSE, FIND, QUESTION_DUP, ZBRANCH, 0b
+	dw	TO_CFA, EXECUTE, LIT, ok_msg, LIT, 3, TYPE, CR, BRANCH, 7
+	dw	LIT, err_msg, LIT, 4, TYPE, CR
+	dw	BRANCH, -020
+	dw	EXIT
+ok_msg:
+	ds	" ok"
+err_msg:
+	ds	" err"
+
+
 
 	DEFWORD(last_word, 0, LAST_WORD)
 	dw	EXIT

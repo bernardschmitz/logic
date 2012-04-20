@@ -139,9 +139,8 @@ while(!$halt) {
 	$rs = $ir & 0xf;
 	$rt = ($op >> 12) & 0xf;
 
-	printf STDERR "%04x %s r%d, r%d, r%d %04x %04x \n", $pc-2, $dis[$ins], $rd, $rs, $rt, $op, $ir;
+#	printf STDERR "%04x %s r%d, r%d, r%d %04x %04x \n", $pc-2, $dis[$ins], $rd, $rs, $rt, $op, $ir;
 
-#	printf STDERR "%04x %02x %01x %01x %01x %04x %08x\n", $pc-2, $ins, $rd, $rs, $rt, $op, $clock;
 
 	if(!defined $instruction{$ins}) {
 		die "invalid instruction $ins";
