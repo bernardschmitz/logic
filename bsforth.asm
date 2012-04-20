@@ -76,7 +76,7 @@ name_$3:
 	dw	LINK
 	define({LINK}, name_$3)dnl
 	dw	$2
-	dw	len($1)
+	dw	format({%05x}, len($1))
 	ds "$1"
 	align
 $3:
@@ -90,7 +90,7 @@ name_$3:
 	dw	LINK
 	define({LINK}, name_$3)dnl
 	dw	$2
-	dw	len($1)
+	dw	format({%05x}, len($1))
 	ds "$1"
 	align
 $3:
@@ -112,7 +112,7 @@ start:
 	NEXT
 	halt
 
-yeah:	dw	TEST10, HALT
+yeah:	dw	TEST12, HALT
 
 	DEFWORD(test, 0, TEST)
 	dw LIT, 0cafe, LIT, 0babe, OVER, EXIT
@@ -160,8 +160,20 @@ msg1:	ds	"sheep"
 
 
 	DEFWORD(test10, 0, TEST10)
-	dw	LIT, msg2, LIT, 5, FIND, DROP, EXECUTE, EXIT
+	dw	LIT, msg2, LIT, 5, FIND, TO_CFA, EXECUTE, EXIT
 msg2:	ds	"test9"
+
+	DEFWORD(test11, 0, TEST11)
+	dw	LIT, msg1, LIT, 5, FIND, EXIT
+
+	DEFWORD(hidden_test, f_hidden, HIDDEN_TEST)
+	dw	TEST9, EXIT
+
+	DEFWORD(test12, 0, TEST12)
+	dw	LIT, msg3, LIT, 0b, FIND, QUESTION_DUP, ZBRANCH, 9
+	dw	LIT, 02a, EMIT, CR, TO_CFA, EXECUTE, BRANCH, 7
+	dw	LIT, msg3, LIT, 0b, TYPE, CR, EXIT
+msg3:	ds	"hidden_test"
 
 
 	DEFCODE(halt, 0, HALT)
@@ -686,9 +698,9 @@ loop:
 	DEFCODE(find, 0, FIND)
 	lw	r2, r14, 0	; length
 	lw	r3, r14, 1	; string address
+	inc	r14
 	jal	r15, _find0
 	sw	r2, r14, 0
-	sw	r3, r14, 1
 	NEXT
 _find0:
 	lw	r6, zero, var_LATEST	; address of latest word
@@ -701,7 +713,7 @@ _find2:
 	move	r8, r3
 _find1:
 	lw	r1, r5, 0
-;	sw	r1, zero, charout
+;sw	r1, zero, charout
 	lw	r7, r8, 0
 	bne	r1, r7, _find_ne1
 	inc	r5
@@ -709,17 +721,15 @@ _find1:
 	dec	r4
 	bne	r4, zero, _find1
 
-;	li	r1, 02a
-;	sw	r1, zero, charout
+;li	r1, 02a
+;sw	r1, zero, charout
 
-	; TODO get immediate flag
-	addi	r3, r6, 3		; get addr of name
-	add	r3, r3, r2		; add length
-	inc	r3			; align address
-	andi	r3, r3, 0fffe
+;	addi	r3, r6, 3		; get addr of name
+;	add	r3, r3, r2		; add length
+;	inc	r3			; align address
+;	andi	r3, r3, 0fffe
 ;	lw	r3, r3, 0		; get execution token
-	li	r2, 1			; success flag
-
+	move	r2, r6			; get dictionary address
 	jr	r15
 
 _find_ne1:
@@ -731,11 +741,24 @@ _find_len1:
 	bne	r6, zero, _find2	; done if link zero
 
 	clear	r2
-
 	jr	r15
 
 
+	DEFCODE(>CFA, 0, TO_CFA)
+	lw	r2, r14, 0		; dictionary address
+	lw	r3, r2, 2		; get length
+	addi	r2, r2, 3		; get addr of name
+	add	r2, r2, r3		; add length
+	inc	r2			; align address
+	andi	r2, r2, 0fffe
+	sw	r2, r14, 0		; cfa addr on stack
+	NEXT
+
+	DEFWORD(>DFA, 0, TO_DFA)
+	dw	TO_CFA, LIT, 4, PLUS, EXIT
+
 	DEFWORD(last_word, 0, LAST_WORD)
-	dw	QUIT
+	dw	EXIT
+
 start_dp:
 
