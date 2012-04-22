@@ -1,4 +1,5 @@
 
+	changecom
 	changequote`'changequote(`{',`}')dnl
 
 timerlo:	equ	0f000
@@ -144,7 +145,7 @@ msg:	ds "Hi there, this is bsforth!"
 	dw	EXIT
 
 	DEFWORD(test7, 0, TEST7)
-	#dw	LIT, 02a, LIT, EMIT, EXECUTE, EXIT
+	;dw	LIT, 02a, LIT, EMIT, EXECUTE, EXIT
 	dw	LIT, TEST9, BRK, EXECUTE, EXIT
 
 
@@ -369,6 +370,7 @@ var_$3:	dw	$4
 	DEFVAR(s0, 0, SZ, data_stack)
 	DEFVAR(base, 0, BASE, 0a)
 	DEFVAR(>in, 0, TO_IN, bufferlen)
+	DEFVAR(#tib, 0, NUMBER_TIB, 0)
 
 	DEFWORD(binary, 0, BINARY)
 	dw	LIT, 02, BASE, STORE, EXIT
@@ -394,6 +396,7 @@ var_$3:	dw	$4
 	DEFCONST(version, 0, VERSION, 1)
 	DEFCONST(r0, 0, RZ, return_stack)
 	DEFCONST(docol, 0, _DOCOL, DOCOL)
+	DEFCONST(tib, 0, TIB, buffer)
 
 blank:	equ	020
 
@@ -472,7 +475,7 @@ _accept0:
 	sw	r2, zero, charout	; output char
 	sw	r2, r3, 0		; store char
 	inc	r5			; count char
-	inc	r2			; inc buffer address
+	inc	r3			; inc buffer address
 	dec	r4			; decr max count
 	j	_accept0		; get next char
 lim0:
@@ -493,13 +496,6 @@ bs0:
 
 
 
-;	DEFCODE(source, 0, SOURCE)
-;	sw	r8, r14, -1
-;	li	r1, buffer
-;	sw	r1, r14, -2
-;	li	r8, bufferlen
-;	addi	r14, r14, -2
-;	NEXT
 
 
 	DEFCODE(type, 0, TYPE)
@@ -528,7 +524,7 @@ _type:
 	NEXT
 	; TODO enable different buffers
 _parse:
-	li	r4, bufferlen		; size of buffer
+	lw	r4, zero, var_NUMBER_TIB ; size of buffer
 	lw	r3, zero, var_TO_IN	; get current index into buffer
 	move	r6, r3			; save index
 	li	r7, buffer		; load buffer address
@@ -537,7 +533,6 @@ _parse:
 
 _parse_more:
 	lw	r5, r3, buffer		; load char at buffer index
-sw	r5, zero, charout
 	inc	r3			; incr index
 	beq	r5, r2, _parse_done	; char equals to delimiter?
 	bne	r3, r4, _parse_more	; compare index to buffer size
@@ -586,7 +581,7 @@ exec_skip:
 	NEXT
 
 
-dash:		equ 02d
+minus:		equ 02d
 ascii_zero:	equ 030
 ascii_a_0:	equ 031
 
@@ -603,7 +598,7 @@ _number:
 	li	r9, 09			; store a 9 for future comparison
 
 	clear	r12			; clear negative flag
-	li	r6, 02d			; load ascii minus
+	li	r6, minus		; load ascii minus
 	lw	r4, r3, 0		; get first char
 	bne	r4, r6, _pos		; is first char ascii minus sign?
 	not	r12			; set negative flag
@@ -756,11 +751,11 @@ _find_next:
 
 
 	DEFWORD(interpret, 0, INTERPRET)
-back:	dw	LIT, buffer,  LIT, 00ff, ACCEPT, LIT, 0, TO_IN, STORE
-	dw	BL, BRK, PARSE, BRK, CR, TYPE, HALT, FIND, QUESTION_DUP, ZBRANCH, 0b
-	dw	TO_CFA, EXECUTE, LIT, ok_msg, LIT, 3, TYPE, CR, BRANCH, 7
+back:	dw	LIT, buffer, LIT, 00ff, ACCEPT, NUMBER_TIB, STORE, LIT, 0, TO_IN, STORE
+	dw	BL, PARSE, FIND, QUESTION_DUP, ZBRANCH, 0c
+	dw	SPACE, TO_CFA, EXECUTE, LIT, ok_msg, LIT, 3, TYPE, CR, BRANCH, 7
 	dw	LIT, err_msg, LIT, 4, TYPE, CR
-	dw	BRANCH, -024
+	dw	BRANCH, -023
 	dw	EXIT
 ok_msg:
 	ds	" ok"
