@@ -456,13 +456,15 @@ newline:	equ 00a
 	sw	r2, r14, 0
 	NEXT
 _accept:
-	move	r9, r15			; save return address
 	move	r4, r2			; save max count
 	clear	r5			; zero char count
 	li	r6, newline		; eol char
 	li	r7, delete		; bs char
 _accept0:
-	jal	r15, _key		; get key code in r1
+	lw	r2, zero, charrdy
+	beq	r2, zero, _accept0
+	lw	r2, zero, charin
+
 	beq	r2, r6, eol0		; is it eol char?
 	beq	r2, r7, bs0		; is it bs char?
 	beq	r4, zero, lim0		; have we reached the char limit?
@@ -480,7 +482,7 @@ lim0:
 	j	_accept0		; get next char
 eol0:
 	move	r2, r5			; save actual char count
-	jr	r9			; return
+	jr	r15			; return
 bs0:
 	beq	r5, zero, _accept0	; ignore bs if first key
 	sw	r7, zero, charout
@@ -506,7 +508,7 @@ bs0:
 	lw	r3, r14, 1
 	jal	r15, _type
 _type1:
-	addi	r14, r14, -2
+	addi	r14, r14, 2
 	NEXT
 _type:
 	lw	r4, r3, 0
@@ -526,22 +528,26 @@ _type:
 	NEXT
 	; TODO enable different buffers
 _parse:
-	li	r4, bufferlen
-	lw	r3, zero, var_TO_IN
-	move	r6, r3
+	li	r4, bufferlen		; size of buffer
+	lw	r3, zero, var_TO_IN	; get current index into buffer
+	move	r6, r3			; save index
+	li	r7, buffer		; load buffer address
+	add	r7, r7, r3		; address of start of parsed string
 	beq	r3, r4, _parse_empty
 
 _parse_more:
-	lw	r5, r3, buffer
-	inc	r3
-	beq	r5, r2, _parse_done
-	bne	r3, r4, _parse_more
+	lw	r5, r3, buffer		; load char at buffer index
+sw	r5, zero, charout
+	inc	r3			; incr index
+	beq	r5, r2, _parse_done	; char equals to delimiter?
+	bne	r3, r4, _parse_more	; compare index to buffer size
 
 _parse_done:
-	sw	r3, zero, var_TO_IN
+	sw	r3, zero, var_TO_IN	; save index
 	sub	r2, r3, r6		; length of parsed string
-	li	r7, buffer
-	add	r3, r7, r6		; address of start of parsed string
+	move	r3, r7
+;	li	r7, buffer
+;	add	r3, r7, r6		; address of start of parsed string
 	jr	r15	
 
 _parse_empty:
@@ -750,11 +756,11 @@ _find_next:
 
 
 	DEFWORD(interpret, 0, INTERPRET)
-back:	dw	LIT, buffer, LIT, 00ff, ACCEPT, LIT, 0, TO_IN, STORE
-	dw	BL, PARSE, FIND, QUESTION_DUP, ZBRANCH, 0b
+back:	dw	LIT, buffer,  LIT, 00ff, ACCEPT, LIT, 0, TO_IN, STORE
+	dw	BL, BRK, PARSE, BRK, CR, TYPE, HALT, FIND, QUESTION_DUP, ZBRANCH, 0b
 	dw	TO_CFA, EXECUTE, LIT, ok_msg, LIT, 3, TYPE, CR, BRANCH, 7
 	dw	LIT, err_msg, LIT, 4, TYPE, CR
-	dw	BRANCH, -020
+	dw	BRANCH, -024
 	dw	EXIT
 ok_msg:
 	ds	" ok"
