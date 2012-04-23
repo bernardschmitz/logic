@@ -415,23 +415,30 @@ sub init() {
 
 	$instruction{0x0d} = sub() {
 #		print STDERR "slt\n";	
-		if(sign_extend($reg[$rs]) < sign_extend($reg[$rt])) {
-			$reg[$rd] = 1;
-		}
-		else {
-			$reg[$rd] = 0;
-		}
+
+		$reg[$rd] = (($reg[$rs]-$reg[$rt]) & 0x8000)>>15;
+
+
+#		if(sign_extend($reg[$rs]) < sign_extend($reg[$rt])) {
+#			$reg[$rd] = 1;
+#		}
+#		else {
+#			$reg[$rd] = 0;
+#		}
 		$clock += 2;
 	};
 
 	$instruction{0x0e} = sub() {
 #		print STDERR "slti\n";	
-		if(sign_extend($reg[$rs]) < sign_extend($op)) {
-			$reg[$rd] = 1;
-		}
-		else {
-			$reg[$rd] = 0;
-		}
+
+		$reg[$rd] = (($reg[$rs]-$op) & 0x8000)>>15;
+
+#		if(sign_extend($reg[$rs]) < sign_extend($op)) {
+#			$reg[$rd] = 1;
+#		}
+#		else {
+#			$reg[$rd] = 0;
+#		}
 		$clock += 2;
 	};
 

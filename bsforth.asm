@@ -111,10 +111,9 @@ start:
 
 	li	r10, yeah
 	NEXT
-	halt
 
-;yeah:	dw	INTERPRET, HALT
-yeah:	dw	TEST_UDOT, HALT
+yeah:	dw	INTERPRET, HALT
+;yeah:	dw	TEST_UDOT, HALT
 
 	DEFWORD(test, 0, TEST)
 	dw LIT, 0cafe, LIT, 0babe, OVER, EXIT
@@ -654,7 +653,6 @@ _num_fail:
 	not	r7			; negate number
 	inc	r7
 _not_neg:
-brk
 	move	r2, r7
 	move	r3, r8
 	jr	r15
@@ -711,14 +709,18 @@ loop:
 	DEFCODE(find, 0, FIND)
 	lw	r2, r14, 0	; length
 	lw	r3, r14, 1	; string address
-	inc	r14
 	jal	r15, _find
+	inc	r14
 	sw	r2, r14, 0
 	NEXT
 _find:
 	lw	r6, zero, var_LATEST	; address of latest word
 
 _find_search:
+
+li	r1, 02a
+sw	r1, zero, charout
+
 	lw	r4, r6, 1		; get flags
 	andi	r4, r4, f_hidden
 	bne	r4, zero, _find_next	; skip if hidden
@@ -774,14 +776,6 @@ ok_msg:
 err_msg:
 	ds	" err"
 
-
-;	DEFWORD(u., 0, U_DOT)
-;	dw	BASE, FETCH, SLASH_MOD, QUESTION_DUP, ZBRANCH, 2
-;	dw	U_DOT
-;	dw	DUP, LIT, 0a, LESS_THAN, ZBRANCH, 5
-;	dw	LIT, 030, BRANCH, 6
-;	dw	LIT, 0a, MINUS, LIT, 061
-;	dw	PLUS, EMIT, EXIT
 
 
 	DEFCODE(u., 0, U_DOT)
