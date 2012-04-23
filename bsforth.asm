@@ -135,7 +135,7 @@ yeah:	dw	INTERPRET, HALT
 	dw CR, EXIT
 
 	DEFWORD(test5, 0, TEST5)
-	dw LIT, 05, LIT, msg, LIT, 01a, TYPE, CR, ONE_MINUS, DUP, LIT, 0, EQUALS, ZBRANCH, -0c, EXIT
+	dw LIT, 05, LIT, msg, LIT, 01a, TYPE, CR, ONE_MINUS, DUPE, LIT, 0, EQUALS, ZBRANCH, -0c, EXIT
 msg:	ds "Hi there, this is bsforth!"
 
 
@@ -171,7 +171,7 @@ msg2:	ds	"test9"
 	dw	TEST9, EXIT
 
 	DEFWORD(test12, 0, TEST12)
-	dw	LIT, msg3, LIT, 0b, FIND, QUESTION_DUP, ZBRANCH, 9
+	dw	LIT, msg3, LIT, 0b, FIND, QUESTION_DUPE, ZBRANCH, 9
 	dw	LIT, 02a, EMIT, CR, TO_CFA, EXECUTE, BRANCH, 7
 	dw	LIT, msg3, LIT, 0b, TYPE, CR, EXIT
 msg3:	ds	"hidden_test"
@@ -188,6 +188,12 @@ msg3:	ds	"hidden_test"
 	inc	r14
 	NEXT
 
+	DEFCODE(nip, 0, NIP)
+	lw	r2, r14, 0
+	inc	r14
+	sw	r2, r14, 0
+	NEXT
+
 	DEFCODE(swap, 0, SWAP)
 	lw	r2, r14, 0
 	lw	r3, r14, 1
@@ -196,7 +202,7 @@ msg3:	ds	"hidden_test"
 	sw	r2, r14, 1
 	NEXT
 
-	DEFCODE(dup, 0, DUP)
+	DEFCODE(dup, 0, DUPE)
 	lw	r2, r14, 0
 	PUSHDSP(r2)
 	NEXT
@@ -216,11 +222,11 @@ msg3:	ds	"hidden_test"
 	sw	r3, r14, 2	
 	NEXT
 
-	DEFCODE(2drop, 0, TWODROP)
+	DEFCODE(2drop, 0, TWO_DROP)
 	addi	r14, r14, 2
 	NEXT
 
-	DEFCODE(2dup, 0, TWODUP)
+	DEFCODE(2dup, 0, TWO_DUPE)
 	lw	r2, r14, 0
 	lw	r3, r14, 1
 	addi	r14, r14, -2
@@ -228,7 +234,7 @@ msg3:	ds	"hidden_test"
 	sw	r3, r14, 1
 	NEXT
 
-	DEFCODE(2swap, 0, TWOSWAP)
+	DEFCODE(2swap, 0, TWO_SWAP)
 	lw	r2, r14, 0
 	lw	r3, r14, 1
 	lw	r4, r14, 2
@@ -240,7 +246,7 @@ msg3:	ds	"hidden_test"
 	sw	r3, r14, 3
 	NEXT
 
-	DEFCODE(?dup, 0, QUESTION_DUP)
+	DEFCODE(?dup, 0, QUESTION_DUPE)
 	lw	r2, r14, 0
 	beq	r2, zero, qdup0
 	PUSHDSP(r2)
@@ -329,6 +335,14 @@ not_lt:
 	sw	r2, r14, 0
 	NEXT
 
+	DEFCODE(0=, 0, ZERO_EQUALS)
+	clear	r2
+	lw	r3, r14, 0
+	bne	r3, zero, not_eq
+	not	r2
+not_eq:
+	sw	r2, r14, 0
+	NEXT
 
 	DEFWORD(<>, 0, NOT_EQUALS)
 	dw EQUALS, INVERT, EXIT
@@ -660,7 +674,7 @@ _not_neg:
 
 
 	DEFWORD(quit, 0, QUIT)
-	dw	LIT, buffer, DUP, LIT, 00ff, ACCEPT, SPACE, TYPE, CR, BRANCH, -0a, EXIT
+	dw	LIT, buffer, DUPE, LIT, 00ff, ACCEPT, SPACE, TYPE, CR, BRANCH, -0a, EXIT
 	
 
 
@@ -703,7 +717,7 @@ loop:
 ; : sum100 0 101 0 do i + loop ;
 ; 13ba
 	DEFWORD(sum100, 0, SUM100)
-	dw	LIT, 0, LIT, 064, DUP, TO_R, PLUS, FROM_R, ONE_MINUS, DUP, LIT, 0, EQUALS, ZBRANCH, -0a, DROP, EXIT
+	dw	LIT, 0, LIT, 064, DUPE, TO_R, PLUS, FROM_R, ONE_MINUS, DUPE, LIT, 0, EQUALS, ZBRANCH, -0a, DROP, EXIT
 
 
 	DEFCODE(find, 0, FIND)
@@ -718,8 +732,8 @@ _find:
 
 _find_search:
 
-li	r1, 02a
-sw	r1, zero, charout
+;li	r1, 02a
+;sw	r1, zero, charout
 
 	lw	r4, r6, 1		; get flags
 	andi	r4, r4, f_hidden
@@ -766,10 +780,12 @@ _find_next:
 
 	DEFWORD(interpret, 0, INTERPRET)
 back:	dw	LIT, buffer, LIT, 00ff, ACCEPT, NUMBER_TIB, STORE, LIT, 0, TO_IN, STORE
-	dw	BL, PARSE, FIND, QUESTION_DUP, ZBRANCH, 0c
-	dw	SPACE, TO_CFA, EXECUTE, LIT, ok_msg, LIT, 3, TYPE, CR, BRANCH, 7
-	dw	LIT, err_msg, LIT, 4, TYPE, CR
-	dw	BRANCH, -023
+	dw	BL, PARSE, TWO_DUPE, FIND, QUESTION_DUPE, ZBRANCH, 08
+	dw	NIP, NIP, SPACE, TO_CFA, EXECUTE, BRANCH, 0d
+	dw	NUMBER, ZERO_EQUALS, ZBRANCH, 09
+	dw	LIT, err_msg, LIT, 4, TYPE, CR, BRANCH, 07
+	dw	LIT, ok_msg, LIT, 3, TYPE, CR
+	dw	BRANCH, -02c
 	dw	EXIT
 ok_msg:
 	ds	" ok"
