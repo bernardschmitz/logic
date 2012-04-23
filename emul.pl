@@ -405,6 +405,21 @@ sub init() {
 
 	$instruction{0x0d} = sub() {
 #		print STDERR "slt\n";	
+
+		printf STDERR "%04x %04x\n", $reg[$rs], $reg[$rt];
+
+		my $a = hex $reg[$rs];
+		if( ($a & 0x8000) ) {
+			$a = -$a;
+		}
+
+		my $b = hex $reg[$rt];
+		if($b & 0x8000) {
+			$b = -$b;
+		}
+
+		print "$a $b\n", $a&0x8000,$b&0x8000;
+
 		if($reg[$rs] < $reg[$rt]) {
 			$reg[$rd] = 1;
 		}

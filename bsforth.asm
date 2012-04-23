@@ -775,17 +775,87 @@ err_msg:
 	ds	" err"
 
 
-	DEFWORD(u., 0, U_DOT)
-	dw	BASE, FETCH, SLASH_MOD, QUESTION_DUP, ZBRANCH, 2
-	dw	U_DOT
-	dw	DUP, LIT, 0a, LESS_THAN, ZBRANCH, 5
-	dw	LIT, 030, BRANCH, 6
-	dw	LIT, 0a, MINUS, LIT, 061
-	dw	PLUS, EMIT, EXIT
+;	DEFWORD(u., 0, U_DOT)
+;	dw	BASE, FETCH, SLASH_MOD, QUESTION_DUP, ZBRANCH, 2
+;	dw	U_DOT
+;	dw	DUP, LIT, 0a, LESS_THAN, ZBRANCH, 5
+;	dw	LIT, 030, BRANCH, 6
+;	dw	LIT, 0a, MINUS, LIT, 061
+;	dw	PLUS, EMIT, EXIT
+
+
+	DEFCODE(u., 0, U_DOT)
+	lw	r2, r14, 0
+	inc	r14
+	jal	r15, _udot
+	NEXT
+_udot:
+	lw      r3, zero, var_BASE
+	li	r4, _udot_buf
+	li	r5, 0a
+_udot_rep:
+	dec	r4
+	div     r2, r3
+	mflo    r2
+	mfhi    r6
+
+	blt	r6, r5, _udot_lt_10	; less than 10?
+
+	addi	r6, r6, 057		; add -10 + 'a'
+	sw	r6, r4, 0
+	bne	r2, zero, _udot_rep
+	j	_udot_out
+
+_udot_lt_10:
+	addi	r6, r6, 030
+	sw	r6, r4, 0
+	bne	r2, zero, _udot_rep
+
+_udot_out:
+	lw	r6, r4, 0
+	beq	r6, zero, _udot_done
+	sw	r6, zero, charout
+	inc	r4
+	j	_udot_out
+_udot_done:
+	jr	r15
+
+	dw      0,0,0,0,0,0,0,0
+	dw      0,0,0,0,0,0,0,0
+	dw      0,0,0,0,0,0,0,0
+	dw      0,0,0,0,0,0,0,0
+	dw      0,0,0,0,0,0,0,0
+	dw      0,0,0,0,0,0,0,0
+_udot_buf:
+	dw	0
+
+
+	DEFCODE(., 0, DOT)
+	lw	r2, r14, 0
+	inc	r14,
+	jal	r15, _dot
+	NEXT
+_dot:
+	slt	r1, r2, zero
+halt
+	bge	r2, zero, _dot_pos
+	li	r1, minus
+	sw	r1, zero, charout
+	neg	r2
+_dot_pos:
+	j	_udot
 
 
 	DEFWORD(test-udot, 0, TEST_UDOT)
-	dw	LIT, 0141, U_DOT, EXIT
+;	dw	LIT, 0141, U_DOT, CR
+;	dw	HEX
+;	dw	LIT, 0cafe, U_DOT, CR
+;	dw	BINARY
+;	dw	LIT, 0babe, U_DOT, CR
+;	dw	DECIMAL
+;	dw	LIT, 0293a, DOT, CR
+	dw	LIT, -0141, DOT, CR
+	dw	EXIT
 
 	DEFWORD(last_word, 0, LAST_WORD)
 	dw	EXIT
