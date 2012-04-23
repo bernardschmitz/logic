@@ -1,5 +1,6 @@
 
 use strict;
+use integer;
 
 use Term::ReadKey;
 use Time::HiRes qw(usleep);
@@ -214,6 +215,15 @@ dump_cpu_state();
 
 
 
+sub sign_extend($) {
+
+	my $x = shift;
+	my $m = -($x & 0x8000); 
+	my $a = $x | $m;
+	return $a;
+}
+
+
 
 sub read_mem($ $) {
 
@@ -405,22 +415,7 @@ sub init() {
 
 	$instruction{0x0d} = sub() {
 #		print STDERR "slt\n";	
-
-		printf STDERR "%04x %04x\n", $reg[$rs], $reg[$rt];
-
-		my $a = hex $reg[$rs];
-		if( ($a & 0x8000) ) {
-			$a = -$a;
-		}
-
-		my $b = hex $reg[$rt];
-		if($b & 0x8000) {
-			$b = -$b;
-		}
-
-		print "$a $b\n", $a&0x8000,$b&0x8000;
-
-		if($reg[$rs] < $reg[$rt]) {
+		if(sign_extend($reg[$rs]) < sign_extend($reg[$rt])) {
 			$reg[$rd] = 1;
 		}
 		else {
@@ -431,7 +426,7 @@ sub init() {
 
 	$instruction{0x0e} = sub() {
 #		print STDERR "slti\n";	
-		if($reg[$rs] < $op) {
+		if(sign_extend($reg[$rs]) < sign_extend($op)) {
 			$reg[$rd] = 1;
 		}
 		else {

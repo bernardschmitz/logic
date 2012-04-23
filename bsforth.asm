@@ -836,8 +836,6 @@ _udot_buf:
 	jal	r15, _dot
 	NEXT
 _dot:
-	slt	r1, r2, zero
-halt
 	bge	r2, zero, _dot_pos
 	li	r1, minus
 	sw	r1, zero, charout
@@ -847,13 +845,13 @@ _dot_pos:
 
 
 	DEFWORD(test-udot, 0, TEST_UDOT)
-;	dw	LIT, 0141, U_DOT, CR
-;	dw	HEX
-;	dw	LIT, 0cafe, U_DOT, CR
-;	dw	BINARY
-;	dw	LIT, 0babe, U_DOT, CR
-;	dw	DECIMAL
-;	dw	LIT, 0293a, DOT, CR
+	dw	LIT, 0141, U_DOT, CR
+	dw	HEX
+	dw	LIT, 0cafe, U_DOT, CR
+	dw	BINARY
+	dw	LIT, 0babe, U_DOT, CR
+	dw	DECIMAL
+	dw	LIT, 0293a, DOT, CR
 	dw	LIT, -0141, DOT, CR
 	dw	EXIT
 
