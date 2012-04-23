@@ -113,7 +113,8 @@ start:
 	NEXT
 	halt
 
-yeah:	dw	INTERPRET, HALT
+;yeah:	dw	INTERPRET, HALT
+yeah:	dw	TEST_UDOT, HALT
 
 	DEFWORD(test, 0, TEST)
 	dw LIT, 0cafe, LIT, 0babe, OVER, EXIT
@@ -286,7 +287,7 @@ qdup0:
 	DEFCODE(/, 0, SLASH)
 	lw	r2, r14, 0
 	lw	r3, r14, 1
-	div	r2, r2, r3
+	div	r2, r3, r2
 	inc	r14
 	sw	r2, r14, 0
 	NEXT
@@ -295,9 +296,9 @@ qdup0:
 	DEFCODE(/mod, 0, SLASH_MOD)
 	lw	r2, r14, 0
 	lw	r3, r14, 1
-	div	r2, r2, r3
-	mfhi	r3
+	div	r2, r3, r2
 	sw	r2, r14, 0
+	mfhi	r3
 	sw	r3, r14, 1
 	NEXT
 
@@ -314,6 +315,17 @@ qdup0:
 	bne	r3, r4, equals0
 	not	r2
 equals0:
+	inc	r14
+	sw	r2, r14, 0
+	NEXT
+
+	DEFCODE(<, 0, LESS_THAN)
+	clear	r2
+	lw	r3, r14, 0
+	lw	r4, r14, 1
+	bge	r4, r3, not_lt
+	not	r2
+not_lt:
 	inc	r14
 	sw	r2, r14, 0
 	NEXT
@@ -763,6 +775,17 @@ err_msg:
 	ds	" err"
 
 
+	DEFWORD(u., 0, U_DOT)
+	dw	BASE, FETCH, SLASH_MOD, QUESTION_DUP, ZBRANCH, 2
+	dw	U_DOT
+	dw	DUP, LIT, 0a, LESS_THAN, ZBRANCH, 5
+	dw	LIT, 030, BRANCH, 6
+	dw	LIT, 0a, MINUS, LIT, 061
+	dw	PLUS, EMIT, EXIT
+
+
+	DEFWORD(test-udot, 0, TEST_UDOT)
+	dw	LIT, 0141, U_DOT, EXIT
 
 	DEFWORD(last_word, 0, LAST_WORD)
 	dw	EXIT
