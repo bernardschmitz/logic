@@ -276,7 +276,7 @@ qdup0:
 	DEFCODE(-, 0, MINUS)
 	lw	r2, r14, 0
 	lw	r3, r14, 1
-	sub	r2, r2, r3
+	sub	r2, r3, r2
 	inc	r14
 	sw	r2, r14, 0
 	NEXT
@@ -394,7 +394,7 @@ var_$3:	dw	$4
 	DEFVAR(latest, 0, LATEST, name_LAST_WORD)
 	DEFVAR(s0, 0, SZ, data_stack)
 	DEFVAR(base, 0, BASE, 0a)
-	DEFVAR(>in, 0, TO_IN, bufferlen)
+	DEFVAR(>in, 0, TO_IN, 0)
 	DEFVAR(#tib, 0, NUMBER_TIB, 0)
 
 	DEFWORD(binary, 0, BINARY)
@@ -477,11 +477,11 @@ delete:		equ 008
 newline:	equ 00a
 
 	DEFCODE(accept, 0, ACCEPT)
-	lw	r2, r14, 0		; count
-	lw	r3, r14, 1		; address
+	lw	r2, r14, 0		; max count
+	lw	r3, r14, 1		; buffer address
 	jal	r15, _accept
 	inc	r14
-	sw	r2, r14, 0
+	sw	r2, r14, 0		; count
 	NEXT
 _accept:
 	move	r4, r2			; save max count
@@ -562,8 +562,12 @@ _parse_more:
 	beq	r5, r2, _parse_done	; char equals to delimiter?
 	bne	r3, r4, _parse_more	; compare index to buffer size
 
+	sw	r3, zero, var_TO_IN	; save index
+	j	_parse0
 _parse_done:
 	sw	r3, zero, var_TO_IN	; save index
+	dec	r3
+_parse0:
 	sub	r2, r3, r6		; length of parsed string
 	move	r3, r7
 ;	li	r7, buffer
@@ -779,13 +783,14 @@ _find_next:
 
 
 	DEFWORD(interpret, 0, INTERPRET)
-back:	dw	LIT, buffer, LIT, 00ff, ACCEPT, NUMBER_TIB, STORE, LIT, 0, TO_IN, STORE
+	dw	NUMBER_TIB, FETCH, TO_IN, FETCH, EQUALS, ZBRANCH, 011
+	dw	LIT, ok_msg, LIT, 3, TYPE, CR
+	dw	TIB, LIT, 00ff, ACCEPT, NUMBER_TIB, STORE, LIT, 0, TO_IN, STORE
 	dw	BL, PARSE, TWO_DUPE, FIND, QUESTION_DUPE, ZBRANCH, 08
 	dw	NIP, NIP, SPACE, TO_CFA, EXECUTE, BRANCH, 0d
 	dw	NUMBER, ZERO_EQUALS, ZBRANCH, 09
 	dw	LIT, err_msg, LIT, 4, TYPE, CR, BRANCH, 07
-	dw	LIT, ok_msg, LIT, 3, TYPE, CR
-	dw	BRANCH, -02c
+	dw	BRANCH, -032
 	dw	EXIT
 ok_msg:
 	ds	" ok"
