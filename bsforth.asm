@@ -68,6 +68,7 @@ DOCOL:
 	PUSHRSP(r10)
 	inc	r11
 	move	r10, r11
+_NEXT:
 	NEXT
 
 
@@ -770,16 +771,24 @@ _find_next:
 
 	DEFCODE(>CFA, 0, TO_CFA)
 	lw	r2, r14, 0		; dictionary address
+	jal	r15, _to_cfa
+	sw	r2, r14, 0		; cfa addr on stack
+	NEXT
+_to_cfa:
 	lw	r3, r2, 2		; get length
 	addi	r2, r2, 3		; get addr of name
 	add	r2, r2, r3		; add length
 	inc	r2			; align address
 	andi	r2, r2, 0fffe
-	sw	r2, r14, 0		; cfa addr on stack
-	NEXT
+	jr	r15
 
-	DEFWORD(>DFA, 0, TO_DFA)
-	dw	TO_CFA, LIT, 4, PLUS, EXIT
+
+	DEFCODE(>DFA, 0, TO_DFA)
+	lw	r2, r14, 0
+	jal	r15, _to_cfa
+	inc	r2
+	sw	r2, r14, 0
+	NEXT
 
 
 	DEFWORD(interpret, 0, INTERPRET)
@@ -875,13 +884,16 @@ _create:
 	inc	r4
 	andi	r4, r4, 0fffe	; align data pointer
 
+
+; TODO copy _create_xt here, store addr of lit param
+
 	lw	r5, zero, var_LATEST
 	sw	r5, r4, 0	; store link
 
 	clear	r1
 	sw	r1, r4, 1	; store flags
 	sw	r2, r4, 2	; store len
-	add	r4, r4, 3
+	addi	r4, r4, 3
 _create0:
 	lw	r1, r3, 0	; get name char
 	sw	r1, r4, 0	; store name char
@@ -890,13 +902,21 @@ _create0:
 	bne	r3, zero, _create0
 
 	inc	r4
-	andi	r4, r4, 0fffe	; align data pointer
+	andi	r4, r4, 0fffe	; align cfa field
 
-; TODO push dfa?
+	inc	r4
+	sw	r4, r4, -1
+
+	li	r1, LIT
+	sw	r1, r4, 0
+	addi	r5, r4, 3
+	sw	r5, r4, 1
+	li	r1, _NEXT
+	sw	r1, r4, 2
 
 	lw	r1, zero, var_HERE
 	sw	r1, zero, var_LATEST
-	sw	r4, zero, var_HERE
+	sw	r5, zero, var_HERE
 	
 	jr	r9
 
