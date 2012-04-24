@@ -177,7 +177,7 @@ sub process_pseudo_instructions {
 #	s/\bjalr\s+([a-z_0-9]+)/jalr ra, \1/gi;
 	s/\bclear\s+([a-z0-9]+)/add \1, zero, zero/gi;
 	s/\bmove\s+([a-z0-9]+),\s*([a-z0-9]+)/add \1, \2, zero/gi;
-	s/\bli\s+([a-z0-9]+),\s*([_a-z0-9]+)/addi \1, zero, \2/gi;
+	s/\bli\s+([a-z0-9]+),\s*([_a-z0-9A-Z]+)/addi \1, zero, \2/gi;
 	s/\bbgt\s+([a-z0-9]+),\s*([a-z0-9]+),\s*([a-z_0-9]+)/slt at, \2, \1\nbne at, zero, \3/gi;
 	s/\bblt\s+([a-z0-9]+),\s*([a-z0-9]+),\s*([a-z_0-9]+)/slt at, \1, \2\nbne at, zero, \3/gi;
 	s/\bbge\s+([a-z0-9]+),\s*([a-z0-9]+),\s*([a-z_0-9]+)/slt at, \1, \2\nbeq at, zero, \3/gi;

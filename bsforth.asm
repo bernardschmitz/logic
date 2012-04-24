@@ -859,6 +859,48 @@ _dot_pos:
 	j	_udot
 
 
+
+	DEFCODE(create, 0, CREATE)
+;	lw	r2, r14, 0	; length
+;	lw	r3, r14, 1	; address
+;	addi	r14, r14, 2
+	jal	r15, _create
+	NEXT
+_create:
+	move	r9, r15		; save return address
+	li	r2, blank
+	jal	r15, _parse
+
+	lw	r4, zero, var_HERE
+	inc	r4
+	andi	r4, r4, 0fffe	; align data pointer
+
+	lw	r5, zero, var_LATEST
+	sw	r5, r4, 0	; store link
+
+	clear	r1
+	sw	r1, r4, 1	; store flags
+	sw	r2, r4, 2	; store len
+	add	r4, r4, 3
+_create0:
+	lw	r1, r3, 0	; get name char
+	sw	r1, r4, 0	; store name char
+	inc	r4
+	dec	r3
+	bne	r3, zero, _create0
+
+	inc	r4
+	andi	r4, r4, 0fffe	; align data pointer
+
+; TODO push dfa?
+
+	lw	r1, zero, var_HERE
+	sw	r1, zero, var_LATEST
+	sw	r4, zero, var_HERE
+	
+	jr	r9
+
+
 	DEFWORD(test-udot, 0, TEST_UDOT)
 	dw	LIT, 0141, U_DOT, CR
 	dw	HEX
