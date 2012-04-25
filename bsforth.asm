@@ -34,10 +34,7 @@ bufferlen:	equ	000ff
 ; dsp r14
 
 	define(NEXT, {
-	 lw	r11, r10, 0
-	 inc	r10
-	 lw	r12, r11, 0
-	 jr	r12
+	 j	_NEXT
 	})dnl
 
 
@@ -68,7 +65,11 @@ DOCOL:
 	PUSHRSP(r10)
 	inc	r11
 	move	r10, r11
-	NEXT
+_NEXT:
+	lw	r11, r10, 0
+	inc	r10
+	lw	r12, r11, 0
+	jr	r12
 
 
 	define(DEFWORD, {
@@ -895,15 +896,16 @@ _create0:
 	lw	r1, r3, 0	; get name char
 sw	r1, zero, charout
 	sw	r1, r4, 0	; store name char
-	inc	r4
+	inc	r4		; bump pointers
 	inc	r3
-	dec	r2
-	bne	r2, zero, _create0
+	dec	r2		; decr char count
+	bne	r2, zero, _create0	; keep copying until done
 
 	inc	r4
 	andi	r4, r4, 0fffe	; align cfa field
+				; r4 = cfa addr
 
-	inc	r4
+	inc	r4		; ra = dfa addr
 	sw	r4, r4, -1
 
 	li	r1, DOCOL
@@ -920,6 +922,8 @@ sw	r1, zero, charout
 	sw	r5, zero, var_HERE
 	
 	jr	r9
+
+
 
 
 	DEFWORD(test-udot, 0, TEST_UDOT)

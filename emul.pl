@@ -182,13 +182,11 @@ while(!$halt) {
 	}
 
 
-	#dump_cpu_state();
-
 	usleep(100);
 }
 
 
-dump_cpu_state();
+mon_reg();
 
 
 
