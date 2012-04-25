@@ -24,8 +24,7 @@ for(@bin) {
 }
 
 for(0..10240) {
-	push @mem, 0x1e00;
-	push @mem, 0x0000;
+	push @mem, 0x1d00;
 }
 
 $SIG{'TSTP'} = 'TSTP_handler';

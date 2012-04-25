@@ -796,10 +796,10 @@ _to_cfa:
 	dw	LIT, ok_msg, LIT, 3, TYPE, CR
 	dw	TIB, LIT, 00ff, ACCEPT, NUMBER_TIB, STORE, LIT, 0, TO_IN, STORE
 	dw	BL, PARSE, TWO_DUPE, FIND, QUESTION_DUPE, ZBRANCH, 08
-	dw	NIP, NIP, SPACE, TO_CFA, EXECUTE, BRANCH, 0d
-	dw	NUMBER, ZERO_EQUALS, ZBRANCH, 09
-	dw	LIT, err_msg, LIT, 4, TYPE, CR, BRANCH, 07
-	dw	BRANCH, -032
+	dw	NIP, NIP, SPACE, TO_CFA, EXECUTE, BRANCH, 0b
+	dw	NUMBER, ZERO_EQUALS, ZBRANCH, 07
+	dw	LIT, err_msg, LIT, 4, TYPE, CR
+	dw	BRANCH, -030
 	dw	EXIT
 ok_msg:
 	ds	" ok"
@@ -870,23 +870,19 @@ _dot_pos:
 
 
 	DEFCODE(create, 0, CREATE)
-;	lw	r2, r14, 0	; length
-;	lw	r3, r14, 1	; address
-;	addi	r14, r14, 2
 	jal	r15, _create
 	NEXT
 _create:
 	move	r9, r15		; save return address
 	li	r2, blank
 	jal	r15, _parse
-brk
 
 	lw	r4, zero, var_HERE
-	inc	r4
-	andi	r4, r4, 0fffe	; align data pointer
+;	inc	r4
+;	andi	r4, r4, 0fffe	; align data pointer
 
-	lw	r5, zero, var_LATEST
-	sw	r5, r4, 0	; store link
+	lw	r1, zero, var_LATEST
+	sw	r1, r4, 0	; store link
 
 	clear	r1
 	sw	r1, r4, 1	; store flags
@@ -894,7 +890,6 @@ brk
 	addi	r4, r4, 3
 _create0:
 	lw	r1, r3, 0	; get name char
-sw	r1, zero, charout
 	sw	r1, r4, 0	; store name char
 	inc	r4		; bump pointers
 	inc	r3
@@ -902,26 +897,27 @@ sw	r1, zero, charout
 	bne	r2, zero, _create0	; keep copying until done
 
 	inc	r4
-	andi	r4, r4, 0fffe	; align cfa field
+;	andi	r4, r4, 0fffe	; align cfa field
 				; r4 = cfa addr
+	li	r1, _create_xt
+	sw	r1, r4, 0	; store create xt in cfa
 
-	inc	r4		; ra = dfa addr
-	sw	r4, r4, -1
-
-	li	r1, DOCOL
-	sw	r1, r4, 0
-	li	r1, LIT
-	sw	r1, r4, 1
-	addi	r5, r4, 4
-	sw	r5, r4, 2
-	li	r1, EXIT
-	sw	r1, r4, 3
+	inc	r4		; align
+;	andi	r4, r4, 0fffe 	; r4 = dfa
 
 	lw	r1, zero, var_HERE
 	sw	r1, zero, var_LATEST
-	sw	r5, zero, var_HERE
+	sw	r4, zero, var_HERE
+
+brk
 	
 	jr	r9
+
+_create_xt:
+	move	r1, r11
+	inc	r1
+	PUSHDSP(r1)	
+	NEXT
 
 
 
@@ -939,6 +935,7 @@ sw	r1, zero, charout
 
 	DEFWORD(last_word, 0, LAST_WORD)
 	dw	EXIT
-
+	
+	align
 start_dp:
 
