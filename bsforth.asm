@@ -68,7 +68,6 @@ DOCOL:
 	PUSHRSP(r10)
 	inc	r11
 	move	r10, r11
-_NEXT:
 	NEXT
 
 
@@ -879,13 +878,11 @@ _create:
 	move	r9, r15		; save return address
 	li	r2, blank
 	jal	r15, _parse
+brk
 
 	lw	r4, zero, var_HERE
 	inc	r4
 	andi	r4, r4, 0fffe	; align data pointer
-
-
-; TODO copy _create_xt here, store addr of lit param
 
 	lw	r5, zero, var_LATEST
 	sw	r5, r4, 0	; store link
@@ -896,10 +893,12 @@ _create:
 	addi	r4, r4, 3
 _create0:
 	lw	r1, r3, 0	; get name char
+sw	r1, zero, charout
 	sw	r1, r4, 0	; store name char
 	inc	r4
-	dec	r3
-	bne	r3, zero, _create0
+	inc	r3
+	dec	r2
+	bne	r2, zero, _create0
 
 	inc	r4
 	andi	r4, r4, 0fffe	; align cfa field
@@ -907,12 +906,14 @@ _create0:
 	inc	r4
 	sw	r4, r4, -1
 
-	li	r1, LIT
+	li	r1, DOCOL
 	sw	r1, r4, 0
-	addi	r5, r4, 3
-	sw	r5, r4, 1
-	li	r1, _NEXT
-	sw	r1, r4, 2
+	li	r1, LIT
+	sw	r1, r4, 1
+	addi	r5, r4, 4
+	sw	r5, r4, 2
+	li	r1, EXIT
+	sw	r1, r4, 3
 
 	lw	r1, zero, var_HERE
 	sw	r1, zero, var_LATEST

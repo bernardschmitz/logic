@@ -28,11 +28,19 @@ for(0..10240) {
 	push @mem, 0x0000;
 }
 
+$SIG{'TSTP'} = 'TSTP_handler';
+
+sub TSTP_handler {
+	print "\nmonitor\n\n";
+	monitor();
+	print "\n\n";
+}
+
 
 $SIG{'INT'} = 'INT_handler';
 
 sub INT_handler {
-	dump_cpu_state();
+	mon_reg();
 	ReadMode 0;
 	exit(0);
 }
@@ -169,13 +177,8 @@ while(!$halt) {
 	ReadMode 0;
 
 	if(defined $char) {
-#		if($char eq '\033') {
-#			dump_cpu_state();
-#		}
-#		else {
-			$keyboard_buf .= $char;
+		$keyboard_buf .= $char;
 #print "\nchar: $char\nkb: $keyboard_buf\n";
-#		}
 	}
 
 
@@ -534,7 +537,7 @@ sub init() {
 
 	$instruction{0x1d} = sub() {
 #		print STDERR "brk\n";	
-		dump_cpu_state();
+		monitor();
 	};
  
 	$instruction{0x1e} = sub() {
@@ -545,15 +548,15 @@ sub init() {
 
 }
 
-sub dump_cpu_state {
+sub mon_reg {
 
-	print STDERR "\n\n==========\n\n";
+	print "\n";
 
-	printf STDERR " PC: %04x IR: %04x OP: %04x RESULT: %04x HI: %04x LO: %04x\n\n", $pc, $ir, $op, $result, $hi, $lo;
+	printf " pc: %04x ir: %04x op: %04x result: %04x hi: %04x lo: %04x\n\n", $pc, $ir, $op, $result, $hi, $lo;
 
 	my $i = 0;
 	for(@reg) {
-		printf STDERR "%3s: %04x ", ("R".$i), $_;
+		printf "%3s: %04x ", ("R".$i), $_;
 
 		$i++;
 		if($i % 8 == 0) {
@@ -561,40 +564,102 @@ sub dump_cpu_state {
 		}
 	}
 
-	print STDERR "\n\n";
+	print "\n";
 
-	print STDERR "DATA STACK:\n";
+	print "data stack:\n";
 
-	my $tos = 0x8000 - 1;
-	if(($tos - $reg[14]) > 0x20) {
-		$tos = $reg[14] + 0x20-1;
+	mon_dump($reg[14], 0x8000 - $reg[14]);
+
+	print "\n";
+
+	print "return stack:\n";
+
+	mon_dump($reg[13], 0x9000 - $reg[13]);
+
+	print "\n";
+
+}
+
+
+sub monitor {
+
+	while(1) {
+
+		print "- ";
+
+		my $in = <STDIN>;
+
+		chomp $in;
+
+#		print "\ninput: \n[$in]\n";
+
+		if($in =~ m/^([a-z]) ?([0-9a-f]*) ?([0-9a-f]*)$/) {
+
+#			print "\n\n[$1] [$2] [$3]\n\n";
+
+			if($1 eq "q") {
+				return;
+			}
+			elsif($1 eq "d") {
+				mon_dump(hex $2, hex $3);
+			}
+			elsif($1 eq "r") {
+				mon_reg();
+			}
+		}
+	}
+}
+
+
+sub mon_dump {
+
+	my ($a, $l) = @_;
+
+	if($l == 0) {
+		$l = 8*8 - 1;
 	}
 
-	my $i = 0;
-	for($reg[14] .. $tos) {
-		printf STDERR "%04x ", $mem[$_];
-		$i++;
-		print "\n" if $i%8 == 0;
+	my $ma = $a;
+	if($ma & 0x07) {
+		$ma = $ma & 0xfff8;
 	}
 
-	print STDERR "\n\n";
-
-	print STDERR "RETURN STACK:\n";
-
-	$tos = 0x9000 - 1;
-	if(($tos - $reg[13]) > 0x20) {
-		$tos = $reg[13] + 0x20-1;
+	my $ea = $a + $l;
+	if($ea & 0x07) {
+		$ea = $ea & 0xfff8;
 	}
 
-	$i = 0;
-	for($reg[13] .. $tos) {
-		printf STDERR "%04x ", $mem[$_];
-		$i++;
-		print "\n" if $i%8 == 0;
+
+	print "\n";
+
+	for(my $i=$ma; $i<=$ea; $i+=8) {
+
+		printf "%04x: ", $i;
+
+		for(0..7) {
+			if($i+$_ >= $a && $i+$_ <= $a+$l) {
+				printf "%04x ", $mem[$i+$_];
+			}
+			else {
+				print "     ";
+			}
+		}
+
+		print " ";
+
+		for(0..7) {
+			my $ch = $mem[$i+$_];
+			$ch &= 0x007f;
+			if($ch >= 0x20 && $ch <= 0x7e) {
+				print chr($ch);
+			}
+			else {
+				print ".";
+			}
+		}
+	
+		print "\n";
 	}
-
-	print STDERR "\n\n==========\n\n";
-
 }
 
 
