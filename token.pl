@@ -28,19 +28,31 @@ sub process_line {
 	my $i = 0;
 	my $tok = '';
 	my $col = 0;
+	my $str = 0;
+	my $targ = '';
+
 	while($i <= $#chars) {
 
 		my $ch = $chars[$i];
 	
 		$i++;
 
-		if($ch =~ m/\s/) {
+		if($str) {
+			if($ch eq $targ) {
+				$str = 0;
+				token($tok, 'string');
+			}
+			else {
+				$tok .= $ch;
+			}
+		}
+		elsif($ch =~ m/\s/) {
 			if($col) {
-				token($tok);
+				token($tok, 'word');
 				$col = 0;
 			}
 		}
-		elsif($ch =~ m/[a-z0-9_]/) {
+		elsif($ch =~ m/[a-zA-Z0-9_]/) {
 
 			if($col) {
 				$tok .= $ch;
@@ -50,30 +62,43 @@ sub process_line {
 				$tok = $ch;
 			}
 		}
-		elsif($ch =~ m/[:,]/) {
+		elsif($ch =~ m/[\$:,]/) {
 
 			if($col) {
-				token($tok);
+				token($tok, 'word');
 				$col = 0;
 			}
 
-			token($ch);
+			token($ch, 'punct');
 		}
+		elsif($ch =~ m/['"]/) {
 
-#		print "$ch $tok\n";
+			$str = 1;
+			$targ = $ch;
+			$tok = '';
+		}
+		else {
+			print "$col $str $ch $tok\n";
+		}
 	}
+
+	print "EOL\n";
 
 	if($col) {
 		token($tok);
+	}
+
+	if($str) {
+		die;
 	}
 
 }
 
 sub token {
 
-	my $token = shift;
+	my ($token, $code) = @_;
 
-	print "token: [$token]\n";
+	print "token: [$token] $code\n";
 }
 
 
