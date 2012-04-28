@@ -193,6 +193,17 @@ msg3:	ds	"hidden_test"
 	brk
 	NEXT
 
+	DEFCODE(dsp@, 0, DSPFETCH)
+	move	r1, r14
+	PUSHDSP(r1)
+	NEXT
+
+	DEFCODE(dsp!, 0, DSPSTORE)
+	lw	r1, r14, 0
+	move	r14, r1
+	NEXT
+
+
 	DEFCODE(drop, 0, DROP)
 	inc	r14
 	NEXT
@@ -455,6 +466,19 @@ blank:	equ	020
 	POPRSP(r2)
 	PUSHDSP(r2)
 	NEXT
+
+	DEFCODE(rsp@, 0, RSPFETCH)
+	PUSHDSP(r13)	
+	NEXT
+
+	DEFCODE(rsp!, 0, RSPSTORE)
+	POPDSP(r13)	
+	NEXT
+
+	DEFCODE(rdrop, 0, RDROP)
+	inc	r13
+	NEXT
+
 
 	DEFCODE(key?, 0, KEY_QUESTION)
 	clear	r2
