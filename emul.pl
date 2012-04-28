@@ -645,13 +645,18 @@ sub mon_dump {
 		print " ";
 
 		for(0..7) {
-			my $ch = $mem[$i+$_];
-			$ch &= 0x007f;
-			if($ch >= 0x20 && $ch <= 0x7e) {
-				print chr($ch);
+			if($i+$_ >= $a && $i+$_ <= $a+$l) {
+				my $ch = $mem[$i+$_];
+				$ch &= 0x007f;
+				if($ch >= 0x20 && $ch <= 0x7e) {
+					print chr($ch);
+				}
+				else {
+					print ".";
+				}
 			}
 			else {
-				print ".";
+				print " ";
 			}
 		}
 	

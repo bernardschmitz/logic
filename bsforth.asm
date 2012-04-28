@@ -58,12 +58,19 @@ bufferlen:	equ	000ff
 	 inc	r14
 	})dnl
 
+	define(ALIGN, {
+		inc	$1
+		andi	$1, $1, 0fffe
+	})dnl
+
 	j	start
 
 	org	010
+	align
 DOCOL:
 	PUSHRSP(r10)
 	inc	r11
+	ALIGN(r11)
 	move	r10, r11
 _NEXT:
 	lw	r11, r10, 0
@@ -83,6 +90,7 @@ name_$3:
 	align
 $3:
 	dw	DOCOL
+	align
 	})dnl
 
 
@@ -114,7 +122,7 @@ start:
 	NEXT
 
 yeah:	dw	INTERPRET, HALT
-;yeah:	dw	TEST_UDOT, HALT
+;yeah:	dw	TEST5, HALT
 
 	DEFWORD(test, 0, TEST)
 	dw LIT, 0cafe, LIT, 0babe, OVER, EXIT
@@ -769,24 +777,36 @@ _find_next:
 	jr	r15
 
 
+	define(DICT2CFA, {
+		lw	r1, $1, 2		; get length
+		addi	$1, $1, 3		; get addr of name
+		add	$1, $1, r1		; add length
+		ALIGN($1)
+	})dnl
+
+
+	define(CFA2DFA, {
+		inc	$1
+		ALIGN($1)
+	})dnl
+
+
+	define(DICT2DFA, {
+		DICT2CFA($1)
+		CFA2DFA($1)
+	})dnl
+
+
 	DEFCODE(>CFA, 0, TO_CFA)
 	lw	r2, r14, 0		; dictionary address
-	jal	r15, _to_cfa
+	DICT2CFA(r2)
 	sw	r2, r14, 0		; cfa addr on stack
 	NEXT
-_to_cfa:
-	lw	r3, r2, 2		; get length
-	addi	r2, r2, 3		; get addr of name
-	add	r2, r2, r3		; add length
-	inc	r2			; align address
-	andi	r2, r2, 0fffe
-	jr	r15
 
 
 	DEFCODE(>DFA, 0, TO_DFA)
 	lw	r2, r14, 0
-	jal	r15, _to_cfa
-	inc	r2
+	DICT2DFA(r2)
 	sw	r2, r14, 0
 	NEXT
 
@@ -884,10 +904,10 @@ _create:
 	lw	r1, zero, var_LATEST
 	sw	r1, r4, 0	; store link
 
-	clear	r1
-	sw	r1, r4, 1	; store flags
+;	clear	r1
+	sw	zero, r4, 1	; store flags
 	sw	r2, r4, 2	; store len
-	addi	r4, r4, 3
+	addi	r4, r4, 3	; address of dict name
 _create0:
 	lw	r1, r3, 0	; get name char
 	sw	r1, r4, 0	; store name char
@@ -896,21 +916,21 @@ _create0:
 	dec	r2		; decr char count
 	bne	r2, zero, _create0	; keep copying until done
 
-	inc	r4
+	ALIGN(r4)
+;	inc	r4
 ;	andi	r4, r4, 0fffe	; align cfa field
 				; r4 = cfa addr
 	li	r1, _create_xt
 	sw	r1, r4, 0	; store create xt in cfa
 
 	inc	r4		; align
+	ALIGN(r4)
 ;	andi	r4, r4, 0fffe 	; r4 = dfa
 
 	lw	r1, zero, var_HERE
 	sw	r1, zero, var_LATEST
 	sw	r4, zero, var_HERE
 
-brk
-	
 	jr	r9
 
 _create_xt:
