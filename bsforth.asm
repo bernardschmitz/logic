@@ -797,14 +797,14 @@ _find_next:
 	})dnl
 
 
-	DEFCODE(>CFA, 0, TO_CFA)
+	DEFCODE(>cfa, 0, TO_CFA)
 	lw	r2, r14, 0		; dictionary address
 	DICT2CFA(r2)
 	sw	r2, r14, 0		; cfa addr on stack
 	NEXT
 
 
-	DEFCODE(>DFA, 0, TO_DFA)
+	DEFCODE(>dfa, 0, TO_DFA)
 	lw	r2, r14, 0
 	DICT2DFA(r2)
 	sw	r2, r14, 0
@@ -940,7 +940,50 @@ _create_xt:
 	NEXT
 
 
+	DEFCODE({,}, 0, COMMA)
+	POPDSP(r2)
+	lw	r3, zero, var_HERE
+	sw	r2, r3, 0
+	inc	r3
+	sw	r3, zero, var_HERE
+	NEXT
 
+
+	DEFCODE([, f_immediate, LBRAC)
+	clear	r2
+	sw	r2, zero, var_STATE
+	NEXT
+	
+	DEFCODE(], 0, RBRAC)
+	li	r2, 0ffff
+	sw	r2, zero, var_STATE
+	NEXT
+
+
+	DEFCODE(immediate, 0, IMMEDIATE)
+	lw	r2, zero, var_LATEST	; get latest word
+	inc	r2			; flags addr
+	lw	r3, r2, 0		; get flags
+	li	r4, f_immediate		; immediate bit
+	xor	r3, r3, r4		; toggle
+	sw	r3, r2, 0		; store it
+	NEXT
+
+	DEFCODE(hidden, 0, HIDDEN)
+	POPDSP(r2)			; dict header addr from stack
+	inc	r2			; flags addr
+	lw	r3, r2, 0		; get flags
+	li	r4, f_hidden		; hidden bit
+	xor	r3, r3, r4		; toggle
+	sw	r3, r2, 0		; store it
+	NEXT
+
+	DEFWORD(hide, 0, HIDE)
+	dw	BL, PARSE, FIND, HIDDEN, EXIT
+
+
+	DEFWORD({'}, 0, TICK)
+	dw	BL, PARSE, FIND, TO_CFA, EXIT
 
 	DEFWORD(test-udot, 0, TEST_UDOT)
 	dw	LIT, 0141, U_DOT, CR
