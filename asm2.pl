@@ -137,6 +137,7 @@ while(<>) {
 collect_symbols();
 
 my $org = 0;
+my @mem = ();
 
 assemble();
 
@@ -144,31 +145,61 @@ assemble();
 
 print Dumper(\%symbols);
 
+#print Dumper(\@mem);
+
+my $i = 0;
+for(@mem) {
+	printf "%04x %04x\n", $i++, $_;
+}
+
 sub next_token {
 
 	return shift @tokens;
 }
 
+sub peek_next_token {
+
+	return $tokens[0];
+}
+
+sub is_next_token {
+
+	my $code = shift;
+	my $tok = peek_next_token();
+
+	return $tok->{code} eq $code;
+}
 
 sub expected_token {
 
 	my $code = shift;
 	my $tok = next_token();
 
-	die "expected [$code] but got [$tok->{code}] at line $n\n" if $tok->{code} ne $code;
+	die "expected [$code] but got [$tok->{code}] at line $tok->{line}\n" if $tok->{code} ne $code;
 
 	return $tok;
 }
 
+sub expected_tokens {
+
+	my @codes = @_;
+	my $tok = next_token();
+
+	for(@codes) {
+		if($tok->{code} eq $_) {
+			return $tok;
+		}
+	}
+
+	die "expected one of [".join(' or ', @codes)."] but got [$tok->{code}] at line $tok->{line}\n";
+}
 
 sub assemble {
 
 	while(my $tok = next_token()) {
 
 		directive($tok) if $tok->{code} eq 'dir';
-
 	}
-
 }
 
 
@@ -190,9 +221,42 @@ sub directive {
 		my $n = expected_token('number');
 		$symbols{$t->{token}}->{value} = $n->{value};	
 	}
+	elsif($dir eq '.word') {
 
+		while(1) {
+
+			my $t = expected_tokens('number', 'symbol');
+
+			if($t->{code} eq 'number') {
+				write_mem($org++, $t->{value});
+			}
+			else {
+				if(defined $symbols{$t->{token}}->{value}) {
+					write_mem($org++, $symbols{$t->{token}}->{value});
+				}
+				else {
+					push @{$symbols{$t->{token}}->{references}}, $org;
+					$org++;
+				}
+			}
+			
+
+			if(!is_next_token('comma')) {
+				return;
+			}
+
+			expected_token('comma');
+		}
+	}
 }
 
+
+sub write_mem {
+
+	my ($addr, $value) = @_;
+
+	$mem[$addr] = $value & 0xffff;
+}
 
 sub collect_symbols {
 
@@ -207,7 +271,7 @@ sub collect_symbols {
 		$token =~ s/:$// if $code eq 'label';
 
 #		print "$token $code\n";
-		$symbols{$token} = { token => $token };
+		$symbols{$token} = { token => $token, references => [] };
 	}
 }
 
