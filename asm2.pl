@@ -1,6 +1,7 @@
 
 use strict;
 use warnings;
+use integer;
 
 use Data::Dumper;
 
@@ -140,7 +141,6 @@ my @mem = ();
 assemble();
 
 resolve_symbols();
-
 
 #print Dumper(\%symbols);
 
@@ -291,7 +291,8 @@ sub pseudo {
 		$r = expected_token('number', 'symbol');
 		my $const = $r->{value};
 		if($r->{code} eq 'symbol') {
-			push @{$symbols{$r->{token}}->{references}}, $org+1;
+#			push @{$symbols{$r->{token}}->{references}}, $org+1;
+			store_reference($r->{token}, $org+1);
 		}
 
 		write_instruction($instructions{'addi'}->{op}, $dst, 0, 0, $const);
@@ -365,8 +366,9 @@ sub branch_pseudo_op {
 	my $c = $r->{value};
 	$c = (($c - ( $org + 4) ) >> 1) if defined $c;
 	if($r->{code} eq 'symbol') {
-		push @{$symbols{$r->{token}}->{references}}, $org+3;
-		$symbols{$r->{token}}->{disp} = $org+4;
+		#push @{$symbols{$r->{token}}->{references}}, $org+3;
+		#$symbols{$r->{token}}->{disp} = 1;
+		store_reference($r->{token}, $org+3, $org+4);
 	}
 
 	return ($x, $y, $c);
@@ -410,7 +412,8 @@ sub instruction {
 		$r = expected_token('number', 'symbol');
 		$const = $r->{value};
 		if($r->{code} eq 'symbol') {
-			push @{$symbols{$r->{token}}->{references}}, $org+1;
+			#push @{$symbols{$r->{token}}->{references}}, $org+1;
+			store_reference($r->{token}, $org+1);
 		}
 	}
 	elsif($ins->{type} == 2) {
@@ -420,7 +423,8 @@ sub instruction {
 			my $r = expected_token('number', 'symbol');
 			$const = $r->{value};
 			if($r->{code} eq 'symbol') {
-				push @{$symbols{$r->{token}}->{references}}, $org+1;
+				#push @{$symbols{$r->{token}}->{references}}, $org+1;
+				store_reference($r->{token}, $org+1);
 			}
 		}
 		elsif($ins->{mnemonic} eq 'jr') {
@@ -438,7 +442,8 @@ sub instruction {
 			$r = expected_token('number', 'symbol');
 			$const = $r->{value};
 			if($r->{code} eq 'symbol') {
-				push @{$symbols{$r->{token}}->{references}}, $org+1;
+				#push @{$symbols{$r->{token}}->{references}}, $org+1;
+				store_reference($r->{token}, $org+1);
 			}
 		}
 		elsif($ins->{mnemonic} eq 'jalr') {
@@ -478,8 +483,9 @@ sub instruction {
 			$const = (( $const - ( $org + 2) ) >> 1) if defined $const;
 
 			if($r->{code} eq 'symbol') {
-				push @{$symbols{$r->{token}}->{references}}, $org+1;
-				$symbols{$r->{token}}->{disp} = $org+2;
+				#push @{$symbols{$r->{token}}->{references}}, $org+1;
+				#$symbols{$r->{token}}->{disp} = 1;
+				store_reference($r->{token}, $org+1, $org+2);
 			}
 		}
 		elsif($ins->{mnemonic} =~ m/mfhi|mflo/) {
@@ -520,6 +526,14 @@ sub encode_instruction {
 	}
 
 	return ($ir, $op);
+}
+
+
+sub store_reference {
+
+	my ($tok, $dest, $disp) = @_;
+
+	push @{$symbols{$tok}->{references}}, { dest => $dest, disp => $disp };
 }
 
 
@@ -566,7 +580,8 @@ sub directive {
 					write_mem($org++, $symbols{$t->{token}}->{value});
 				}
 				else {
-					push @{$symbols{$t->{token}}->{references}}, $org;
+					#push @{$symbols{$t->{token}}->{references}}, $org;
+					store_reference($t->{token}, $org);
 					$org++;
 				}
 			}
@@ -628,21 +643,20 @@ sub collect_symbols {
 
 sub resolve_symbols {
 
-	for(values %symbols) {
+	for my $sym (values %symbols) {
 
-		if(!defined $_->{value}) {
-			die "$_->{line}\n\tundefined symbol [$_->{token}] at $_->{ln}\n";
+		if(!defined $sym->{value}) {
+			die "$sym->{line}\n\tundefined symbol [$sym->{token}] at $sym->{ln}\n";
 		}
 		else {
-			my $val = $_->{value};
+			my $val = $sym->{value};
 
-
-			for my $addr (@{$_->{references}}) {
-				if(defined $_->{disp}) {
-					write_mem($addr, ( $val - $_->{disp} ) >> 1);
+			for my $ref (@{$sym->{references}}) {
+				if(defined $ref->{disp}) {
+					write_mem($ref->{dest}, ( $val - ( $ref->{disp} ) >> 1));
 				}
 				else {
-					write_mem($addr, $val);
+					write_mem($ref->{dest}, $val);
 				}
 			}
 		}
