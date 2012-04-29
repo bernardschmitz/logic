@@ -170,17 +170,17 @@ sub is_next_token {
 	return $tok->{code} eq $code;
 }
 
+#sub expected_token {
+#
+#	my $code = shift;
+#	my $tok = next_token();
+#
+#	die "expected [$code] but got [$tok->{code}] at line $tok->{line}\n" if $tok->{code} ne $code;
+#
+#	return $tok;
+#}
+
 sub expected_token {
-
-	my $code = shift;
-	my $tok = next_token();
-
-	die "expected [$code] but got [$tok->{code}] at line $tok->{line}\n" if $tok->{code} ne $code;
-
-	return $tok;
-}
-
-sub expected_tokens {
 
 	my @codes = @_;
 	my $tok = next_token();
@@ -189,6 +189,10 @@ sub expected_tokens {
 		if($tok->{code} eq $_) {
 			return $tok;
 		}
+	}
+
+	if(scalar @codes == 1) {
+		die "expected [$codes[0]] but got [$tok->{code}] at line $tok->{line}\n";
 	}
 
 	die "expected one of [".join(' or ', @codes)."] but got [$tok->{code}] at line $tok->{line}\n";
@@ -225,7 +229,7 @@ sub directive {
 
 		while(1) {
 
-			my $t = expected_tokens('number', 'symbol');
+			my $t = expected_token('number', 'symbol');
 
 			if($t->{code} eq 'number') {
 				write_mem($org++, $t->{value});
@@ -245,6 +249,21 @@ sub directive {
 				return;
 			}
 
+			expected_token('comma');
+		}
+	}
+	elsif($dir eq '.string') {
+		while(1) {
+			my $t = expected_token('string');
+
+			for(split(//, $t->{value})) {
+				write_mem($org++, ord $_);
+			}
+
+			if(!is_next_token('comma')) {
+				return;
+			}
+			
 			expected_token('comma');
 		}
 	}
@@ -436,6 +455,12 @@ sub token {
 		$value =~ s/^-//;
 		$value = oct($value) if $value =~ m/^0/;
 		$value = -$value if $token =~ m/^-/;
+	}
+
+	if($code eq 'string') {
+		$value = $token;
+		$value =~ s/[']//g if $token =~ m/^'/;
+		$value =~ s/["]//g if $token =~ m/^"/;
 	}
 
 #	print "token: [$token] $code $value\n";

@@ -18,6 +18,10 @@
 
 goon:
 
+	.string	"hello"
+	.string	'abc', "xyz"
+
+
 ;.word 0xdd,0b1111,033,436753   
 ;.word -0xdd,-0b1111,-033,-436753   
 ;.word 0xffff, 5*45 - -045/2
