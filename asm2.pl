@@ -309,6 +309,53 @@ sub instruction {
 			write_mem($org++, $ir);
 			write_mem($org++, $op);
 		}
+		elsif($ins->{mnemonic} =~ m/mul|div/) {
+
+			my $r = expected_token('reg');
+			$ir = $ir | $regs{$r->{token}}->{index};
+
+			expected_token('comma');
+
+			$r = expected_token('reg');
+			$op = $regs{$r->{token}}->{index} << 12;
+
+			write_mem($org++, $ir);
+			write_mem($org++, $op);
+		}
+		elsif($ins->{mnemonic} =~ m/bne|beq/) {
+
+			my $r = expected_token('reg');
+			$ir = $ir | ($regs{$r->{token}}->{index} << 4);
+
+			expected_token('comma');
+
+			$r = expected_token('reg');
+			$ir = $ir | $regs{$r->{token}}->{index};
+
+			expected_token('comma');
+
+			$r = expected_token('number', 'symbol');
+			$op = $r->{value};
+			if($r->{code} eq 'symbol') {
+				push @{$symbols{$r->{token}}->{references}}, $org+1;
+			}
+
+			write_mem($org++, $ir);
+			write_mem($org++, $op);
+		}
+		elsif($ins->{mnemonic} =~ m/mfhi|mflo/) {
+
+			my $r = expected_token('reg');
+			$ir = $ir | ($regs{$r->{token}}->{index} << 4);
+
+			write_mem($org++, $ir);
+			write_mem($org++, $op);
+		}
+		elsif($ins->{mnemonic} =~ m/brk|halt/) {
+
+			write_mem($org++, $ir);
+			write_mem($org++, $op);
+		}
 	}
 	else {
 		die "internal failure\n";
@@ -424,7 +471,7 @@ sub resolve_symbols {
 	for(values %symbols) {
 
 		if(!defined $_->{value}) {
-			print "$_->{line}\n\tundefined symbol [$_->{token}] at $_->{ln}\n";
+			die "$_->{line}\n\tundefined symbol [$_->{token}] at $_->{ln}\n";
 		}
 		else {
 			my $val = $_->{value};

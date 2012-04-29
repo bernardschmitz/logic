@@ -18,6 +18,18 @@ loop:
 
 	halt
 
+	mul	r4, r5
+	div	r6, r7
+
+	brk
+
+	mfhi	r8
+	mflo	r9
+
 result:	.word	0xbeef
 	.word blah
 
+	bne	r1, r0, loop
+	beq	r1, r0, loop
+
+	.set						blah	,			0b10101010101
