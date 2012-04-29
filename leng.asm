@@ -304,7 +304,7 @@ qdup0:
 	DEFCODE(*, 0, STAR)
 	lw	r2, r14, 0
 	lw	r3, r14, 1
-	mul	r2, r2, r3
+	mult	r2, r2, r3
 	inc	r14
 	sw	r2, r14, 0
 	NEXT
@@ -312,7 +312,7 @@ qdup0:
 	DEFCODE(/, 0, SLASH)
 	lw	r2, r14, 0
 	lw	r3, r14, 1
-	div	r2, r3, r2
+	divd	r2, r3, r2
 	inc	r14
 	sw	r2, r14, 0
 	NEXT
@@ -321,7 +321,7 @@ qdup0:
 	DEFCODE(/mod, 0, SLASH_MOD)
 	lw	r2, r14, 0
 	lw	r3, r14, 1
-	div	r2, r3, r2
+	divd	r2, r3, r2
 	sw	r2, r14, 0
 	mfhi	r3
 	sw	r3, r14, 1
@@ -689,7 +689,7 @@ _num0:
 _num1:
 	bge	r4, r6, _num_fail	; finish if >= base
 
-	mul	r7, r7, r6		; multiple current number by base
+	mult	r7, r7, r6		; multiple current number by base
 	add	r7, r7, r4		; add new digit
 
 _over:
@@ -900,7 +900,7 @@ _udot_buf:
 
 	DEFCODE(., 0, DOT)
 	lw	r2, r14, 0
-	inc	r14,
+	inc	r14
 	jal	r15, _dot
 	NEXT
 _dot:

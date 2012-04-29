@@ -42,24 +42,20 @@ my %instructions = (
 
 my %pseudo = (
 
-	nop => {},
-	inc => {},
-	dec => {},
-	clear => {},
-	move => {},
-	li => {},
-	bgt => {},
-	blt => {},
-	bge => {},
-	ble => {},
-	mult => {},
-	divi => {},
-	push => {},
-	pop => {},
-	not => {},
-	neg => {},
-	jsr => {},
-	ret => {}
+	nop => { mnemonic => 'nop' },
+	inc => { mnemonic => 'inc' },
+	dec => { mnemonic => 'dec' },
+	clear => { mnemonic => 'clear' },
+	move => { mnemonic => 'move' },
+	li => { mnemonic => 'li' },
+	bgt => { mnemonic => 'bgt' },
+	blt => { mnemonic => 'blt' },
+	bge => { mnemonic => 'bge' },
+	ble => { mnemonic => 'ble' },
+	not => { mnemonic => 'not' },
+	neg => { mnemonic => 'neg' },
+	mult => { mnemonic => 'mult' },
+	divd => { mnemonic => 'divd' },
 
 );
 
@@ -134,6 +130,7 @@ while(<>) {
 	process_line($line);
 }
 
+#print Dumper(\@tokens);
 
 collect_symbols();
 
@@ -144,16 +141,23 @@ assemble();
 
 resolve_symbols();
 
-#print Dumper(\@tokens);
 
-print Dumper(\%symbols);
+#print Dumper(\%symbols);
 
 #print Dumper(\@mem);
 
-my $i = 0;
+print "v2.0 raw\n";
 for(@mem) {
-	printf "%04x %04x\n", $i++, $_;
+	$_ = 0 if !defined $_;
+	printf "%04x\n", $_;
 }
+
+
+#my $i = 0;
+#for(@mem) {
+#	$_ = 0 if !defined $_;
+#	printf "%04x %04x\n", $i++, $_;
+#}
 
 sub next_token {
 
@@ -235,8 +239,137 @@ sub pseudo {
 
 	if($ps->{mnemonic} eq 'move') {
 
-		print "move\n";
+		my $r = expected_token('reg');
+		my $dst = $regs{$r->{token}}->{index};
+		expected_token('comma');
+	
+		$r = expected_token('reg');
+		my $src = $regs{$r->{token}}->{index};
+
+		write_instruction($instructions{'add'}->{op}, $dst, $src, 0, undef);
 	}	
+	elsif($ps->{mnemonic} eq 'nop') {
+		write_instruction($instructions{'add'}->{op}, 0, 0, 0, undef);
+	}
+	elsif($ps->{mnemonic} eq 'clear') {
+
+		my $r = expected_token('reg');
+		my $dst = $regs{$r->{token}}->{index};
+		write_instruction($instructions{'add'}->{op}, $dst, 0, 0, undef);
+	}
+	elsif($ps->{mnemonic} eq 'inc') {
+
+		my $r = expected_token('reg');
+		my $dst = $regs{$r->{token}}->{index};
+		write_instruction($instructions{'addi'}->{op}, $dst, $dst, 0, 1);
+	}
+	elsif($ps->{mnemonic} eq 'dec') {
+
+		my $r = expected_token('reg');
+		my $dst = $regs{$r->{token}}->{index};
+		write_instruction($instructions{'addi'}->{op}, $dst, $dst, 0, -1);
+	}
+	elsif($ps->{mnemonic} eq 'not') {
+
+		my $r = expected_token('reg');
+		my $dst = $regs{$r->{token}}->{index};
+		write_instruction($instructions{'nor'}->{op}, $dst, $dst, $dst, undef);
+	}
+	elsif($ps->{mnemonic} eq 'neg') {
+
+		my $r = expected_token('reg');
+		my $dst = $regs{$r->{token}}->{index};
+		write_instruction($instructions{'nor'}->{op}, $dst, $dst, $dst, undef);
+		write_instruction($instructions{'addi'}->{op}, $dst, $dst, 0, 1);
+	}
+	elsif($ps->{mnemonic} eq 'li') {
+
+		my $r = expected_token('reg');
+		my $dst = $regs{$r->{token}}->{index};
+		expected_token('comma');
+
+		$r = expected_token('number', 'symbol');
+		my $const = $r->{value};
+		if($r->{code} eq 'symbol') {
+			push @{$symbols{$r->{token}}->{references}}, $org+1;
+		}
+
+		write_instruction($instructions{'addi'}->{op}, $dst, 0, 0, $const);
+	}
+	elsif($ps->{mnemonic} eq 'bgt') {
+
+		my ($x, $y, $c) = branch_pseudo_op();
+		write_instruction($instructions{'slt'}->{op}, 1, $y, $x, undef);
+		write_instruction($instructions{'bne'}->{op}, 0, 1, 0, $c);
+	}
+	elsif($ps->{mnemonic} eq 'blt') {
+
+		my ($x, $y, $c) = branch_pseudo_op();
+		write_instruction($instructions{'slt'}->{op}, 1, $x, $y, undef);
+		write_instruction($instructions{'bne'}->{op}, 0, 1, 0, $c);
+	}
+	elsif($ps->{mnemonic} eq 'bge') {
+
+		my ($x, $y, $c) = branch_pseudo_op();
+		write_instruction($instructions{'slt'}->{op}, 1, $x, $y, undef);
+		write_instruction($instructions{'beq'}->{op}, 0, 1, 0, $c);
+	}
+	elsif($ps->{mnemonic} eq 'ble') {
+
+		my ($x, $y, $c) = branch_pseudo_op();
+		write_instruction($instructions{'slt'}->{op}, 1, $y, $x, undef);
+		write_instruction($instructions{'beq'}->{op}, 0, 1, 0, $c);
+	}
+	elsif($ps->{mnemonic} eq 'mult') {
+
+		my ($d, $s, $t) = mul_div_pseudo_op();
+		write_instruction($instructions{'mul'}->{op}, 0, $s, $t, undef);
+		write_instruction($instructions{'mflo'}->{op}, $d, 0, 0, undef);
+	}
+	elsif($ps->{mnemonic} eq 'divd') {
+
+		my ($d, $s, $t) = mul_div_pseudo_op();
+		write_instruction($instructions{'div'}->{op}, 0, $s, $t, undef);
+		write_instruction($instructions{'mflo'}->{op}, $d, 0, 0, undef);
+	}
+	
+}
+
+sub mul_div_pseudo_op {
+
+	my $r = expected_token('reg');
+	my $d = $regs{$r->{token}}->{index};
+	expected_token('comma');
+
+	$r = expected_token('reg');
+	my $s = $regs{$r->{token}}->{index};
+	expected_token('comma');
+
+	$r = expected_token('reg');
+	my $t = $regs{$r->{token}}->{index};
+
+	return ($d, $s, $t);
+}
+
+sub branch_pseudo_op {
+
+	my $r = expected_token('reg');
+	my $x = $regs{$r->{token}}->{index};
+	expected_token('comma');
+
+	$r = expected_token('reg');
+	my $y = $regs{$r->{token}}->{index};
+	expected_token('comma');
+
+	$r = expected_token('number', 'symbol');
+	my $c = $r->{value};
+	$c = (($c - ( $org + 4) ) >> 1) if defined $c;
+	if($r->{code} eq 'symbol') {
+		push @{$symbols{$r->{token}}->{references}}, $org+3;
+		$symbols{$r->{token}}->{disp} = $org+4;
+	}
+
+	return ($x, $y, $c);
 }
 
 sub instruction {
@@ -245,147 +378,150 @@ sub instruction {
 
 	my $ins = $instructions{$tok->{token}};
 	
-	my $ir = $ins->{op} << 8;
-	my $op = 0;
+	my $opcode = $ins->{op};
+	my $dst = 0;
+	my $src = 0;
+	my $targ = 0;
+	my $const = undef;
 
 	if($ins->{type} == 0) {
 
 		my $r = expected_token('reg');
-		$ir = $ir | ( $regs{$r->{token}}->{index} << 4);
+		$dst = $regs{$r->{token}}->{index};
 		expected_token('comma');
 	
 		$r = expected_token('reg');
-		$ir = $ir | $regs{$r->{token}}->{index} ;
+		$src = $regs{$r->{token}}->{index};
 		expected_token('comma');
 
 		$r = expected_token('reg');
-		$op = $op | ($regs{$r->{token}}->{index} << 12);
-
-		write_mem($org++, $ir);
-		write_mem($org++, $op);
+		$targ = $regs{$r->{token}}->{index};
 	}
 	elsif($ins->{type} == 1) {
 
 		my $r = expected_token('reg');
-		$ir = $ir | ( $regs{$r->{token}}->{index} << 4);
+		$dst = $regs{$r->{token}}->{index};
 		expected_token('comma');
 	
 		$r = expected_token('reg');
-		$ir = $ir | $regs{$r->{token}}->{index} ;
+		$src = $regs{$r->{token}}->{index};
 		expected_token('comma');
 
 		$r = expected_token('number', 'symbol');
-		$op = $r->{value};
+		$const = $r->{value};
 		if($r->{code} eq 'symbol') {
 			push @{$symbols{$r->{token}}->{references}}, $org+1;
 		}
-
-		write_mem($org++, $ir);
-		write_mem($org++, $op);
 	}
 	elsif($ins->{type} == 2) {
 	
 		if($ins->{mnemonic} eq 'j') {
 
 			my $r = expected_token('number', 'symbol');
-			$op = $r->{value};
+			$const = $r->{value};
 			if($r->{code} eq 'symbol') {
 				push @{$symbols{$r->{token}}->{references}}, $org+1;
 			}
-
-			write_mem($org++, $ir);
-			write_mem($org++, $op);
 		}
 		elsif($ins->{mnemonic} eq 'jr') {
 
 			my $r = expected_token('reg');
-			$op = $regs{$r->{token}}->{index} << 12;
-
-			write_mem($org++, $ir);
-			write_mem($org++, $op);
+			$targ = $regs{$r->{token}}->{index};
 		}
 		elsif($ins->{mnemonic} eq 'jal') {
 
 			my $r = expected_token('reg');
-			$ir = $ir | ($regs{$r->{token}}->{index} << 4);
+			$dst = $regs{$r->{token}}->{index};
 
 			expected_token('comma');
 
 			$r = expected_token('number', 'symbol');
-			$op = $r->{value};
+			$const = $r->{value};
 			if($r->{code} eq 'symbol') {
 				push @{$symbols{$r->{token}}->{references}}, $org+1;
 			}
-
-			write_mem($org++, $ir);
-			write_mem($org++, $op);
 		}
 		elsif($ins->{mnemonic} eq 'jalr') {
 
 			my $r = expected_token('reg');
-			$ir = $ir | ($regs{$r->{token}}->{index} << 4);
+			$dst = $regs{$r->{token}}->{index};
 
 			expected_token('comma');
 
 			$r = expected_token('reg');
-			$ir = $ir | $regs{$r->{token}}->{index};
-
-			write_mem($org++, $ir);
-			write_mem($org++, $op);
+			$targ = $regs{$r->{token}}->{index};
 		}
 		elsif($ins->{mnemonic} =~ m/mul|div/) {
 
 			my $r = expected_token('reg');
-			$ir = $ir | $regs{$r->{token}}->{index};
+			$src = $regs{$r->{token}}->{index};
 
 			expected_token('comma');
 
 			$r = expected_token('reg');
-			$op = $regs{$r->{token}}->{index} << 12;
-
-			write_mem($org++, $ir);
-			write_mem($org++, $op);
+			$targ = $regs{$r->{token}}->{index};
 		}
 		elsif($ins->{mnemonic} =~ m/bne|beq/) {
 
 			my $r = expected_token('reg');
-			$ir = $ir | ($regs{$r->{token}}->{index} << 4);
+			$src = $regs{$r->{token}}->{index};
 
 			expected_token('comma');
 
 			$r = expected_token('reg');
-			$ir = $ir | $regs{$r->{token}}->{index};
+			$dst = $regs{$r->{token}}->{index};
 
 			expected_token('comma');
 
 			$r = expected_token('number', 'symbol');
-			$op = $r->{value};
+			$const = $r->{value};
+			$const = (( $const - ( $org + 2) ) >> 1) if defined $const;
+
 			if($r->{code} eq 'symbol') {
 				push @{$symbols{$r->{token}}->{references}}, $org+1;
+				$symbols{$r->{token}}->{disp} = $org+2;
 			}
-
-			write_mem($org++, $ir);
-			write_mem($org++, $op);
 		}
 		elsif($ins->{mnemonic} =~ m/mfhi|mflo/) {
 
 			my $r = expected_token('reg');
-			$ir = $ir | ($regs{$r->{token}}->{index} << 4);
-
-			write_mem($org++, $ir);
-			write_mem($org++, $op);
-		}
-		elsif($ins->{mnemonic} =~ m/brk|halt/) {
-
-			write_mem($org++, $ir);
-			write_mem($org++, $op);
+			$dst = $regs{$r->{token}}->{index};
 		}
 	}
 	else {
 		die "internal failure\n";
 	}
-	
+
+	write_instruction($opcode, $dst, $src, $targ, $const);	
 }
+
+sub write_instruction {
+
+	my ($opcode, $dst, $src, $targ, $const) = @_;
+	my ($ir, $op) = encode_instruction($opcode, $dst, $src, $targ, $const);	
+	write_mem($org++, $ir);
+	write_mem($org++, $op);
+}
+
+sub encode_instruction {
+
+	my ($opcode, $dst, $src, $targ, $const) = @_;
+
+	
+	my $ir = ($opcode << 8) | ($dst << 4) | $src ;
+
+	my $op;
+
+	if(defined $const) {
+		$op = $const;
+	}
+	else {
+		$op = $targ << 12;
+	}
+
+	return ($ir, $op);
+}
+
 
 sub label {
 
@@ -499,8 +635,15 @@ sub resolve_symbols {
 		}
 		else {
 			my $val = $_->{value};
-			for(@{$_->{references}}) {
-				write_mem($_, $val);
+
+
+			for my $addr (@{$_->{references}}) {
+				if(defined $_->{disp}) {
+					write_mem($addr, ( $val - $_->{disp} ) >> 1);
+				}
+				else {
+					write_mem($addr, $val);
+				}
 			}
 		}
 	}
