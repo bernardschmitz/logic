@@ -219,6 +219,9 @@ sub directive {
 		my $t = expected_token('number');
 		$org = $t->{value};
 	}
+	elsif($dir eq '.align') {
+		$org = ($org + 1) & 0xfffe;
+	}
 	elsif($dir eq '.set') {
 		my $t = expected_token('symbol');
 		expected_token('comma');

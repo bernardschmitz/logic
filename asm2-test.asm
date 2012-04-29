@@ -1,6 +1,7 @@
 
 	.org	3
 
+
 ; .set g,$+-34 ; blah blah blah yeah  
 	.set leng,0xcafe
 ; li r5,leng
@@ -14,12 +15,17 @@
 
 	.word	1, 2, 3
 
+	.align
+
 	.word	goon, leng
 
 goon:
 
 	.string	"hello"
+	.align
+abc:
 	.string	'abc', "xyz"
+	.align
 
 
 ;.word 0xdd,0b1111,033,436753   
