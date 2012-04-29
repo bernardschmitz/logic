@@ -13,6 +13,9 @@ loop:
 
 	j	0435
 
+	jal	ra, 0xdddd
+	jalr	ra, r10
+
 	halt
 
 result:	.word	0xbeef

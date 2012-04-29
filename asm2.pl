@@ -195,10 +195,10 @@ sub expected_token {
 	}
 
 	if(scalar @codes == 1) {
-		die "expected [$codes[0]] but got [$tok->{code}] at line $tok->{ln}\n";
+		die "$tok->{line}\n\texpected [$codes[0]] but got [$tok->{code}] at line $tok->{ln}\n";
 	}
 
-	die "expected one of [".join(' or ', @codes)."] but got [$tok->{code}] at line $tok->{ln}\n";
+	die "$tok->{line}\n\texpected one of [".join(' or ', @codes)."] but got [$tok->{code}] at line $tok->{ln}\n";
 }
 
 sub assemble {
@@ -268,6 +268,43 @@ sub instruction {
 			if($r->{code} eq 'symbol') {
 				push @{$symbols{$r->{token}}->{references}}, $org+1;
 			}
+
+			write_mem($org++, $ir);
+			write_mem($org++, $op);
+		}
+		elsif($ins->{mnemonic} eq 'jr') {
+
+			my $r = expected_token('reg');
+			$op = $regs{$r->{token}}->{index} << 12;
+
+			write_mem($org++, $ir);
+			write_mem($org++, $op);
+		}
+		elsif($ins->{mnemonic} eq 'jal') {
+
+			my $r = expected_token('reg');
+			$ir = $ir | ($regs{$r->{token}}->{index} << 4);
+
+			expected_token('comma');
+
+			$r = expected_token('number', 'symbol');
+			$op = $r->{value};
+			if($r->{code} eq 'symbol') {
+				push @{$symbols{$r->{token}}->{references}}, $org+1;
+			}
+
+			write_mem($org++, $ir);
+			write_mem($org++, $op);
+		}
+		elsif($ins->{mnemonic} eq 'jalr') {
+
+			my $r = expected_token('reg');
+			$ir = $ir | ($regs{$r->{token}}->{index} << 4);
+
+			expected_token('comma');
+
+			$r = expected_token('reg');
+			$ir = $ir | $regs{$r->{token}}->{index};
 
 			write_mem($org++, $ir);
 			write_mem($org++, $op);
@@ -373,11 +410,12 @@ sub collect_symbols {
 		my $code = $_->{code};
 		my $token = $_->{token};
 		my $ln = $_->{ln};
+		my $line = $_->{line};
 
 #		$token = $_->{value} if $code eq 'label';
 
 #		print "$token $code\n";
-		$symbols{$token} = { token => $token, references => [], ln => $ln, value => undef };
+		$symbols{$token} = { token => $token, references => [], ln => $ln, line => $line, value => undef };
 	}
 }
 
@@ -386,7 +424,7 @@ sub resolve_symbols {
 	for(values %symbols) {
 
 		if(!defined $_->{value}) {
-			print "undefined symbol [$_->{token}] at $_->{ln}\n";
+			print "$_->{line}\n\tundefined symbol [$_->{token}] at $_->{ln}\n";
 		}
 		else {
 			my $val = $_->{value};
@@ -473,8 +511,8 @@ sub process_line {
 			$tok = $ch;
 		}
 		else {
-			print "$col $str $ch $tok\n";
-			die "unexpected char [$ch] at line $ln\n";
+#			print "$col $str $ch $tok\n";
+			die "$line\n\tunexpected char [$ch] at line $ln\n";
 		}
 	}
 
@@ -571,7 +609,7 @@ sub token {
 
 #	print "token: [$token] $code $value\n";
 
-	push @tokens,  { token => $token, code => $code, value => $value, ln => $ln };
+	push @tokens,  { token => $token, code => $code, value => $value, ln => $ln, line => $line };
 }
 
 
