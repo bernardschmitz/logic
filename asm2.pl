@@ -113,6 +113,8 @@ my %regs = (
 
 my @tokens = ();
 
+my %symbols = ();
+
 my $n = 0;
 my $line;
 
@@ -132,7 +134,31 @@ while(<>) {
 }
 
 
-print Dumper(\@tokens);
+collect_symbols();
+
+#print Dumper(\@tokens);
+
+print Dumper(\%symbols);
+
+
+sub collect_symbols {
+
+
+	for(@tokens) {
+
+		next if $_->{code} !~ m/symbol|label/;
+
+		my $code = $_->{code};
+		my $token = $_->{token};
+
+		$token =~ s/:$// if $code eq 'label';
+
+#		print "$token $code\n";
+		$symbols{$token} = { token => $token };
+	}
+}
+
+
 
 sub process_line {
 
@@ -210,6 +236,7 @@ sub process_line {
 		}
 		else {
 			print "$col $str $ch $tok\n";
+			die "unexpected char [$ch] at line $n\n";
 		}
 	}
 
@@ -243,7 +270,7 @@ sub token {
 	elsif($directives{$token}) {
 		$code = 'dir';
 	}
-	elsif($token =~ m/^[a-zA-Z_][a-zA-Z0-9-]*:$/) {
+	elsif($token =~ m/^[a-zA-Z_][a-zA-Z0-9_-]*:$/) {
 		$code = 'label'
 	}
 	elsif($token eq ',') {
@@ -279,7 +306,7 @@ sub token {
 	elsif($token =~ m/^-?[0-9]+$/) {
 		$code = 'number';
 	}
-	elsif($token =~ m/^[a-zA-Z_][a-zA-Z0-9-]*/) {
+	elsif($token =~ m/^[a-zA-Z_][a-zA-Z0-9_-]*/) {
 		$code = 'symbol';
 	}
 	else {
