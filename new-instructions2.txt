@@ -54,6 +54,10 @@ clear d
 
 li d, C
 	addi d, r0, C
+
+seq d, s, t				; set equal
+	
+
 	
 bgt x, y, C
 	slt r1, y, x
