@@ -1,42 +1,43 @@
 
 use strict;
+use warnings;
 
 use Data::Dumper;
 
 
-my %instruction = (
+my %instructions = (
 
-        add => { code => 0, size => 2, type => 0 },
-        addi => { code => 1, size => 2, type => 1 },
-        sub => { code => 2, size => 2, type => 0 },
-        mul => { code => 3, size => 2, type => 2 },
-        div => { code => 4, size => 2, type => 2 },
-        sll => { code => 5, size => 2, type => 1 },
-        srl => { code => 6, size => 2, type => 1 },
-        sra => { code => 7, size => 2, type => 1 },
-        sllv => { code => 8, size => 2, type => 0 },
-        srlv => { code => 9, size => 2, type => 0 },
-        srav => { code => 10, size => 2, type => 0 },
-        beq => { code => 11, size => 2, type => 2 },
-        bne => { code => 12, size => 2, type => 2 },
-        slt => { code => 13, size => 2, type => 0 },
-        slti => { code => 14, size => 2, type => 1 },
-        and => { code => 15, size => 2, type => 0 },
-        andi => { code => 16, size => 2, type => 1 },
-        or => { code => 17, size => 2, type => 0 },
-        ori => { code => 18, size => 2, type => 1 },
-        xor => { code => 19, size => 2, type => 0 },
-        nor => { code => 20, size => 2, type => 0 },
-        j => { code => 21, size => 2, type => 2 },
-        jr => { code => 22, size => 2, type => 2 },
-        jal => { code => 23, size => 2, type => 2 },
-        jalr => { code => 24, size => 2, type => 2 },
-        lw => { code => 25, size => 2, type => 1 },
-        sw => { code => 26, size => 2, type => 1 },
-        mfhi => { code => 27, size => 2, type => 2 },
-        mflo => { code => 28, size => 2, type => 2 },
-        brk => { code => 29, size => 2, type => 2 },
-        halt => { code => 30, size => 2, type => 2 },
+        add => { op => 0, size => 2, type => 0 },
+        addi => { op => 1, size => 2, type => 1 },
+        sub => { op => 2, size => 2, type => 0 },
+        mul => { op => 3, size => 2, type => 2 },
+        div => { op => 4, size => 2, type => 2 },
+        sll => { op => 5, size => 2, type => 1 },
+        srl => { op => 6, size => 2, type => 1 },
+        sra => { op => 7, size => 2, type => 1 },
+        sllv => { op => 8, size => 2, type => 0 },
+        srlv => { op => 9, size => 2, type => 0 },
+        srav => { op => 10, size => 2, type => 0 },
+        beq => { op => 11, size => 2, type => 2 },
+        bne => { op => 12, size => 2, type => 2 },
+        slt => { op => 13, size => 2, type => 0 },
+        slti => { op => 14, size => 2, type => 1 },
+        and => { op => 15, size => 2, type => 0 },
+        andi => { op => 16, size => 2, type => 1 },
+        or => { op => 17, size => 2, type => 0 },
+        ori => { op => 18, size => 2, type => 1 },
+        xor => { op => 19, size => 2, type => 0 },
+        nor => { op => 20, size => 2, type => 0 },
+        j => { op => 21, size => 2, type => 2 },
+        jr => { op => 22, size => 2, type => 2 },
+        jal => { op => 23, size => 2, type => 2 },
+        jalr => { op => 24, size => 2, type => 2 },
+        lw => { op => 25, size => 2, type => 1 },
+        sw => { op => 26, size => 2, type => 1 },
+        mfhi => { op => 27, size => 2, type => 2 },
+        mflo => { op => 28, size => 2, type => 2 },
+        brk => { op => 29, size => 2, type => 2 },
+        halt => { op => 30, size => 2, type => 2 },
 );
 
 my %pseudo = (
@@ -74,39 +75,38 @@ my %directives = (
 
 my %regs = (
 
-	r0 => { },
-	r1 => { },
-	r2 => { },
-	r3 => { },
-	r4 => { },
-	r5 => { },
-	r6 => { },
-	r7 => { },
-	r8 => { },
-	r9 => { },
-	r10 => { },
-	r11 => { },
-	r12 => { },
-	r13 => { },
-	r14 => { },
-	r15 => { },
-
-	zero => { },
-	at => { },
-	v0 => { },
-	v1 => { },
-	a0 => { },
-	a1 => { },
-	a2 => { },
-	s0 => { },
-	s1 => { },
-	s2 => { },
-	t0 => { },
-	t1 => { },
-	t2 => { },
-	fp => { },
-	sp => { },
-	ra => { }
+        r0 => { index => 0 },
+        r1 => { index => 1 },
+        r2 => { index => 2 },
+        r3 => { index => 3 },
+        r4 => { index => 4 },
+        r5 => { index => 5 },
+        r6 => { index => 6 },
+        r7 => { index => 7 },
+        r8 => { index => 8 },
+        r9 => { index => 9 },
+        r10 => { index => 10 },
+        r11 => { index => 11 },
+        r12 => { index => 12 },
+        r13 => { index => 13 },
+        r14 => { index => 14 },
+        r15 => { index => 15 },
+        zero => { index => 0 },
+        at => { index => 1 },
+        v0 => { index => 2 },
+        v1 => { index => 3 },
+        a0 => { index => 4 },
+        a1 => { index => 5 },
+        a2 => { index => 6 },
+        s0 => { index => 7 },
+        s1 => { index => 8 },
+        s2 => { index => 9 },
+        t0 => { index => 10 },
+        t1 => { index => 11 },
+        t2 => { index => 12 },
+        fp => { index => 13 },
+        sp => { index => 14 },
+        ra => { index => 15 },
 
 );
 
@@ -115,14 +115,15 @@ my @tokens = ();
 
 my %symbols = ();
 
-my $n = 0;
+my $ln = 0;
+
 my $line;
 
 while(<>) {
 
 	chomp;
 
-	$n++;
+	$ln++;
 
 	s/;.*$//;
 
@@ -140,6 +141,8 @@ my $org = 0;
 my @mem = ();
 
 assemble();
+
+resolve_symbols();
 
 #print Dumper(\@tokens);
 
@@ -167,7 +170,7 @@ sub is_next_token {
 	my $code = shift;
 	my $tok = peek_next_token();
 
-	return $tok->{code} eq $code;
+	return defined $tok && $tok->{code} eq $code;
 }
 
 #sub expected_token {
@@ -192,18 +195,82 @@ sub expected_token {
 	}
 
 	if(scalar @codes == 1) {
-		die "expected [$codes[0]] but got [$tok->{code}] at line $tok->{line}\n";
+		die "expected [$codes[0]] but got [$tok->{code}] at line $tok->{ln}\n";
 	}
 
-	die "expected one of [".join(' or ', @codes)."] but got [$tok->{code}] at line $tok->{line}\n";
+	die "expected one of [".join(' or ', @codes)."] but got [$tok->{code}] at line $tok->{ln}\n";
 }
 
 sub assemble {
 
 	while(my $tok = next_token()) {
 
+		printf "%04x %s %s\n", $org, $tok->{code}, $tok->{token};
+
+		label($tok) if $tok->{code} eq 'symbol';
+
 		directive($tok) if $tok->{code} eq 'dir';
+
+		instruction($tok) if $tok->{code} eq 'ins';
 	}
+}
+
+sub instruction {
+
+	my $tok = shift;
+
+	my $ins = $instructions{$tok->{token}};
+	
+	my $ir = $ins->{op} << 8;
+	my $op = 0;
+
+	if($ins->{type} == 0) {
+
+		my $r = expected_token('reg');
+		$ir = $ir | ( $regs{$r->{token}}->{index} << 4);
+		expected_token('comma');
+	
+		$r = expected_token('reg');
+		$ir = $ir | $regs{$r->{token}}->{index} ;
+		expected_token('comma');
+
+		$r = expected_token('reg');
+		$op = $op | ($regs{$r->{token}}->{index} << 12);
+
+		write_mem($org++, $ir);
+		write_mem($org++, $op);
+	}
+	elsif($ins->{type} == 1) {
+
+		my $r = expected_token('reg');
+		$ir = $ir | ( $regs{$r->{token}}->{index} << 4);
+		expected_token('comma');
+	
+		$r = expected_token('reg');
+		$ir = $ir | $regs{$r->{token}}->{index} ;
+		expected_token('comma');
+
+		$r = expected_token('number', 'symbol');
+
+		if($r->{code} eq 'number') {
+			$op = $r->{value};
+		}
+		else {
+			$op = $r->{value};
+			push @{$symbols{$r->{token}}->{references}}, $org+1;
+		}
+
+		write_mem($org++, $ir);
+		write_mem($org++, $op);
+	}
+	
+}
+
+sub label {
+
+	my $tok = shift;
+
+	$symbols{$tok->{token}}->{value} = $org;
 }
 
 
@@ -213,7 +280,7 @@ sub directive {
 
 	my $dir = $tok->{token};
 
-	printf "%04x %s\n", $org, $dir;
+#	printf "%04x %s\n", $org, $dir;
 
 	if($dir eq '.org') {
 		my $t = expected_token('number');
@@ -277,6 +344,8 @@ sub write_mem {
 
 	my ($addr, $value) = @_;
 
+	return if !defined $value;
+
 	$mem[$addr] = $value & 0xffff;
 }
 
@@ -285,19 +354,36 @@ sub collect_symbols {
 
 	for(@tokens) {
 
-		next if $_->{code} !~ m/symbol|label/;
+		#next if $_->{code} !~ m/symbol|label/;
+		next if $_->{code} ne 'symbol';
 
 		my $code = $_->{code};
 		my $token = $_->{token};
+		my $ln = $_->{line};
 
-		$token =~ s/:$// if $code eq 'label';
+#		$token = $_->{value} if $code eq 'label';
 
 #		print "$token $code\n";
-		$symbols{$token} = { token => $token, references => [] };
+		$symbols{$token} = { token => $token, references => [], ln => $ln, value => undef };
 	}
 }
 
+sub resolve_symbols {
 
+	for(values %symbols) {
+
+		if(!defined $_->{value}) {
+			print "undefined symbol [$_->{value}] at $_->{line}\n";
+		}
+		else {
+			my $val = $_->{value};
+			for(@{$_->{references}}) {
+				write_mem($_, $val);
+			}
+		}
+	}
+
+}
 
 sub process_line {
 
@@ -375,7 +461,7 @@ sub process_line {
 		}
 		else {
 			print "$col $str $ch $tok\n";
-			die "unexpected char [$ch] at line $n\n";
+			die "unexpected char [$ch] at line $ln\n";
 		}
 	}
 
@@ -397,7 +483,7 @@ sub token {
 
 	my $code = '';
 
-	if($instruction{$token}) {
+	if($instructions{$token}) {
 		$code = 'ins';
 	}
 	elsif($regs{$token}) {
@@ -409,9 +495,9 @@ sub token {
 	elsif($directives{$token}) {
 		$code = 'dir';
 	}
-	elsif($token =~ m/^[a-zA-Z_][a-zA-Z0-9_-]*:$/) {
-		$code = 'label'
-	}
+#	elsif($token =~ m/^[a-zA-Z_][a-zA-Z0-9_-]*:$/) {
+#		$code = 'label'
+#	}
 	elsif($token eq ',') {
 		$code = 'comma';
 	}
@@ -445,11 +531,11 @@ sub token {
 	elsif($token =~ m/^-?[0-9]+$/) {
 		$code = 'number';
 	}
-	elsif($token =~ m/^[a-zA-Z_][a-zA-Z0-9_-]*/) {
+	elsif($token =~ m/^[a-zA-Z_][a-zA-Z0-9_-]*:?$/) {
 		$code = 'symbol';
 	}
 	else {
-		die "$line\n\n\tunknown symbol '$token' at line $n\n\n";
+		die "$line\n\n\tunknown symbol '$token' at line $ln\n\n";
 	}
 
 	my $value = undef;
@@ -466,9 +552,13 @@ sub token {
 		$value =~ s/["]//g if $token =~ m/^"/;
 	}
 
+	if($code eq 'symbol') {
+		$token =~ s/:$//;
+	}
+
 #	print "token: [$token] $code $value\n";
 
-	push @tokens,  { token => $token, code => $code, value => $value, line => $n };
+	push @tokens,  { token => $token, code => $code, value => $value, ln => $ln };
 }
 
 

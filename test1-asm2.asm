@@ -2,6 +2,7 @@
 	.org	3
 
 
+
 ; .set g,$+-34 ; blah blah blah yeah  
 	.set leng,0xcafe
 ; li r5,leng
@@ -26,6 +27,8 @@ goon:
 abc:
 	.string	'abc', "xyz"
 	.align
+
+result:	.word	0
 
 
 ;.word 0xdd,0b1111,033,436753   
