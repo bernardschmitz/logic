@@ -7,37 +7,37 @@ use Data::Dumper;
 
 my %instructions = (
 
-        add => { op => 0, size => 2, type => 0 },
-        addi => { op => 1, size => 2, type => 1 },
-        sub => { op => 2, size => 2, type => 0 },
-        mul => { op => 3, size => 2, type => 2 },
-        div => { op => 4, size => 2, type => 2 },
-        sll => { op => 5, size => 2, type => 1 },
-        srl => { op => 6, size => 2, type => 1 },
-        sra => { op => 7, size => 2, type => 1 },
-        sllv => { op => 8, size => 2, type => 0 },
-        srlv => { op => 9, size => 2, type => 0 },
-        srav => { op => 10, size => 2, type => 0 },
-        beq => { op => 11, size => 2, type => 2 },
-        bne => { op => 12, size => 2, type => 2 },
-        slt => { op => 13, size => 2, type => 0 },
-        slti => { op => 14, size => 2, type => 1 },
-        and => { op => 15, size => 2, type => 0 },
-        andi => { op => 16, size => 2, type => 1 },
-        or => { op => 17, size => 2, type => 0 },
-        ori => { op => 18, size => 2, type => 1 },
-        xor => { op => 19, size => 2, type => 0 },
-        nor => { op => 20, size => 2, type => 0 },
-        j => { op => 21, size => 2, type => 2 },
-        jr => { op => 22, size => 2, type => 2 },
-        jal => { op => 23, size => 2, type => 2 },
-        jalr => { op => 24, size => 2, type => 2 },
-        lw => { op => 25, size => 2, type => 1 },
-        sw => { op => 26, size => 2, type => 1 },
-        mfhi => { op => 27, size => 2, type => 2 },
-        mflo => { op => 28, size => 2, type => 2 },
-        brk => { op => 29, size => 2, type => 2 },
-        halt => { op => 30, size => 2, type => 2 },
+        add => { op => 0, size => 2, type => 0, mnemonic => 'add' },
+        addi => { op => 1, size => 2, type => 1, mnemonic => 'addi' },
+        sub => { op => 2, size => 2, type => 0, mnemonic => 'sub' },
+        mul => { op => 3, size => 2, type => 2, mnemonic => 'mul' },
+        div => { op => 4, size => 2, type => 2, mnemonic => 'div' },
+        sll => { op => 5, size => 2, type => 1, mnemonic => 'sll' },
+        srl => { op => 6, size => 2, type => 1, mnemonic => 'srl' },
+        sra => { op => 7, size => 2, type => 1, mnemonic => 'sra' },
+        sllv => { op => 8, size => 2, type => 0, mnemonic => 'sllv' },
+        srlv => { op => 9, size => 2, type => 0, mnemonic => 'srlv' },
+        srav => { op => 10, size => 2, type => 0, mnemonic => 'srav' },
+        beq => { op => 11, size => 2, type => 2, mnemonic => 'beq' },
+        bne => { op => 12, size => 2, type => 2, mnemonic => 'bne' },
+        slt => { op => 13, size => 2, type => 0, mnemonic => 'slt' },
+        slti => { op => 14, size => 2, type => 1, mnemonic => 'slti' },
+        and => { op => 15, size => 2, type => 0, mnemonic => 'and' },
+        andi => { op => 16, size => 2, type => 1, mnemonic => 'andi' },
+        or => { op => 17, size => 2, type => 0, mnemonic => 'or' },
+        ori => { op => 18, size => 2, type => 1, mnemonic => 'ori' },
+        xor => { op => 19, size => 2, type => 0, mnemonic => 'xor' },
+        nor => { op => 20, size => 2, type => 0, mnemonic => 'nor' },
+        j => { op => 21, size => 2, type => 2, mnemonic => 'j' },
+        jr => { op => 22, size => 2, type => 2, mnemonic => 'jr' },
+        jal => { op => 23, size => 2, type => 2, mnemonic => 'jal' },
+        jalr => { op => 24, size => 2, type => 2, mnemonic => 'jalr' },
+        lw => { op => 25, size => 2, type => 1, mnemonic => 'lw' },
+        sw => { op => 26, size => 2, type => 1, mnemonic => 'sw' },
+        mfhi => { op => 27, size => 2, type => 2, mnemonic => 'mfhi' },
+        mflo => { op => 28, size => 2, type => 2, mnemonic => 'mflo' },
+        brk => { op => 29, size => 2, type => 2, mnemonic => 'brk' },
+        halt => { op => 30, size => 2, type => 2, mnemonic => 'halt' },
 );
 
 my %pseudo = (
@@ -251,17 +251,30 @@ sub instruction {
 		expected_token('comma');
 
 		$r = expected_token('number', 'symbol');
-
-		if($r->{code} eq 'number') {
-			$op = $r->{value};
-		}
-		else {
-			$op = $r->{value};
+		$op = $r->{value};
+		if($r->{code} eq 'symbol') {
 			push @{$symbols{$r->{token}}->{references}}, $org+1;
 		}
 
 		write_mem($org++, $ir);
 		write_mem($org++, $op);
+	}
+	elsif($ins->{type} == 2) {
+	
+		if($ins->{mnemonic} eq 'j') {
+
+			my $r = expected_token('number', 'symbol');
+			$op = $r->{value};
+			if($r->{code} eq 'symbol') {
+				push @{$symbols{$r->{token}}->{references}}, $org+1;
+			}
+
+			write_mem($org++, $ir);
+			write_mem($org++, $op);
+		}
+	}
+	else {
+		die "internal failure\n";
 	}
 	
 }
