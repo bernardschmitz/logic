@@ -45,7 +45,13 @@ nop
 
 nop
 	mfhi r0
-	
+
+inc d
+		addi d, d, 1
+		
+dec d
+		addi d, d, -1
+		
 move d, s
 	add d, s, r0
 	
@@ -75,11 +81,11 @@ ble x, y, C
 	slt r1, y, x
 	beq r1, r0, C
 	
-mul d, s, t
+mult d, s, t
 	mul s, t
 	mflo d
 
-div d, s, t
+divd d, s, t
 	div s, t
 	mflo d
 
@@ -91,12 +97,12 @@ pop	d
 	lw d, r14, 0
 	addi r14, r14, 1
 	
-jal	C
+jsr	C
 	jal ra, C
 
-jalr	t
-	jalr ra, t
-
+ret
+	jr ra
+	
 not	d
 	nor d, d, d
 	
