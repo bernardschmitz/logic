@@ -11,4 +11,5 @@
 	halt
 
 result:	.word	0xbeef
+	.word blah
 

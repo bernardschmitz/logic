@@ -359,7 +359,7 @@ sub collect_symbols {
 
 		my $code = $_->{code};
 		my $token = $_->{token};
-		my $ln = $_->{line};
+		my $ln = $_->{ln};
 
 #		$token = $_->{value} if $code eq 'label';
 
@@ -373,7 +373,7 @@ sub resolve_symbols {
 	for(values %symbols) {
 
 		if(!defined $_->{value}) {
-			print "undefined symbol [$_->{value}] at $_->{line}\n";
+			print "undefined symbol [$_->{token}] at $_->{ln}\n";
 		}
 		else {
 			my $val = $_->{value};
