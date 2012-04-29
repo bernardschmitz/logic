@@ -205,14 +205,38 @@ sub assemble {
 
 	while(my $tok = next_token()) {
 
-		printf "%04x %s %s\n", $org, $tok->{code}, $tok->{token};
+		#printf "%04x %s %s\n", $org, $tok->{code}, $tok->{token};
 
-		label($tok) if $tok->{code} eq 'symbol';
+		my $code = $tok->{code};
 
-		directive($tok) if $tok->{code} eq 'dir';
-
-		instruction($tok) if $tok->{code} eq 'ins';
+		if($code eq 'symbol') {
+			label($tok);
+		}
+		elsif($code eq 'dir') {
+			directive($tok);
+		}
+		elsif($code eq 'ins') {
+			instruction($tok);
+		}
+		elsif($code eq 'pseudo') {
+			pseudo($tok);
+		}
+		else {
+			die "$tok->{line}\n\tunexpected token [$tok->{token}] at line $tok->{ln}\n";
+		}
 	}
+}
+
+sub pseudo {
+
+	my $tok = shift;
+
+	my $ps = $pseudo{$tok->{token}};
+
+	if($ps->{mnemonic} eq 'move') {
+
+		print "move\n";
+	}	
 }
 
 sub instruction {
