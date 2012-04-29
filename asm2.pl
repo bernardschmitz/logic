@@ -136,9 +136,62 @@ while(<>) {
 
 collect_symbols();
 
+my $org = 0;
+
+assemble();
+
 #print Dumper(\@tokens);
 
 print Dumper(\%symbols);
+
+sub next_token {
+
+	return shift @tokens;
+}
+
+
+sub expected_token {
+
+	my $code = shift;
+	my $tok = next_token();
+
+	die "expected [$code] but got [$tok->{code}] at line $n\n" if $tok->{code} ne $code;
+
+	return $tok;
+}
+
+
+sub assemble {
+
+	while(my $tok = next_token()) {
+
+		directive($tok) if $tok->{code} eq 'dir';
+
+	}
+
+}
+
+
+sub directive {
+
+	my $tok = shift;
+
+	my $dir = $tok->{token};
+
+	printf "%04x %s\n", $org, $dir;
+
+	if($dir eq '.org') {
+		my $t = expected_token('number');
+		$org = $t->{value};
+	}
+	elsif($dir eq '.set') {
+		my $t = expected_token('symbol');
+		expected_token('comma');
+		my $n = expected_token('number');
+		$symbols{$t->{token}}->{value} = $n->{value};	
+	}
+
+}
 
 
 sub collect_symbols {
