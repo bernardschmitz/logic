@@ -1,5 +1,7 @@
 
 use strict;
+use warnings;
+
 use Parse::RecDescent;
 use Data::Dumper;
 
@@ -10,18 +12,12 @@ use vars qw(%VARIABLE);
 $::RD_ERRORS = 1; # Make sure the parser dies when it encounters an error
 $::RD_WARN   = 1; # Enable warnings. This will warn on unused rules &c.
 $::RD_HINT   = 1; # Give out hints to help fix problems.
-
-our $org = 0;
-our @mem = ();
-
-my %symbol = ();
+#$::RD_TRACE = 1;
 
 my $grammar = <<'_EOGRAMMAR_';
 
-   # Terminals (macros that can't expand further)
-   #
+	SYMBOL: /[a-zA-Z][a-zA-Z0-9_]*/ { main::log(@item); }
 
-   OP       : m([-+*/]) 
 
    NUMBER  : /-?0x[0-9a-fA-F]+/
 		{ $return = $item[1]; $return = oct($return) if $return =~ m/^0/; }
@@ -32,95 +28,208 @@ my $grammar = <<'_EOGRAMMAR_';
 		| /-?[0-9]+/
 		{ $return = $item[1]; }
 
-   SYMBOL : /[a-zA-Z][a-zA-Z0-9_]*/
+   OP       : m([-+*/])  { main::log(@item); }
 
-	ORG:	'$'
-		{ $return = $main::org }
 
-	expr:	NUMBER OP expr
-		{ $return = main::expr(@item) }
-		| SYMBOL OP expr
+	expression:	NUMBER OP expression
+		| SYMBOL OP expression
 		| NUMBER
 		| SYMBOL
-		{ main::add_symbol($item{SYMBOL}) }
-		| ORG
 
-	word:	expr
-		{ $main::mem[$main::org++] = $item{expr} & 0xffff; }
+	STRING:	/'/ /[^']*/ /'/ { main::log(@item); }
+		| /"/ /[^"]*/ /"/ { main::log(@item); }
 
-	label:	SYMBOL
-		{ main::add_symbol($item{SYMBOL}, $main::org++) }
 
-	opcode:	'halt' | 'brk' | 'jr' | 'j' | 'addi'
+	OPCODE: 'addi'
+		| 'add'
+		| 'sub'
+		| 'mul'
+		| 'div'
+		| 'sllv'
+		| 'sll'
+		| 'srlv'
+		| 'srl'
+		| 'srav'
+		| 'sra'
+		| 'beq'
+		| 'bne'
+		| 'slti'
+		| 'slt'
+		| 'andi'
+		| 'and'
+		| 'ori'
+		| 'or'
+		| 'xor'
+		| 'nor'
+		| 'jalr'
+		| 'jal'
+		| 'jr'
+		| 'j'
+		| 'lw'
+		| 'sw'
+		| 'mfhi'
+		| 'mflo'
+		| 'brk'
+		| 'halt'
 
-	const:	expr
+	OPCODE1:
+		'add'
+		| 'sub'
+		| 'sllv'
+		| 'srlv'
+		| 'srav'
+		| 'slt'
+		| 'and'
+		| 'or'
+		| 'xor'
+		| 'nor'
 
-	reg:	/r[0-9]|r1[0-5]|zero/
+	comment: ';' /.*\n/
 
-	type1:	opcode
-		{ print "type1 $item{opcode}\n"; }
+	REG:	'r0' | 'r1' | 'r2' | 'r3' | 'r4' | 'r5' | 'r6' | 'r7' 
+		| 'r8' | 'r9' | 'r10' | 'r11' | 'r12' | 'r13' | 'r14' | 'r15'
+		| 'zero' | 'at' | 'v0' | 'v1' | 'a0' | 'a1' | 'a2' | 's0'
+		| 's1' | 's2' | 't0' | 't1' | 't2' | 'fp' | 'bp' | 'ra'
 
-	type2:	opcode reg
-		{ print "type2 $item{opcode} $item{reg}\n"; }
+	type1:	OPCODE1 REG ',' REG ',' REG { main::log(@item); }
 
-	type4:	opcode reg ',' reg ',' const
-		{ $main::org += 2;  print "type4 $item[1] $item[2] $item[3] $item[4]\n"; }
+	instruction:
+		type1
 
-	instruction:	type4
-		| type2
-		| type1
-		
+	label:	SYMBOL ':'
 
-	directive:	'.org' expr
-		{ $main::org = $item{expr}; }
+	directive:
+		'.org' NUMBER 
+		| '.word' expression(s /,/)
+		| '.string' STRING(s /,/) 
 		| '.align'
-		{ $main::org = ($main::org + 1) & 0xfffe; }
-		| '.word' word(s /,/)
+		| '.set' SYMBOL ',' expression
 
-	line: directive
-		| instruction
-		| label ':'
+	line:	
+		comment 
+		| directive 
+		| instruction 
+		| label
 
-	startrule: line(s)
+
+	eof:	/^\Z/
+
+	startrule: 
+		line(s) eof
+		| <error>
 
 _EOGRAMMAR_
 
-sub add_symbol {
 
-	my $sym = shift;
-	my $val = shift;
+sub log {
 
-	$symbol{$sym} = { sym => $sym, addr => $val };
-
-	print "sym $sym $val\n";
+	print join(',', @_), "\n";
 }
 
-sub expr {
-   shift;
-   my ($lhs,$op,$rhs) = @_;
-   return eval "$lhs $op $rhs";
-}
 
 my $parser = Parse::RecDescent->new($grammar);
 
 my @text = <>;
 
-#$parser->startrule($text);
-$parser->startrule(join('', @text)) or print "Bad text!\n";
+my $text = join('', @text);
+#print "$text";
 
-printf "%04x\n", $org;
+defined($parser->startrule($text)) || die "Bad text!\n";
 
 
-my $i = 0;
-for(@mem) {
-	printf "%04x %04x\n", $i++, $_;
-}
 
-#print "a=2\n";             $parser->startrule("a=2");
-#print "a=1+3\n";           $parser->startrule("a=1+3");
-#print "print 5*7\n";       $parser->startrule("print 5*7");
-#print "print 2/4\n";       $parser->startrule("print 2/4");
-#print "print 2+2/4\n";     $parser->startrule("print 2+2/4");
-#print "print 2+-2/4\n";    $parser->startrule("print 2+-2/4");
-#print "a = 5 ; print a\n"; $parser->startrule("a = 5 ; print a");
-
+#
+#   OP       : m([-+*/]) 
+#
+#   NUMBER  : /-?0x[0-9a-fA-F]+/
+#		{ $return = $item[1]; $return = oct($return) if $return =~ m/^0/; }
+#		| /-?0[0-7]+/
+#		{ $return = $item[1]; $return = oct($return) if $return =~ m/^0/; }
+#		| /-?0b[01]+/
+#		{ $return = $item[1]; $return = oct($return) if $return =~ m/^0/; }
+#		| /-?[0-9]+/
+#		{ $return = $item[1]; }
+#
+#   SYMBOL : /[a-zA-Z][a-zA-Z0-9_]*/
+#
+#	ORG:	'$'
+#
+#	expr:	NUMBER OP expr
+#		| SYMBOL OP expr
+#		| NUMBER
+#		{ print join(', ', @item),"\n"; }
+#		| SYMBOL
+#		{ print join(', ', @item),"\n"; }
+#		| ORG
+#
+#	word:	expr
+#
+#	label:	SYMBOL
+#		{ print join(', ', @item),"\n"; }
+#
+#	opcode:
+#		'add'
+#		| 'addi'
+#		| 'sub'
+#		| 'mul'
+#		| 'div'
+#		| 'sll'
+#		| 'srl'
+#		| 'sra'
+#		| 'sllv'
+#		| 'srlv'
+#		| 'srav'
+#		| 'beq'
+#		| 'bne'
+#		| 'slt'
+#		| 'slti'
+#		| 'and'
+#		| 'andi'
+#		| 'or'
+#		| 'ori'
+#		| 'xor'
+#		| 'nor'
+#		| 'j'
+#		| 'jr'
+#		| 'jal'
+#		| 'jalr'
+#		| 'lw'
+#		| 'sw'
+#		| 'mfhi'
+#		| 'mflo'
+#		| 'brk'
+#		| 'halt'
+#
+#
+#	const:	expr
+#
+#	reg:	/r[0-9]|r1[0-5]|zero|t[0-2]/
+#
+#	type1:	opcode
+#
+#	type2:	opcode reg
+#
+#	type4:	opcode reg ',' reg ',' const
+#
+#	instruction:	type4
+#		| type2
+#		| type1
+#		| <error>
+#		
+#
+#	directive:	'.org' expr
+#		| '.align'
+#		| '.word' word(s /,/)
+#		| <error>
+#
+##	line: 
+##		label ':' directive
+##		| label ':' instruction
+##		| label ':'
+##		| instruction
+##		| <error>
+#
+#	line: label ':'
+#
+#	startrule: line(s)
+#		| <error>

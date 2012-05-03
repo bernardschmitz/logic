@@ -37,6 +37,7 @@ my $grammar = <<'_EOGRAMMAR_';
                | assign_instruction
 
    startrule: instruction(s /;/)
+	| <error>
 
 _EOGRAMMAR_
 
@@ -56,4 +57,5 @@ print "print 2/4\n";       $parser->startrule("print 2/4");
 print "print 2+2/4\n";     $parser->startrule("print 2+2/4");
 print "print 2+-2/4\n";    $parser->startrule("print 2+-2/4");
 print "a = 5 ; print a\n"; $parser->startrule("a = 5 ; print a");
+print "\na = 5 ; print a\n"; $parser->startrule("\na = 5 ; print a");
 

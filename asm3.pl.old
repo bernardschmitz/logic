@@ -1,0 +1,134 @@
+
+use strict;
+use warnings;
+
+use Parse::RecDescent;
+use Data::Dumper;
+
+use vars qw(%VARIABLE);
+
+# Enable warnings within the Parse::RecDescent module.
+
+$::RD_ERRORS = 1; # Make sure the parser dies when it encounters an error
+$::RD_WARN   = 1; # Enable warnings. This will warn on unused rules &c.
+$::RD_HINT   = 1; # Give out hints to help fix problems.
+
+my $grammar = <<'_EOGRAMMAR_';
+
+   # Terminals (macros that can't expand further)
+   #
+
+   OP       : m([-+*/]) 
+
+   NUMBER  : /-?0x[0-9a-fA-F]+/
+		{ $return = $item[1]; $return = oct($return) if $return =~ m/^0/; }
+		| /-?0[0-7]+/
+		{ $return = $item[1]; $return = oct($return) if $return =~ m/^0/; }
+		| /-?0b[01]+/
+		{ $return = $item[1]; $return = oct($return) if $return =~ m/^0/; }
+		| /-?[0-9]+/
+		{ $return = $item[1]; }
+
+   SYMBOL : /[a-zA-Z][a-zA-Z0-9_]*/
+
+	ORG:	'$'
+
+	expr:	NUMBER OP expr
+		| SYMBOL OP expr
+		| NUMBER
+		{ print join(', ', @item),"\n"; }
+		| SYMBOL
+		{ print join(', ', @item),"\n"; }
+		| ORG
+
+	word:	expr
+
+	label:	SYMBOL
+		{ print join(', ', @item),"\n"; }
+
+	opcode:
+		'add'
+		| 'addi'
+		| 'sub'
+		| 'mul'
+		| 'div'
+		| 'sll'
+		| 'srl'
+		| 'sra'
+		| 'sllv'
+		| 'srlv'
+		| 'srav'
+		| 'beq'
+		| 'bne'
+		| 'slt'
+		| 'slti'
+		| 'and'
+		| 'andi'
+		| 'or'
+		| 'ori'
+		| 'xor'
+		| 'nor'
+		| 'j'
+		| 'jr'
+		| 'jal'
+		| 'jalr'
+		| 'lw'
+		| 'sw'
+		| 'mfhi'
+		| 'mflo'
+		| 'brk'
+		| 'halt'
+
+
+	const:	expr
+
+	reg:	/r[0-9]|r1[0-5]|zero|t[0-2]/
+
+	type1:	opcode
+
+	type2:	opcode reg
+
+	type4:	opcode reg ',' reg ',' const
+
+	instruction:	type4
+		| type2
+		| type1
+		| <error>
+		
+
+	directive:	'.org' expr
+		| '.align'
+		| '.word' word(s /,/)
+		| <error>
+
+	line: 
+		label ':' directive
+		| label ':' instruction
+		| label ':'
+		| instruction
+		| <error>
+
+	startrule: line(s)
+		| <error>
+
+_EOGRAMMAR_
+
+#            \s+         # either spaces
+#            | ; .*?$   # or a dash and whatever up to the end of line
+my $skip_spaces_and_comments = qr/
+         (?mxs:
+		\s+ |
+            ; .*?$   # or a dash and whatever up to the end of line
+         )*             # repeated at will (in whatever order)
+      /;
+
+$Parse::RecDescent::skip = $skip_spaces_and_comments;
+
+my $parser = Parse::RecDescent->new($grammar);
+
+my @text = <>;
+
+$parser->startrule(join('', @text)) or print "Bad text!\n";
+
+
+
