@@ -28,11 +28,11 @@ my $grammar = <<'_EOGRAMMAR_';
 		| /-?[0-9]+/
 		{ $return = $item[1]; }
 
-   OP       : m([-+*/])  { main::log(@item); }
+   OP       : m([-+*/])
 
 
-	expression:	NUMBER OP expression
-		| SYMBOL OP expression
+	expression:	NUMBER OP expression	{ main::log(@item) }
+		| SYMBOL OP expression	{ main::log(@item) }
 		| NUMBER
 		| SYMBOL
 
@@ -84,6 +84,18 @@ my $grammar = <<'_EOGRAMMAR_';
 		| 'xor'
 		| 'nor'
 
+	OPCODE2: 'addi'
+		| 'sll'
+		| 'srl'
+		| 'sra'
+		| 'beq'
+		| 'bne'
+		| 'slti'
+		| 'andi'
+		| 'ori'
+		| 'lw'
+		| 'sw'
+
 	comment: ';' /.*\n/
 
 	REG:	'r0' | 'r1' | 'r2' | 'r3' | 'r4' | 'r5' | 'r6' | 'r7' 
@@ -93,8 +105,11 @@ my $grammar = <<'_EOGRAMMAR_';
 
 	type1:	OPCODE1 REG ',' REG ',' REG { main::log(@item); }
 
+	type2:	OPCODE2 REG ',' REG ',' expression { main::log(@item); }
+
 	instruction:
 		type1
+		| type2
 
 	label:	SYMBOL ':'
 
@@ -123,7 +138,7 @@ _EOGRAMMAR_
 
 sub log {
 
-	print join(',', @_), "\n";
+	print Dumper(\@_);
 }
 
 

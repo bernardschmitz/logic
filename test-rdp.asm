@@ -4,7 +4,8 @@ q0:	.org	54
 
 loop:
 	 add	r4, zero, r6
-;	addi	; comment
+	addi r3, zero, 0x34*0b11	; comment
+	lw r3, zero, 1234
 
 ;	halt
 
