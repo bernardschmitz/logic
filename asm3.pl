@@ -16,7 +16,7 @@ $::RD_HINT   = 1; # Give out hints to help fix problems.
 
 my $grammar = <<'_EOGRAMMAR_';
 
-	SYMBOL: /[a-zA-Z][a-zA-Z0-9_]*/ { main::log(@item); }
+	SYMBOL: /[a-zA-Z_][a-zA-Z0-9_]*/ { main::log(@item); }
 
 
    NUMBER  : /-?0x[0-9a-fA-F]+/
@@ -38,39 +38,6 @@ my $grammar = <<'_EOGRAMMAR_';
 
 	STRING:	/'/ /[^']*/ /'/ { main::log(@item); }
 		| /"/ /[^"]*/ /"/ { main::log(@item); }
-
-
-	OPCODE: 'addi'
-		| 'add'
-		| 'sub'
-		| 'mul'
-		| 'div'
-		| 'sllv'
-		| 'sll'
-		| 'srlv'
-		| 'srl'
-		| 'srav'
-		| 'sra'
-		| 'beq'
-		| 'bne'
-		| 'slti'
-		| 'slt'
-		| 'andi'
-		| 'and'
-		| 'ori'
-		| 'or'
-		| 'xor'
-		| 'nor'
-		| 'jalr'
-		| 'jal'
-		| 'jr'
-		| 'j'
-		| 'lw'
-		| 'sw'
-		| 'mfhi'
-		| 'mflo'
-		| 'brk'
-		| 'halt'
 
 	OPCODE1:
 		'add'
@@ -120,29 +87,51 @@ my $grammar = <<'_EOGRAMMAR_';
 		| 'zero' | 'at' | 'v0' | 'v1' | 'a0' | 'a1' | 'a2' | 's0'
 		| 's1' | 's2' | 't0' | 't1' | 't2' | 'fp' | 'sp' | 'ra'
 
-	type1:	OPCODE1 REG ',' REG ',' REG { main::log(@item); }
 
-	type2:	OPCODE2 REG ',' REG ',' expression { main::log(@item); }
+	PSEUDO_OP1:	'mult' | 'divd'
+	PSEUDO_OP2:	'bgt' | 'blt' | 'bge' | 'ble'
+	PSEUDO_OP3:	'move'
+	PSEUDO_OP4:	'li'
+	PSEUDO_OP5:	'inc' | 'dec' | 'clear' | 'not' | 'neg'
+	PSEUDO_OP6:	'nop'
 
-	type3:	OPCODE3 REG ',' REG { main::log(@item); }
 
-	type4:	OPCODE4 REG ',' expression { main::log(@item); }
+	ps_type1:	PSEUDO_OP1 REG ',' REG ',' REG { main::log(@item); }
+	ps_type2:	PSEUDO_OP2 REG ',' REG ',' expression { main::log(@item); }
+	ps_type3:	PSEUDO_OP3 REG ',' REG { main::log(@item); }
+	ps_type4:	PSEUDO_OP4 REG ',' expression { main::log(@item); }
+	ps_type5:	PSEUDO_OP5 REG { main::log(@item); }
+	ps_type6:	PSEUDO_OP6 { main::log(@item); }
 
-	type5:	OPCODE5 REG { main::log(@item); }
 
-	type6:	OPCODE6 expression { main::log(@item); }
+	pseudo:
+		ps_type1
+		| ps_type2
+		| ps_type3
+		| ps_type4
+		| ps_type5
+		| ps_type6
 
-	type7:	OPCODE7 { main::log(@item); }
+
+
+		
+	op_type1:	OPCODE1 REG ',' REG ',' REG { main::log(@item); }
+	op_type2:	OPCODE2 REG ',' REG ',' expression { main::log(@item); }
+	op_type3:	OPCODE3 REG ',' REG { main::log(@item); }
+	op_type4:	OPCODE4 REG ',' expression { main::log(@item); }
+	op_type5:	OPCODE5 REG { main::log(@item); }
+	op_type6:	OPCODE6 expression { main::log(@item); }
+	op_type7:	OPCODE7 { main::log(@item); }
 
 
 	instruction:
-		type1
-		| type2
-		| type3
-		| type4
-		| type5
-		| type6
-		| type7
+		op_type1
+		| op_type2
+		| op_type3
+		| op_type4
+		| op_type5
+		| op_type6
+		| op_type7
 
 	label:	SYMBOL ':'
 
@@ -156,6 +145,7 @@ my $grammar = <<'_EOGRAMMAR_';
 	line:	
 		comment 
 		| directive 
+		| pseudo
 		| instruction 
 		| label
 
@@ -254,15 +244,15 @@ defined($parser->startrule($text)) || die "Bad text!\n";
 #
 #	reg:	/r[0-9]|r1[0-5]|zero|t[0-2]/
 #
-#	type1:	opcode
+#	op_type1:	opcode
 #
-#	type2:	opcode reg
+#	op_type2:	opcode reg
 #
-#	type4:	opcode reg ',' reg ',' const
+#	op_type4:	opcode reg ',' reg ',' const
 #
-#	instruction:	type4
-#		| type2
-#		| type1
+#	instruction:	op_type4
+#		| op_type2
+#		| op_type1
 #		| <error>
 #		
 #
