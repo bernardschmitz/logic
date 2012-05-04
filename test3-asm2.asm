@@ -50,4 +50,13 @@
 	neg	r7
 
 
+	.org	0x10*3
+	.word	1,2,3
+	.string	"hello", 'world'
+	.align
+	.set	leng, 45*78
+
+	.word	$+4
+
+
 

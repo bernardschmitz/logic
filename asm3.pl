@@ -17,6 +17,9 @@ $::RD_HINT   = 1; # Give out hints to help fix problems.
 my $grammar = <<'_EOGRAMMAR_';
 
 	SYMBOL: /[a-zA-Z_][a-zA-Z0-9_]*/ { main::log(@item); }
+		| LOCATION
+
+	LOCATION: '$'
 
 
    NUMBER  : /-?0x[0-9a-fA-F]+/
@@ -30,11 +33,13 @@ my $grammar = <<'_EOGRAMMAR_';
 
    OP       : m([-+*/])
 
-
 	expression:	NUMBER OP expression	{ main::log(@item) }
 		| SYMBOL OP expression	{ main::log(@item) }
 		| NUMBER
 		| SYMBOL
+	
+	const_expr:	NUMBER OP const_expr	{ main::log(@item) }
+		| NUMBER
 
 	STRING:	/'/ /[^']*/ /'/ { main::log(@item); }
 		| /"/ /[^"]*/ /"/ { main::log(@item); }
@@ -136,7 +141,7 @@ my $grammar = <<'_EOGRAMMAR_';
 	label:	SYMBOL ':'
 
 	directive:
-		'.org' NUMBER 
+		'.org' const_expr 
 		| '.word' expression(s /,/)
 		| '.string' STRING(s /,/) 
 		| '.align'
