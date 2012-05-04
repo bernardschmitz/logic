@@ -4,36 +4,36 @@
 	.set	charout, 0xfffe
 	.set	charclr, 0xffff
 
-        define(`id', 0)
-        define(`l', `$1`'id')
+        
+        
 
-        define(`clr', `define(`id', incr(id))
+        
+
+        
+
+
+	
 	sw	zero, zero, charclr	; clear screen
-	')
-
-        define(`cout', `define(`id', incr(id))
-l(loop):	 lw	at, $1, 0
-	beq	at, zero, l(out)
+	
+	addi	sp, zero, stack
+	addi	t0, zero, message
+	
+loop2:	 lw	at, t0, 0
+	beq	at, zero, out2
 	sw	at, zero, charout
-	inc	$1
-	j	l(loop)
-l(out):	nop
-	')
+	addi	t0, t0, 1
+	j	loop2
+out2:	
+	
 
-
-	clr
-	li	sp, stack
-	li	t0, message
-	cout(t0)
-
-	clear	a0
+	addi	a0, zero, zero
 ;	li	a0, 0cafe
 forever:
-	jal	number
+	jal	ra, number
 	;li	at, 0a
-	li	at, 0x20
+	addi	at, zero, 0x20
 	sw	at, zero, charout
-	inc	a0
+	addi	a0, a0, 1
 	j	forever
 
 	halt
@@ -49,11 +49,11 @@ w:	.string "Yeah yeah this is awesome."
 	.align
 
 number:
-	li	t0, 0a
-	li	a1, buf
-	move	t1, a0
+	addi	t0, zero, 0xa
+	addi	a1, zero, buf
+	add	t1, zero, a0
 again:
-	dec	a1
+	addi	a1, a1, -1
 	div	t1, t0
 	mflo	t1
 	mfhi	t2
@@ -62,7 +62,14 @@ again:
 	;sw	at, zero, charout
 	bne	t1, zero, again
 
-	cout(a1)
+	
+loop3:	 lw	at, a1, 0
+	beq	at, zero, out3
+	sw	at, zero, charout
+	addi	a1, a1, 1
+	j	loop3
+out3:	
+	
 
 	jr	ra	
 

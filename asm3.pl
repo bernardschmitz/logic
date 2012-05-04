@@ -96,20 +96,53 @@ my $grammar = <<'_EOGRAMMAR_';
 		| 'lw'
 		| 'sw'
 
+	OPCODE3:
+		 'mul'
+		| 'div'
+		| 'jalr'
+
+	OPCODE4: 'jal'
+
+	OPCODE5:
+		'jr'
+		| 'mfhi'
+		| 'mflo'
+
+	OPCODE6: 'j'
+
+	OPCODE7: 'brk'
+		| 'halt'
+
 	comment: ';' /.*\n/
 
 	REG:	'r0' | 'r1' | 'r2' | 'r3' | 'r4' | 'r5' | 'r6' | 'r7' 
 		| 'r8' | 'r9' | 'r10' | 'r11' | 'r12' | 'r13' | 'r14' | 'r15'
 		| 'zero' | 'at' | 'v0' | 'v1' | 'a0' | 'a1' | 'a2' | 's0'
-		| 's1' | 's2' | 't0' | 't1' | 't2' | 'fp' | 'bp' | 'ra'
+		| 's1' | 's2' | 't0' | 't1' | 't2' | 'fp' | 'sp' | 'ra'
 
 	type1:	OPCODE1 REG ',' REG ',' REG { main::log(@item); }
 
 	type2:	OPCODE2 REG ',' REG ',' expression { main::log(@item); }
 
+	type3:	OPCODE3 REG ',' REG { main::log(@item); }
+
+	type4:	OPCODE4 REG ',' expression { main::log(@item); }
+
+	type5:	OPCODE5 REG { main::log(@item); }
+
+	type6:	OPCODE6 expression { main::log(@item); }
+
+	type7:	OPCODE7 { main::log(@item); }
+
+
 	instruction:
 		type1
 		| type2
+		| type3
+		| type4
+		| type5
+		| type6
+		| type7
 
 	label:	SYMBOL ':'
 
@@ -138,7 +171,8 @@ _EOGRAMMAR_
 
 sub log {
 
-	print Dumper(\@_);
+	print join(' ', @_),"\n";
+	#print Dumper(\@_);
 }
 
 
