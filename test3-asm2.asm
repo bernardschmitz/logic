@@ -1,4 +1,8 @@
 
+	.word	-98
+
+	.word	34+-12
+
 	.word	45+23*3+leng
 	.word	(45+23)*3+leng
 
