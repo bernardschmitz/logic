@@ -16,7 +16,7 @@ $::RD_HINT   = 1; # Give out hints to help fix problems.
 
 my $grammar = <<'_EOGRAMMAR_';
 
-	SYMBOL: /[a-zA-Z_][a-zA-Z0-9_]*/ { main::log(@item); }
+	SYMBOL: /[a-zA-Z_][a-zA-Z0-9_]*/ { main::log(@item); $return = $item[1]; }
 		| LOCATION
 
 	LOCATION: '$'
@@ -33,13 +33,23 @@ my $grammar = <<'_EOGRAMMAR_';
 
    OP       : m([-+*/])
 
-	expression:	NUMBER OP expression	{ main::log(@item) }
-		| SYMBOL OP expression	{ main::log(@item) }
-		| NUMBER
-		| SYMBOL
-	
-	const_expr:	NUMBER OP const_expr	{ main::log(@item) }
-		| NUMBER
+	addop: m([-+])
+
+	mulop: m([*/])
+
+	expression:	sum
+
+	sum: prod addop_prod(s?) { main::log(@item); $return = "[ $item[1] ".join(" ", @{$item[2]})." ]"; }
+
+	addop_prod: addop prod { $return = "$item[1] $item[2]"; }
+
+	prod:	value mulop_value(s?) { main::log(@item); $return = "[ $item[1] ".join(" ", @{$item[2]})." ]"; }
+
+	mulop_value: mulop value { $return = "$item[1] $item[2]"; }
+
+	value:	NUMBER | SYMBOL | '(' expression ')' { $return = "$item[1] $item[2] $item[3]"; }
+
+
 
 	STRING:	/'/ /[^']*/ /'/ { main::log(@item); }
 		| /"/ /[^"]*/ /"/ { main::log(@item); }
@@ -101,9 +111,9 @@ my $grammar = <<'_EOGRAMMAR_';
 	PSEUDO_OP6:	'nop'
 
 
-	ps_type1:	PSEUDO_OP1 REG ',' REG ',' REG { main::log(@item); }
-	ps_type2:	PSEUDO_OP2 REG ',' REG ',' expression { main::log(@item); }
-	ps_type3:	PSEUDO_OP3 REG ',' REG { main::log(@item); }
+	ps_type1:	PSEUDO_OP1 REG ',' REG ',' REG { main::log(@item); $return = "$item[1] $item[2] $item[4] $item[6]"; }
+	ps_type2:	PSEUDO_OP2 REG ',' REG ',' expression { main::log(@item); $return = "$item[1] $item[2] $item[4] $item[6]"; }
+	ps_type3:	PSEUDO_OP3 REG ',' REG { main::log(@item); $return = "$item[1] $item[2] $item[4]"; } 
 	ps_type4:	PSEUDO_OP4 REG ',' expression { main::log(@item); }
 	ps_type5:	PSEUDO_OP5 REG { main::log(@item); }
 	ps_type6:	PSEUDO_OP6 { main::log(@item); }
@@ -141,18 +151,19 @@ my $grammar = <<'_EOGRAMMAR_';
 	label:	SYMBOL ':'
 
 	directive:
-		'.org' const_expr 
+		'.org' expression
 		| '.word' expression(s /,/)
 		| '.string' STRING(s /,/) 
 		| '.align'
 		| '.set' SYMBOL ',' expression
 
 	line:	
-		comment 
-		| directive 
-		| pseudo
-		| instruction 
-		| label
+		comment
+		| directive { main::log2(@item); }
+		| pseudo { main::log2(@item); }
+		| instruction { main::log2(@item); }
+		| label { main::log2(@item); }
+		
 
 
 	eof:	/^\Z/
@@ -168,6 +179,16 @@ sub log {
 
 	print join(' ', @_),"\n";
 	#print Dumper(\@_);
+
+	1;
+}
+
+sub log2 {
+
+	#print join(' ', @_),"\n";
+	print Dumper(\@_);
+
+	1;
 }
 
 

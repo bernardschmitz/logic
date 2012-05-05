@@ -1,4 +1,8 @@
 
+	.word	45+23*3+leng
+	.word	(45+23)*3+leng
+
+
 
 	add	r1, r2, r3
 	addi	r4, r5, 0xcafe
@@ -48,6 +52,12 @@
 	divd	r3, r4, r5
 	not	r6
 	neg	r7
+
+	li	r6, 0xcafe + leng
+	bgt	r7, r8, 0xbabe - leng*3
+	blt	r9, r10, 0xdead - leng
+	bge	r11, r12, 0xbeef + $
+	ble	r13, r14, 0xcafe + 0b111 - leng
 
 
 	.org	0x10*3
