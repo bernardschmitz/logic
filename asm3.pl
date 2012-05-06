@@ -19,12 +19,12 @@ my $grammar = <<'_EOGRAMMAR_';
 	<autoaction: { [@item] } >
 
  
-	SYMBOL: /[a-zA-Z_][a-zA-Z0-9_]*/
-		| LOCATION
+	symbol: /[a-zA-Z_][a-zA-Z0-9_]*/
+		| location
 
-	LOCATION: '$'
+	location: '$'
 
-	NUMBER  : /-?0x[0-9a-fA-F]+/
+	number  : /-?0x[0-9a-fA-F]+/
 		| /-?0[0-7]+/
 		| /-?0b[01]+/
 		| /-?[0-9]+/
@@ -33,7 +33,7 @@ my $grammar = <<'_EOGRAMMAR_';
 
 	mulop: m([*/])
 
-	expression:	sum
+	expression:	sum { [ map { $_ } @item ] } 
 
 	sum:	prod addop sum
 		| prod 
@@ -41,13 +41,13 @@ my $grammar = <<'_EOGRAMMAR_';
 	prod:	value mulop prod
 		| value 
 
-	value:	NUMBER | SYMBOL | '(' expression ')' { [$item[0,2]] }
+	value:	number | symbol | '(' expression ')' { [$item[0,2]] }
 
 
-	STRING:	/'/ /[^']*/ /'/ { [ @item[2] ] }
+	string:	/'/ /[^']*/ /'/ { [ @item[2] ] }
 		| /"/ /[^"]*/ /"/ { [ @item[2] ] }
 
-	OPCODE1:
+	opcode1:
 		'add'
 		| 'sub'
 		| 'sllv'
@@ -59,7 +59,7 @@ my $grammar = <<'_EOGRAMMAR_';
 		| 'xor'
 		| 'nor'
 
-	OPCODE2: 'addi'
+	opcode2: 'addi'
 		| 'sll'
 		| 'srl'
 		| 'sra'
@@ -71,45 +71,45 @@ my $grammar = <<'_EOGRAMMAR_';
 		| 'lw'
 		| 'sw'
 
-	OPCODE3:
+	opcode3:
 		 'mul'
 		| 'div'
 		| 'jalr'
 
-	OPCODE4: 'jal'
+	opcode4: 'jal'
 
-	OPCODE5:
+	opcode5:
 		'jr'
 		| 'mfhi'
 		| 'mflo'
 
-	OPCODE6: 'j'
+	opcode6: 'j'
 
-	OPCODE7: 'brk'
+	opcode7: 'brk'
 		| 'halt'
 
 	comment: ';' /.*\n/ { 1; }
 
-	REG:	'r10' | 'r11' | 'r12' | 'r13' | 'r14' | 'r15'
+	reg:	'r10' | 'r11' | 'r12' | 'r13' | 'r14' | 'r15'
 		| 'r0' | 'r1' | 'r2' | 'r3' | 'r4' | 'r5' | 'r6' | 'r7' | 'r8' | 'r9' 
 		| 'zero' | 'at' | 'v0' | 'v1' | 'a0' | 'a1' | 'a2' | 's0'
 		| 's1' | 's2' | 't0' | 't1' | 't2' | 'fp' | 'sp' | 'ra'
 
 
-	PSEUDO_OP1:	'mult' | 'divd'
-	PSEUDO_OP2:	'bgt' | 'blt' | 'bge' | 'ble'
-	PSEUDO_OP3:	'move'
-	PSEUDO_OP4:	'li'
-	PSEUDO_OP5:	'inc' | 'dec' | 'clear' | 'not' | 'neg'
-	PSEUDO_OP6:	'nop'
+	pseudo_op1:	'mult' | 'divd'
+	pseudo_op2:	'bgt' | 'blt' | 'bge' | 'ble'
+	pseudo_op3:	'move'
+	pseudo_op4:	'li'
+	pseudo_op5:	'inc' | 'dec' | 'clear' | 'not' | 'neg'
+	pseudo_op6:	'nop'
 
 
-	ps_type1:	PSEUDO_OP1 REG ',' REG ',' REG { [ @item[1,2,4,6] ] }
-	ps_type2:	PSEUDO_OP2 REG ',' REG ',' expression { [ @item[1,2,4,6] ] }
-	ps_type3:	PSEUDO_OP3 REG ',' REG  { [ @item[1,2,4] ] }
-	ps_type4:	PSEUDO_OP4 REG ',' expression { [ @item[1,2,4] ] }
-	ps_type5:	PSEUDO_OP5 REG { [ @item[1,2] ] }
-	ps_type6:	PSEUDO_OP6 { [ @item[1] ] }
+	ps_type1:	pseudo_op1 reg ',' reg ',' reg { [ @item[1,2,4,6] ] }
+	ps_type2:	pseudo_op2 reg ',' reg ',' expression { [ @item[1,2,4,6] ] }
+	ps_type3:	pseudo_op3 reg ',' reg  { [ @item[1,2,4] ] }
+	ps_type4:	pseudo_op4 reg ',' expression { [ @item[1,2,4] ] }
+	ps_type5:	pseudo_op5 reg { [ @item[1,2] ] }
+	ps_type6:	pseudo_op6 { [ @item[1] ] }
 
 
 	pseudo:
@@ -123,13 +123,13 @@ my $grammar = <<'_EOGRAMMAR_';
 
 
 		
-	op_type1:	OPCODE1 REG ',' REG ',' REG { [ @item[1,2,4,6] ] }
-	op_type2:	OPCODE2 REG ',' REG ',' expression { [ @item[1,2,4,6] ] }
-	op_type3:	OPCODE3 REG ',' REG { [ @item[1,2,4] ] }
-	op_type4:	OPCODE4 REG ',' expression { [ @item[1,2,4] ] }
-	op_type5:	OPCODE5 REG { [ @item[1,2] ] }
-	op_type6:	OPCODE6 expression { [ @item[1,2] ] }
-	op_type7:	OPCODE7 { [ @item[1] ] }
+	op_type1:	opcode1 reg ',' reg ',' reg { [ @item[1,2,4,6] ] }
+	op_type2:	opcode2 reg ',' reg ',' expression { [ @item[1,2,4,6] ] }
+	op_type3:	opcode3 reg ',' reg { [ @item[1,2,4] ] }
+	op_type4:	opcode4 reg ',' expression { [ @item[1,2,4] ] }
+	op_type5:	opcode5 reg { [ @item[1,2] ] }
+	op_type6:	opcode6 expression { [ @item[1,2] ] }
+	op_type7:	opcode7 { [ @item[1] ] }
 
 
 
@@ -142,14 +142,14 @@ my $grammar = <<'_EOGRAMMAR_';
 		| op_type6
 		| op_type7
 
-	label:	SYMBOL ':'
+	label:	symbol ':' { [ $item[1] ] }
 
 	directive:
 		'.org' expression
 		| '.word' expression(s /,/)
-		| '.string' STRING(s /,/)
+		| '.string' string(s /,/)
 		| '.align'
-		| '.set' SYMBOL ',' expression { [ @item[0,1,2,4] ] }
+		| '.set' symbol ',' expression { [ @item[0,1,2,4] ] }
 
 	line:	
 		comment
@@ -163,7 +163,8 @@ my $grammar = <<'_EOGRAMMAR_';
 	eof:	/^\Z/
 
 	startrule: 
-		line(s) eof { [$item[1]] }
+		line(s) eof { [ map { $_ } @{$item[1]} ] } 
+#{ [$item[1]] }
 		| <error>
 
 _EOGRAMMAR_
@@ -241,6 +242,19 @@ sub traverse {
 	
 	my $depth = shift;
 	my $node = shift;
+
+#	print ' ' x $depth . join(' ', @{$node}), "\n";
+	
+	for(@{$node}) {
+		if(ref $_ eq 'ARRAY') {
+			traverse($depth+1, $_);
+		}
+		else {
+			print ' ' x $depth . $_ . "\n";
+		}
+	}
+
+	return;
 
 	if(ref $node eq 'ARRAY') {
 		for(@{$node}) {
