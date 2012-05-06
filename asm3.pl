@@ -9,29 +9,25 @@ use vars qw(%VARIABLE);
 
 # Enable warnings within the Parse::RecDescent module.
 
-$::RD_ERRORS = 1; # Make sure the parser dies when it encounters an error
-$::RD_WARN   = 1; # Enable warnings. This will warn on unused rules &c.
-$::RD_HINT   = 1; # Give out hints to help fix problems.
+#$::RD_ERRORS = 1; # Make sure the parser dies when it encounters an error
+#$::RD_WARN   = 1; # Enable warnings. This will warn on unused rules &c.
+#$::RD_HINT   = 1; # Give out hints to help fix problems.
 #$::RD_TRACE = 1;
 
 my $grammar = <<'_EOGRAMMAR_';
 
-	SYMBOL: /[a-zA-Z_][a-zA-Z0-9_]*/ { main::log(@item); $return = $item[1]; }
+	<autoaction: { [@item] } >
+
+ 
+	SYMBOL: /[a-zA-Z_][a-zA-Z0-9_]*/
 		| LOCATION
 
 	LOCATION: '$'
 
-
-   NUMBER  : /-?0x[0-9a-fA-F]+/
-		{ $return = $item[1]; $return = oct($return) if $return =~ m/^0/; }
+	NUMBER  : /-?0x[0-9a-fA-F]+/
 		| /-?0[0-7]+/
-		{ $return = $item[1]; $return = oct($return) if $return =~ m/^0/; }
 		| /-?0b[01]+/
-		{ $return = $item[1]; $return = oct($return) if $return =~ m/^0/; }
 		| /-?[0-9]+/
-		{ $return = $item[1]; }
-
-   OP       : m([-+*/])
 
 	addop: m([-+])
 
@@ -39,20 +35,17 @@ my $grammar = <<'_EOGRAMMAR_';
 
 	expression:	sum
 
-	sum: prod addop_prod(s?) { main::log(@item); $return = "[ $item[1] ".join(" ", @{$item[2]})." ]"; }
+	sum:	prod addop sum
+		| prod 
 
-	addop_prod: addop prod { $return = "$item[1] $item[2]"; }
+	prod:	value mulop prod
+		| value 
 
-	prod:	value mulop_value(s?) { main::log(@item); $return = "[ $item[1] ".join(" ", @{$item[2]})." ]"; }
-
-	mulop_value: mulop value { $return = "$item[1] $item[2]"; }
-
-	value:	NUMBER | SYMBOL | '(' expression ')' { $return = "$item[1] $item[2] $item[3]"; }
+	value:	NUMBER | SYMBOL | '(' expression ')' { [$item[0,2]] }
 
 
-
-	STRING:	/'/ /[^']*/ /'/ { main::log(@item); }
-		| /"/ /[^"]*/ /"/ { main::log(@item); }
+	STRING:	/'/ /[^']*/ /'/ { [ @item[2] ] }
+		| /"/ /[^"]*/ /"/ { [ @item[2] ] }
 
 	OPCODE1:
 		'add'
@@ -95,7 +88,7 @@ my $grammar = <<'_EOGRAMMAR_';
 	OPCODE7: 'brk'
 		| 'halt'
 
-	comment: ';' /.*\n/
+	comment: ';' /.*\n/ { 1; }
 
 	REG:	'r10' | 'r11' | 'r12' | 'r13' | 'r14' | 'r15'
 		| 'r0' | 'r1' | 'r2' | 'r3' | 'r4' | 'r5' | 'r6' | 'r7' | 'r8' | 'r9' 
@@ -111,12 +104,12 @@ my $grammar = <<'_EOGRAMMAR_';
 	PSEUDO_OP6:	'nop'
 
 
-	ps_type1:	PSEUDO_OP1 REG ',' REG ',' REG { main::log(@item); $return = "$item[1] $item[2] $item[4] $item[6]"; }
-	ps_type2:	PSEUDO_OP2 REG ',' REG ',' expression { main::log(@item); $return = "$item[1] $item[2] $item[4] $item[6]"; }
-	ps_type3:	PSEUDO_OP3 REG ',' REG { main::log(@item); $return = "$item[1] $item[2] $item[4]"; } 
-	ps_type4:	PSEUDO_OP4 REG ',' expression { main::log(@item); }
-	ps_type5:	PSEUDO_OP5 REG { main::log(@item); }
-	ps_type6:	PSEUDO_OP6 { main::log(@item); }
+	ps_type1:	PSEUDO_OP1 REG ',' REG ',' REG { [ @item[1,2,4,6] ] }
+	ps_type2:	PSEUDO_OP2 REG ',' REG ',' expression { [ @item[1,2,4,6] ] }
+	ps_type3:	PSEUDO_OP3 REG ',' REG  { [ @item[1,2,4] ] }
+	ps_type4:	PSEUDO_OP4 REG ',' expression { [ @item[1,2,4] ] }
+	ps_type5:	PSEUDO_OP5 REG { [ @item[1,2] ] }
+	ps_type6:	PSEUDO_OP6 { [ @item[1] ] }
 
 
 	pseudo:
@@ -130,13 +123,14 @@ my $grammar = <<'_EOGRAMMAR_';
 
 
 		
-	op_type1:	OPCODE1 REG ',' REG ',' REG { main::log(@item); }
-	op_type2:	OPCODE2 REG ',' REG ',' expression { main::log(@item); }
-	op_type3:	OPCODE3 REG ',' REG { main::log(@item); }
-	op_type4:	OPCODE4 REG ',' expression { main::log(@item); }
-	op_type5:	OPCODE5 REG { main::log(@item); }
-	op_type6:	OPCODE6 expression { main::log(@item); }
-	op_type7:	OPCODE7 { main::log(@item); }
+	op_type1:	OPCODE1 REG ',' REG ',' REG { [ @item[1,2,4,6] ] }
+	op_type2:	OPCODE2 REG ',' REG ',' expression { [ @item[1,2,4,6] ] }
+	op_type3:	OPCODE3 REG ',' REG { [ @item[1,2,4] ] }
+	op_type4:	OPCODE4 REG ',' expression { [ @item[1,2,4] ] }
+	op_type5:	OPCODE5 REG { [ @item[1,2] ] }
+	op_type6:	OPCODE6 expression { [ @item[1,2] ] }
+	op_type7:	OPCODE7 { [ @item[1] ] }
+
 
 
 	instruction:
@@ -153,23 +147,23 @@ my $grammar = <<'_EOGRAMMAR_';
 	directive:
 		'.org' expression
 		| '.word' expression(s /,/)
-		| '.string' STRING(s /,/) 
+		| '.string' STRING(s /,/)
 		| '.align'
-		| '.set' SYMBOL ',' expression
+		| '.set' SYMBOL ',' expression { [ @item[0,1,2,4] ] }
 
 	line:	
 		comment
-		| directive { main::log2(@item); }
-		| pseudo { main::log2(@item); }
-		| instruction { main::log2(@item); }
-		| label { main::log2(@item); }
+		| directive 
+		| pseudo 
+		| instruction 
+		| label 
 		
 
 
 	eof:	/^\Z/
 
 	startrule: 
-		line(s) eof
+		line(s) eof { [$item[1]] }
 		| <error>
 
 _EOGRAMMAR_
@@ -192,6 +186,36 @@ sub log2 {
 }
 
 
+sub build_tree {
+
+	print "bt: ". Dumper(\@_);
+
+	shift;
+
+	my $lhs = shift;
+	my $op = shift;
+	my $rhs = shift;
+	
+	my $tree = { type => 'OP', name => $op, lhs => $lhs, rhs => $rhs };
+
+	if($#_ == 0) {
+		return $tree;
+	}
+
+
+
+	while ($#_ > 0) {
+
+		my $op = shift;
+		my $rhs = shift;
+
+		$tree = { type => 'OP', name => $op, lhs => $tree, rhs => $rhs };
+	}
+
+	return $tree;
+}
+
+
 my $parser = Parse::RecDescent->new($grammar);
 
 my @text = <>;
@@ -199,102 +223,37 @@ my @text = <>;
 my $text = join('', @text);
 #print "$text";
 
-defined($parser->startrule($text)) || die "Bad text!\n";
+#my $tree = build_tree( ( '1', '*', '2', '*', '3', '*', '4' ) );
+
+#print Dumper(\$tree);
+
+my $ast = $parser->startrule($text);
+
+defined $ast || die "Bad text!\n";
+
+print Dumper($ast);
+
+
+traverse(0, $ast);
+
+
+sub traverse {
+	
+	my $depth = shift;
+	my $node = shift;
+
+	if(ref $node eq 'ARRAY') {
+		for(@{$node}) {
+			traverse($depth+1, $_);
+		}
+	}
+	else {
+		print ' ' x $depth . $node . "\n";
+	}
+}
 
 
 
-#
-#   OP       : m([-+*/]) 
-#
-#   NUMBER  : /-?0x[0-9a-fA-F]+/
-#		{ $return = $item[1]; $return = oct($return) if $return =~ m/^0/; }
-#		| /-?0[0-7]+/
-#		{ $return = $item[1]; $return = oct($return) if $return =~ m/^0/; }
-#		| /-?0b[01]+/
-#		{ $return = $item[1]; $return = oct($return) if $return =~ m/^0/; }
-#		| /-?[0-9]+/
-#		{ $return = $item[1]; }
-#
-#   SYMBOL : /[a-zA-Z][a-zA-Z0-9_]*/
-#
-#	ORG:	'$'
-#
-#	expr:	NUMBER OP expr
-#		| SYMBOL OP expr
-#		| NUMBER
-#		{ print join(', ', @item),"\n"; }
-#		| SYMBOL
-#		{ print join(', ', @item),"\n"; }
-#		| ORG
-#
-#	word:	expr
-#
-#	label:	SYMBOL
-#		{ print join(', ', @item),"\n"; }
-#
-#	opcode:
-#		'add'
-#		| 'addi'
-#		| 'sub'
-#		| 'mul'
-#		| 'div'
-#		| 'sll'
-#		| 'srl'
-#		| 'sra'
-#		| 'sllv'
-#		| 'srlv'
-#		| 'srav'
-#		| 'beq'
-#		| 'bne'
-#		| 'slt'
-#		| 'slti'
-#		| 'and'
-#		| 'andi'
-#		| 'or'
-#		| 'ori'
-#		| 'xor'
-#		| 'nor'
-#		| 'j'
-#		| 'jr'
-#		| 'jal'
-#		| 'jalr'
-#		| 'lw'
-#		| 'sw'
-#		| 'mfhi'
-#		| 'mflo'
-#		| 'brk'
-#		| 'halt'
-#
-#
-#	const:	expr
-#
-#	reg:	/r[0-9]|r1[0-5]|zero|t[0-2]/
-#
-#	op_type1:	opcode
-#
-#	op_type2:	opcode reg
-#
-#	op_type4:	opcode reg ',' reg ',' const
-#
-#	instruction:	op_type4
-#		| op_type2
-#		| op_type1
-#		| <error>
-#		
-#
-#	directive:	'.org' expr
-#		| '.align'
-#		| '.word' word(s /,/)
-#		| <error>
-#
-##	line: 
-##		label ':' directive
-##		| label ':' instruction
-##		| label ':'
-##		| instruction
-##		| <error>
-#
-#	line: label ':'
-#
-#	startrule: line(s)
-#		| <error>
+
+
+
