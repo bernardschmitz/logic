@@ -218,7 +218,13 @@ defined $ast || die "Bad text!\n";
 
 traverse(0, $ast);
 
+print "\n";
+
 collect_symbols($ast);
+
+print "\n";
+
+replace_pseudo_ops($ast);
 
 
 
@@ -240,6 +246,17 @@ sub traverse {
 }
 
 
+sub replace_pseudo_ops {
+
+	my $lines = shift;
+
+	for(@{$lines}) {
+		if($_->[1]->[0] eq 'pseudo') {
+			print "op ",$_->[1]->[1]->[0], "\n";
+		}
+	}
+
+}
 
 
 sub collect_symbols {
