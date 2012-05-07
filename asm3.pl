@@ -33,7 +33,7 @@ my $grammar = <<'_EOGRAMMAR_';
 
 	mulop: m([*/])
 
-	expression:	sum { [ map { $_ } @item ] } 
+	expression:	sum 
 
 	sum:	prod addop sum
 		| prod 
@@ -41,7 +41,7 @@ my $grammar = <<'_EOGRAMMAR_';
 	prod:	value mulop prod
 		| value 
 
-	value:	number | symbol | '(' expression ')' { [$item[0,2]] }
+	value:	number | symbol | '(' expression ')' { [@item[0,2]] }
 
 
 	string:	/'/ /[^']*/ /'/ { [ @item[2] ] }
@@ -104,45 +104,25 @@ my $grammar = <<'_EOGRAMMAR_';
 	pseudo_op6:	'nop'
 
 
-	ps_type1:	pseudo_op1 reg ',' reg ',' reg { [ @item[1,2,4,6] ] }
-	ps_type2:	pseudo_op2 reg ',' reg ',' expression { [ @item[1,2,4,6] ] }
-	ps_type3:	pseudo_op3 reg ',' reg  { [ @item[1,2,4] ] }
-	ps_type4:	pseudo_op4 reg ',' expression { [ @item[1,2,4] ] }
-	ps_type5:	pseudo_op5 reg { [ @item[1,2] ] }
-	ps_type6:	pseudo_op6 { [ @item[1] ] }
-
-
 	pseudo:
-		ps_type1
-		| ps_type2
-		| ps_type3
-		| ps_type4
-		| ps_type5
-		| ps_type6
-
-
-
-		
-	op_type1:	opcode1 reg ',' reg ',' reg { [ @item[1,2,4,6] ] }
-	op_type2:	opcode2 reg ',' reg ',' expression { [ @item[1,2,4,6] ] }
-	op_type3:	opcode3 reg ',' reg { [ @item[1,2,4] ] }
-	op_type4:	opcode4 reg ',' expression { [ @item[1,2,4] ] }
-	op_type5:	opcode5 reg { [ @item[1,2] ] }
-	op_type6:	opcode6 expression { [ @item[1,2] ] }
-	op_type7:	opcode7 { [ @item[1] ] }
-
+		pseudo_op1 reg ',' reg ',' reg { [ @item[0,1,2,4,6] ] }
+		| pseudo_op2 reg ',' reg ',' expression { [ @item[0,1,2,4,6] ] }
+		| pseudo_op3 reg ',' reg  { [ @item[0,1,2,4] ] }
+		| pseudo_op4 reg ',' expression { [ @item[0,1,2,4] ] }
+		| pseudo_op5 reg { [ @item[0,1,2] ] }
+		| pseudo_op6 { [ @item[0,1] ] }
 
 
 	instruction:
-		op_type1
-		| op_type2
-		| op_type3
-		| op_type4
-		| op_type5
-		| op_type6
-		| op_type7
+		opcode1 reg ',' reg ',' reg { [ @item[0,1,2,4,6] ] }
+		| opcode2 reg ',' reg ',' expression { [ @item[0,1,2,4,6] ] }
+		| opcode3 reg ',' reg { [ @item[0,1,2,4] ] }
+		| opcode4 reg ',' expression { [ @item[0,1,2,4] ] }
+		| opcode5 reg { [ @item[0,1,2] ] }
+		| opcode6 expression { [ @item[0,1,2] ] }
+		| opcode7 { [ @item[0,1] ] }
 
-	label:	symbol ':' { [ $item[1] ] }
+	label:	symbol ':' { [ @item[0,1] ] }
 
 	directive:
 		'.org' expression
@@ -232,10 +212,14 @@ my $ast = $parser->startrule($text);
 
 defined $ast || die "Bad text!\n";
 
-print Dumper($ast);
+#print Dumper($ast);
+
 
 
 traverse(0, $ast);
+
+collect_symbols($ast);
+
 
 
 sub traverse {
@@ -253,21 +237,26 @@ sub traverse {
 			print ' ' x $depth . $_ . "\n";
 		}
 	}
-
-	return;
-
-	if(ref $node eq 'ARRAY') {
-		for(@{$node}) {
-			traverse($depth+1, $_);
-		}
-	}
-	else {
-		print ' ' x $depth . $node . "\n";
-	}
 }
 
 
 
 
+sub collect_symbols {
 
+	my $lines = shift;
+
+	for(@{$lines}) {
+		collect_symbols2($_->[1]);
+	}
+}
+
+
+sub collect_symbols2 {
+
+	my $node = shift;
+
+	print $node->[0], "\n"
+
+}
 
