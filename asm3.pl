@@ -143,8 +143,8 @@ my $grammar = <<'_EOGRAMMAR_';
 	eof:	/^\Z/
 
 	startrule: 
-		line(s) eof { [ map { $_ } @{$item[1]} ] } 
-#{ [$item[1]] }
+		# remove comment nodes
+		line(s) eof { [ map { $_->[1] } grep { $_->[1]->[0] ne 'comment' } @{$item[1]} ] } 
 		| <error>
 
 _EOGRAMMAR_
@@ -153,48 +153,15 @@ _EOGRAMMAR_
 sub log {
 
 	print join(' ', @_),"\n";
-	#print Dumper(\@_);
-
 	1;
 }
 
 sub log2 {
 
-	#print join(' ', @_),"\n";
 	print Dumper(\@_);
-
 	1;
 }
 
-
-sub build_tree {
-
-	print "bt: ". Dumper(\@_);
-
-	shift;
-
-	my $lhs = shift;
-	my $op = shift;
-	my $rhs = shift;
-	
-	my $tree = { type => 'OP', name => $op, lhs => $lhs, rhs => $rhs };
-
-	if($#_ == 0) {
-		return $tree;
-	}
-
-
-
-	while ($#_ > 0) {
-
-		my $op = shift;
-		my $rhs = shift;
-
-		$tree = { type => 'OP', name => $op, lhs => $tree, rhs => $rhs };
-	}
-
-	return $tree;
-}
 
 
 my $parser = Parse::RecDescent->new($grammar);
@@ -204,39 +171,34 @@ my @text = <>;
 my $text = join('', @text);
 #print "$text";
 
-#my $tree = build_tree( ( '1', '*', '2', '*', '3', '*', '4' ) );
-
-#print Dumper(\$tree);
-
 my $ast = $parser->startrule($text);
 
 defined $ast || die "Bad text!\n";
 
-#print Dumper($ast);
+
+
+#print "\n", Dumper($ast);
 
 
 
 traverse(0, $ast);
 
+#print "\n";
+#$ast = strip_comments($ast);
+
 print "\n";
-
-$ast = strip_comments($ast);
-
-print "\n";
-
 collect_symbols($ast);
 
 print "\n";
-
 replace_pseudo_ops($ast);
 
 
-sub strip_comments {
-
-	my $node = shift;
-	my @ast = grep { $_->[1]->[0] ne 'comment' } @{$node};
-	return \@ast;
-}
+#sub strip_comments {
+#
+#	my $node = shift;
+#	my @ast = grep { $_->[0] ne 'comment' } @{$node};
+#	return \@ast;
+#}
 
 
 sub traverse {
@@ -262,8 +224,8 @@ sub replace_pseudo_ops {
 	my $lines = shift;
 
 	for(@{$lines}) {
-		if($_->[1]->[0] eq 'pseudo') {
-			print "op ",$_->[1]->[1]->[0], "\n";
+		if($_->[0] eq 'pseudo') {
+			print "op ",$_->[1]->[0], "\n";
 		}
 	}
 
@@ -275,7 +237,7 @@ sub collect_symbols {
 	my $lines = shift;
 
 	for(@{$lines}) {
-		collect_symbols2($_->[1]);
+		collect_symbols2($_);
 	}
 }
 
