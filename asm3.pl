@@ -20,9 +20,9 @@ my $grammar = <<'_EOGRAMMAR_';
 
  
 	symbol: /[a-zA-Z_][a-zA-Z0-9_]*/
-		| location
+		| location { @item[1] }
 
-	location: '$'
+	location: '$' { [ @item[0] ] }
 
 	number  : /-?0x[0-9a-fA-F]+/
 		| /-?0[0-7]+/
@@ -606,7 +606,10 @@ sub evaluate_expression {
 		return $lhs;
 	}
 	elsif($op eq 'value') {
-		if($node->[1]->[0] eq 'number') {
+
+		print Dumper($node);
+	
+ 		if($node->[1]->[0] eq 'number') {
 			my $val = $node->[1]->[1];
 			$val = oct($val) if $val =~ m/^0/;
 #			print "val: $val\n";
@@ -622,6 +625,12 @@ sub evaluate_expression {
 			else {
 				return undef;
 			}
+		}
+		elsif($node->[1]->[0] eq 'location') {
+			return $location;
+		}
+		else {
+			die "unknown value $node->[1]->[0]\n";
 		}
 	}
 

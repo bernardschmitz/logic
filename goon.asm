@@ -39,4 +39,9 @@ yeah:
 
 	.org	leng + 5
 
+	.org	$+5
 
+	.word	$
+
+	.set	vvvv, $
+	.set	xxxx, $+10
