@@ -88,7 +88,7 @@ my $grammar = <<'_EOGRAMMAR_';
 	opcode7: 'brk'
 		| 'halt'
 
-	comment: ';' /.*\n/ { 1; }
+	comment: ';' /.*\n/ { [@item[0]] }
 
 	reg:	'r10' | 'r11' | 'r12' | 'r13' | 'r14' | 'r15'
 		| 'r0' | 'r1' | 'r2' | 'r3' | 'r4' | 'r5' | 'r6' | 'r7' | 'r8' | 'r9' 
@@ -220,12 +220,23 @@ traverse(0, $ast);
 
 print "\n";
 
+$ast = strip_comments($ast);
+
+print "\n";
+
 collect_symbols($ast);
 
 print "\n";
 
 replace_pseudo_ops($ast);
 
+
+sub strip_comments {
+
+	my $node = shift;
+	my @ast = grep { $_->[1]->[0] ne 'comment' } @{$node};
+	return \@ast;
+}
 
 
 sub traverse {

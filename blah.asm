@@ -1,4 +1,6 @@
 
+; random characters
+
 loop:
 
 	lw	t1, zero, 0xf002 ; get random num
