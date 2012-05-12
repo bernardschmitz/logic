@@ -189,11 +189,16 @@ defined $ast || die "Bad text!\n";
 print "\n";
 $ast = replace_pseudo_ops($ast);
 
+my $location = 0;
+my %symbol = ();
+
 print "\n";
 collect_symbols($ast);
 
-print "\n";
-traverse(0, $ast);
+print Dumper(\%symbol);
+
+#print "\n";
+#traverse(0, $ast);
 
 
 #sub strip_comments {
@@ -468,17 +473,57 @@ sub collect_symbols {
 
 	my $lines = shift;
 
+	$location = 0;
+
 	for(@{$lines}) {
-		collect_symbols2($_);
+
+		my $op = $_->[0];
+
+		if($op eq 'directive')  {
+			collect_directive_symbol($_);
+		}
+		elsif($op eq 'label') {
+			my $name = $_->[1]->[1];
+			$symbol{$name} = { name => $name, value => $location };
+		}
+		elsif($op eq 'instruction') {
+			$location += 2;
+		}
+		else {
+			die "unknown node $op when collecting symbols\n";
+		}
 	}
 }
 
 
-sub collect_symbols2 {
+sub collect_directive_symbol {
 
 	my $node = shift;
 
-	print $node->[0], "\n"
+#	print Dumper($node);
 
+	my $op = $node->[1];
+
+	print "$op\n";
+
+	if($op eq '.set') {
+		
+		my $name = $node->[2]->[1];
+		my $expr = $node->[3];
+		$symbol{$name} = { name => $name, expression => $expr };
+	}
+	elsif($op eq '.word') {
+		$location += (scalar @{$node->[2]}) - 2;
+	}
+	elsif($op eq '.string') {
+		my $c = 0;
+		for(@{$node->[2]}) {
+			$c += length($_);
+		}
+		$location += $c;
+	}
+	elsif($op eq '.org') {
+		print Dumper($node);
+	}
 }
 

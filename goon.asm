@@ -3,7 +3,7 @@
 
 	.word 4+5+6, 0xcafe, 0xbabe
 
-leng:	.string	"hello"
+leng:	.string	"hello", "yeah"
 
 	.word	leng * leng
 
@@ -18,6 +18,8 @@ leng:	.string	"hello"
 	inc	r5
 	dec	r9
 
+	.org	0x100
+blah:
 	li	r8, leng
 
 	mult	r5, r6, r7
@@ -26,4 +28,8 @@ leng:	.string	"hello"
 	ble	r2, zero, leng
 	blt	r2, zero, leng
 	bgt	r2, zero, leng
+yeah:
 
+	.set	qwerty, 45
+
+	.set	abc, 10+20*blah
