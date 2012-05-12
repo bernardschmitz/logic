@@ -33,3 +33,10 @@ yeah:
 	.set	qwerty, 45
 
 	.set	abc, 10+20*blah
+
+	.org	0x100*2
+	.org	34+56*7
+
+	.org	leng + 5
+
+

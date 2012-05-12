@@ -493,6 +493,13 @@ sub collect_symbols {
 			die "unknown node $op when collecting symbols\n";
 		}
 	}
+
+	for(values %symbol) {
+		if(!defined $_->{value}) {
+			$_->{value} = evaluate_expression($_->{expression});
+			delete $_->{expression};
+		}
+	}
 }
 
 
@@ -504,7 +511,7 @@ sub collect_directive_symbol {
 
 	my $op = $node->[1];
 
-	print "$op\n";
+	#print "$op\n";
 
 	if($op eq '.set') {
 		
@@ -513,7 +520,7 @@ sub collect_directive_symbol {
 		$symbol{$name} = { name => $name, expression => $expr };
 	}
 	elsif($op eq '.word') {
-		$location += (scalar @{$node->[2]}) - 2;
+		$location += (scalar @{$node->[2]});
 	}
 	elsif($op eq '.string') {
 		my $c = 0;
@@ -523,7 +530,101 @@ sub collect_directive_symbol {
 		$location += $c;
 	}
 	elsif($op eq '.org') {
-		print Dumper($node);
+		my $result = evaluate_expression($node->[2]) || die ".org expression not constant\n";
+#		print "result: $result\n";
+		$location = $result;
 	}
+}
+
+sub evaluate_expression {
+
+	my $node = shift;
+
+	#print Dumper($node);	
+
+	my $op = $node->[0];
+
+	if($op eq 'expression') {
+		return evaluate_expression($node->[1]);
+	}
+	elsif($op eq 'sum') {
+		my $lhs = evaluate_expression($node->[1]);
+
+		if(!defined $lhs) {
+			return undef;
+		}
+
+		if(scalar @{$node} == 4) {
+			my $add = $node->[2]->[1];
+			my $rhs = evaluate_expression($node->[3]);
+			if(!defined $rhs) {
+				return undef;
+			}
+
+#			print "$lhs $add $rhs\n";
+			
+			if($add eq '+') {
+				return $lhs + $rhs;
+			}
+			elsif($add eq '-') {
+				return $lhs - $rhs;
+			}
+			else {
+				die "unknown op $add\n";
+			}
+		}
+		
+		return $lhs;
+	}
+	elsif($op eq 'prod') {
+		my $lhs = evaluate_expression($node->[1]);
+
+		if(!defined $lhs) {
+			return undef;
+		}
+
+		if(scalar @{$node} == 4) {
+			my $mul = $node->[2]->[1];
+			my $rhs = evaluate_expression($node->[3]);
+			if(!defined $rhs) {
+				return undef;
+			}
+
+#			print "$lhs $mul $rhs\n";
+			
+			if($mul eq '*') {
+				return $lhs * $rhs;
+			}
+			elsif($mul eq '/') {
+				return $lhs / $rhs;
+			}
+			else {
+				die "unknown op $mul\n";
+			}
+		}
+		
+		return $lhs;
+	}
+	elsif($op eq 'value') {
+		if($node->[1]->[0] eq 'number') {
+			my $val = $node->[1]->[1];
+			$val = oct($val) if $val =~ m/^0/;
+#			print "val: $val\n";
+			return $val;
+		}
+		elsif($node->[1]->[0] eq 'symbol') {
+			my $name = $node->[1]->[1];
+			my $sym = $symbol{$name};
+			if(defined $sym) {
+#				print "sym: $name $sym->{value}\n";
+				return $sym->{value};
+			}
+			else {
+				return undef;
+			}
+		}
+	}
+
+	return undef;
 }
 
