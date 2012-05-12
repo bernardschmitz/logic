@@ -181,16 +181,19 @@ defined $ast || die "Bad text!\n";
 
 
 
-traverse(0, $ast);
+#traverse(0, $ast);
 
 #print "\n";
 #$ast = strip_comments($ast);
 
 print "\n";
+$ast = replace_pseudo_ops($ast);
+
+print "\n";
 collect_symbols($ast);
 
 print "\n";
-replace_pseudo_ops($ast);
+traverse(0, $ast);
 
 
 #sub strip_comments {
@@ -210,6 +213,7 @@ sub traverse {
 	
 	for(@{$node}) {
 		if(ref $_ eq 'ARRAY') {
+#			print "\n";
 			traverse($depth+1, $_);
 		}
 		else {
@@ -223,14 +227,242 @@ sub replace_pseudo_ops {
 
 	my $lines = shift;
 
-	for(@{$lines}) {
+	my @ast = map { 
 		if($_->[0] eq 'pseudo') {
-			print "op ",$_->[1]->[0], "\n";
+			replace_pseudo_op($_);
 		}
-	}
+		else {
+			$_;
+		}
+	} @{$lines};
 
+	return \@ast;
 }
 
+sub replace_pseudo_op {
+
+	my $node = shift;
+
+#	print Dumper($node);
+
+	my $op = $node->[1]->[1];
+
+	if($op eq 'not') {
+		my $reg = $_->[2];
+		[ 'instruction', 
+			[ 'opcode1', 'nor' ],
+			$reg, $reg, $reg
+		];
+	}
+	elsif($op eq 'nop') {
+		[ 'instruction', 
+			[ 'opcode1', 'add' ],
+			[ 'reg', 'zero' ],
+			[ 'reg', 'zero' ],
+			[ 'reg', 'zero' ]
+		];
+	}
+	elsif($op eq 'clear') {
+		my $reg = $_->[2];
+		[ 'instruction', 
+			[ 'opcode1', 'add' ],
+			$reg,
+			[ 'reg', 'zero' ],
+			[ 'reg', 'zero' ]
+		];
+	}
+	elsif($op eq 'inc') {
+		my $reg = $_->[2];
+		[ 'instruction',
+			[ 'opcode2', 'addi' ],
+			$reg, $reg, 
+			[ 'expression', 
+				[ 'sum',
+					[ 'prod',
+						[ 'value',
+							[ 'number', 1 ]
+						]
+					]
+				]
+			]
+		];
+	}
+	elsif($op eq 'dec') {
+		my $reg = $_->[2];
+		[ 'instruction',
+			[ 'opcode2', 'addi' ],
+			$reg, $reg, 
+			[ 'expression', 
+				[ 'sum',
+					[ 'prod',
+						[ 'value',
+							[ 'number', -1 ]
+						]
+					]
+				]
+			]
+		];
+	}
+	elsif($op eq 'move') {
+		my $dst = $_->[2];
+		my $src = $_->[3];
+		[ 'instruction', 
+			[ 'opcode1', 'add' ],
+			$dst, $src,
+			[ 'reg', 'zero' ]
+		];
+	}
+	elsif($op eq 'li') {
+		my $dst = $_->[2];
+		my $addr = $_->[3];
+		[ 'instruction', 
+			[ 'opcode2', 'addi' ],
+			$dst,
+			[ 'reg', 'zero' ],
+			$addr
+		];
+	}
+	elsif($op eq 'neg') {
+		my $reg = $_->[2];
+
+		(
+			[ 'instruction', 
+				[ 'opcode1', 'nor' ],
+				$reg, $reg, $reg
+			],
+			[ 'instruction',
+				[ 'opcode2', 'addi' ],
+				$reg, $reg, 
+				[ 'expression', 
+					[ 'sum',
+						[ 'prod',
+							[ 'value',
+								[ 'number', -1 ]
+							]
+						]
+					]
+				]
+			]
+		);
+	}
+	elsif($op eq 'mult') {
+		my $dst = $_->[2];
+		my $src = $_->[3];
+		my $targ = $_->[4];
+
+		(
+			[ 'instruction',
+				[ 'opcode3', 'mul' ],
+				$src, $targ
+			],
+			[ 'instruction',
+				[ 'opcode5', 'mflo' ],
+				$dst
+			]
+		);
+
+	}
+	elsif($op eq 'divd') {
+		my $dst = $_->[2];
+		my $src = $_->[3];
+		my $targ = $_->[4];
+
+		(
+			[ 'instruction',
+				[ 'opcode3', 'div' ],
+				$src, $targ
+			],
+			[ 'instruction',
+				[ 'opcode5', 'mflo' ],
+				$dst
+			]
+		);
+
+	}
+	elsif($op eq 'bgt') {
+		my $x = $_->[2];
+		my $y = $_->[3];
+		my $z = $_->[4];
+
+		(
+			[ 'instruction',
+				[ 'opcode1', 'slt' ],
+				[ 'reg', 'at' ],
+				$y, $x
+			],
+			[ 'instruction',
+				[ 'opcode2', 'bne' ],
+				[ 'reg', 'at' ],
+				[ 'reg', 'zero' ],
+				$z
+			]
+		);
+
+	}
+	elsif($op eq 'blt') {
+		my $x = $_->[2];
+		my $y = $_->[3];
+		my $z = $_->[4];
+
+		(
+			[ 'instruction',
+				[ 'opcode1', 'slt' ],
+				[ 'reg', 'at' ],
+				$x, $y
+			],
+			[ 'instruction',
+				[ 'opcode2', 'bne' ],
+				[ 'reg', 'at' ],
+				[ 'reg', 'zero' ],
+				$z
+			]
+		);
+
+	}
+	elsif($op eq 'bge') {
+		my $x = $_->[2];
+		my $y = $_->[3];
+		my $z = $_->[4];
+
+		(
+			[ 'instruction',
+				[ 'opcode1', 'slt' ],
+				[ 'reg', 'at' ],
+				$x, $y
+			],
+			[ 'instruction',
+				[ 'opcode2', 'beq' ],
+				[ 'reg', 'at' ],
+				[ 'reg', 'zero' ],
+				$z
+			]
+		);
+
+	}
+	elsif($op eq 'ble') {
+		my $x = $_->[2];
+		my $y = $_->[3];
+		my $z = $_->[4];
+
+		(
+			[ 'instruction',
+				[ 'opcode1', 'slt' ],
+				[ 'reg', 'at' ],
+				$y, $x
+			],
+			[ 'instruction',
+				[ 'opcode2', 'beq' ],
+				[ 'reg', 'at' ],
+				[ 'reg', 'zero' ],
+				$z
+			]
+		);
+
+	}
+	else {
+		$_;
+	}
+}
 
 sub collect_symbols {
 
