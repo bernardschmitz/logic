@@ -536,6 +536,12 @@ sub collect_directive_symbol {
 #		print "result: $result\n";
 		$location = $result;
 	}
+	elsif($op eq '.align') {
+		$location = ( $location + 1 ) & 0xfffe;
+	}
+	else {
+		die "unknown directive $op\n";
+	}
 }
 
 sub evaluate_expression {

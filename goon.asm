@@ -7,6 +7,8 @@ leng:	.string	"hello", "yeah"
 
 	.word	leng * leng
 
+	.align
+
 	add	r1,r2,r3
 
 	addi	r4, zero, (8+4)*7 ; yeah
