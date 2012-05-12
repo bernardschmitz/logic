@@ -484,6 +484,7 @@ sub collect_symbols {
 		}
 		elsif($op eq 'label') {
 			my $name = $_->[1]->[1];
+			die "symbol $name redefinition\n" if defined $symbol{$name};
 			$symbol{$name} = { name => $name, value => $location };
 		}
 		elsif($op eq 'instruction') {
@@ -516,6 +517,7 @@ sub collect_directive_symbol {
 	if($op eq '.set') {
 		
 		my $name = $node->[2]->[1];
+		die "symbol $name redefinition\n" if defined $symbol{$name};
 		my $expr = $node->[3];
 		$symbol{$name} = { name => $name, expression => $expr };
 	}
@@ -607,8 +609,6 @@ sub evaluate_expression {
 	}
 	elsif($op eq 'value') {
 
-		print Dumper($node);
-	
  		if($node->[1]->[0] eq 'number') {
 			my $val = $node->[1]->[1];
 			$val = oct($val) if $val =~ m/^0/;
