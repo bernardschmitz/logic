@@ -24,23 +24,26 @@ my $grammar = <<'_EOGRAMMAR_';
 
 	location: '$' { [ @item[0] ] }
 
-	number  : /-?0x[0-9a-fA-F]+/
-		| /-?0[0-7]+/
-		| /-?0b[01]+/
-		| /-?[0-9]+/
+	number  : /0x[0-9a-fA-F]+/
+		| /0[0-7]+/
+		| /0b[01]+/
+		| /[0-9]+/
 
 	addop: '+' | '-' | '&' | '^' | '|'
 
 	mulop: '*' | '/' | '%' | '<<' | '>>'
 
+	unop:	'~' | '-'
+
 	expression:	sum 
 
 	sum:	prod addop sum | prod
 
-	prod:	value mulop prod | value 
+	prod:	value mulop prod | unary 
+
+	unary:	unop value | value
 
 	value:	number | symbol | '(' expression ')' { [@item[0,2]] }
-
 
 	string:	/'/ /[^']*/ /'/ { [ @item[2] ] }
 		| /"/ /[^"]*/ /"/ { [ @item[2] ] }
@@ -493,10 +496,25 @@ sub collect_symbols {
 		}
 	}
 
-	for(values %symbol) {
-		if(!defined $_->{value}) {
-			$_->{value} = evaluate_expression($_->{expression});
-			delete $_->{expression};
+	my $undef_exist = 1;
+
+	while($undef_exist) {
+		for(values %symbol) {
+			if(!defined $_->{value}) {
+				$_->{value} = evaluate_expression($_->{expression});
+				#delete $_->{expression};
+			}
+		}
+
+		$undef_exist = 0;
+
+		for(values %symbol) {
+			if(!defined $_->{value}) {
+				$undef_exist = 1;
+			}
+			else {
+				delete $_->{expression};
+			}
 		}
 	}
 }
@@ -600,7 +618,7 @@ sub evaluate_expression {
 				return $lhs | $rhs;
 			}
 			else {
-				die "unknown op $oper\n";
+				die "unknown binop $oper\n";
 			}
 		}
 		
@@ -635,6 +653,36 @@ sub evaluate_expression {
 #			print Dumper($node);
 			die "unknown value $node->[1]->[0]\n";
 		}
+	}
+	elsif($op eq 'unary') {
+		#print Dumper($node);
+		if($node->[1]->[0] eq 'unop') {
+
+			my $val = evaluate_expression($node->[2]);
+			if(!defined $val) {
+				return undef;
+			}
+
+		#	print "val: $val\n";
+
+			my $oper = $node->[1]->[1];
+
+			if($oper eq '~') {
+				return ~(0+$val);
+			}
+			elsif($oper eq '-') {
+				return -$val;
+			}
+			else {
+				die "unknown unop $oper\n";
+			}
+		}
+
+		return evaluate_expression($node->[1]);
+	}
+	else {
+		print Dumper($node);
+		die "unknown expression op $op\n";
 	}
 
 	return undef;

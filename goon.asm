@@ -56,4 +56,10 @@ yeah:
 	.set	w2, 0b1110010101 & 0b10000
 	.set	w3, 0b1010 ^ 0b1010
 
+	.set	c, ~1
+	.set	cc,1<<4
+	.set	ccc,cc^c
 
+	.set	m, 8--4
+	.set	m1,-w
+	.set	m2,-(m1*2)
