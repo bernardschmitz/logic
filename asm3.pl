@@ -862,6 +862,12 @@ sub assemble_instruction {
 	if($type eq 'opcode1') {
 		opcode1($node);
 	}
+	elsif($type eq 'opcode2') {
+		opcode2($node);
+	}
+	elsif($type eq 'opcode3') {
+		opcode3($node);
+	}
 }
 
 sub opcode1 {
@@ -869,16 +875,55 @@ sub opcode1 {
 	my $node = shift;
 
 	my $ins = $node->[1]->[1];
-
 	my $opcode = $instructions{$ins}->{op};
 	my $dst = $regs{$node->[2]->[1]}->{index};
 	my $src = $regs{$node->[3]->[1]}->{index};
 	my $tar = $regs{$node->[4]->[1]}->{index};
 
-	print "$ins $opcode $dst $src $tar\n";
+#	print "$ins $opcode $dst $src $tar\n";
 	#print Dumper($node);
 
 	write_memory($location++, ($opcode << 8) | ($dst << 4) | $src);
 	write_memory($location++, $tar << 12);
 }
+
+sub opcode2 {
+
+	my $node = shift;
+
+	my $ins = $node->[1]->[1];
+	my $opcode = $instructions{$ins}->{op};
+	my $dst = $regs{$node->[2]->[1]}->{index};
+	my $src = $regs{$node->[3]->[1]}->{index};
+	my $C = evaluate_expression($node->[4]);
+
+#	print "$ins $opcode $dst $src $C\n";
+#	print Dumper($node);
+
+	write_memory($location++, ($opcode << 8) | ($dst << 4) | $src);
+	write_memory($location++, $C);
+}
+
+sub opcode3 {
+
+	my $node = shift;
+
+	my $ins = $node->[1]->[1];
+	my $opcode = $instructions{$ins}->{op};
+	my $x = $regs{$node->[2]->[1]}->{index};
+	my $y = $regs{$node->[3]->[1]}->{index};
+
+#	print "$ins $opcode $dst $src $C\n";
+#	print Dumper($node);
+
+	if($ins eq 'jalr') {
+		write_memory($location++, ($opcode << 8) | ($x << 4));
+	}
+	else {
+		write_memory($location++, ($opcode << 8) | $x);
+	}
+
+	write_memory($location++, $y << 12);
+}
+
 
