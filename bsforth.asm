@@ -836,14 +836,23 @@ _find_next:
 
 
 	DEFWORD(interpret, 0, INTERPRET)
-	.word	NUMBER_TIB, FETCH, TO_IN, FETCH, EQUALS, ZBRANCH, 0x11
+;	.word	NUMBER_TIB, FETCH, TO_IN, FETCH, EQUALS, ZBRANCH, 0x11
+;	.word	LIT, ok_msg, LIT, 3, TYPE, CR
+;	.word	TIB, LIT, 0x0ff, ACCEPT, NUMBER_TIB, STORE, LIT, 0, TO_IN, STORE
+;	.word	BL, PARSE, TWO_DUPE, FIND, QUESTION_DUPE, ZBRANCH, 0x8
+;	.word	NIP, NIP, SPACE, TO_CFA, EXECUTE, BRANCH, 0xb
+;	.word	NUMBER, ZERO_EQUALS, ZBRANCH, 0x7
+;	.word	LIT, err_msg, LIT, 4, TYPE, CR
+;	.word	BRANCH, -0x30
+;	.word	EXIT
+skip0:	.word	NUMBER_TIB, FETCH, TO_IN, FETCH, EQUALS, ZBRANCH, skip1-$
 	.word	LIT, ok_msg, LIT, 3, TYPE, CR
 	.word	TIB, LIT, 0x0ff, ACCEPT, NUMBER_TIB, STORE, LIT, 0, TO_IN, STORE
-	.word	BL, PARSE, TWO_DUPE, FIND, QUESTION_DUPE, ZBRANCH, 0x8
-	.word	NIP, NIP, SPACE, TO_CFA, EXECUTE, BRANCH, 0xb
-	.word	NUMBER, ZERO_EQUALS, ZBRANCH, 0x7
+skip1:	.word	BL, PARSE, TWO_DUPE, FIND, QUESTION_DUPE, ZBRANCH, skip2-$
+	.word	NIP, NIP, SPACE, TO_CFA, EXECUTE, BRANCH, skip3-$
+skip2:	.word	NUMBER, ZERO_EQUALS, ZBRANCH, skip3-$
 	.word	LIT, err_msg, LIT, 4, TYPE, CR
-	.word	BRANCH, -0x30
+skip3:	.word	BRANCH, skip0-$
 	.word	EXIT
 ok_msg:
 	.string	" ok"
