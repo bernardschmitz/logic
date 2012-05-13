@@ -45,8 +45,11 @@ my $grammar = <<'_EOGRAMMAR_';
 
 	value:	number | symbol | '(' expression ')' { [@item[0,2]] }
 
-	string:	/'/ /[^']*/ /'/ { [ @item[2] ] }
-		| /"/ /[^"]*/ /"/ { [ @item[2] ] }
+	string:	/'[^']*'/ { $_ = $item[1]; s/'//g; [ $_ ] }
+		| /"[^"]*"/ { $_ = $item[1]; s/"//g; [ $_ ] }
+
+#	string:	/'/ /[^']*/ /'/ { [ @item[2] ] }
+#		| /"/ /[^"]*/ /"/ { [ @item[2] ] }
 
 	opcode1:
 		'add'
@@ -187,13 +190,13 @@ defined $ast || die "Bad text!\n";
 #print "\n";
 #$ast = strip_comments($ast);
 
-print "\n";
+#print "\n";
 $ast = replace_pseudo_ops($ast);
 
 my $location = 0;
 my %symbol = ();
 
-print "\n";
+#print "\n";
 collect_symbols($ast);
 
 #print Dumper(\%symbol);
@@ -275,13 +278,15 @@ my %regs = (
 
 assemble($ast);
 
+print "v2.0 raw\n";
 my $i = 0;
 for(@memory) {
 	if(!defined $_) {
 		$_ = 0;
 	}
 
-	printf "%04x %04x\n", $i++, $_;
+	#printf "%04x %04x\n", $i++, $_;
+	printf "%04x\n", $_;
 }
 
 #print "\n";
@@ -429,7 +434,7 @@ sub replace_pseudo_op {
 					[ 'sum',
 						[ 'prod',
 							[ 'value',
-								[ 'number', -1 ]
+								[ 'number', 1 ]
 							]
 						]
 					]
@@ -828,8 +833,10 @@ sub assemble_directive {
 			for my $c (split(//, $str)) {
 #				print "$c\n";
 #				$memory[$location++] = (ord $c) & 0x7f;
+	#			print "[$c]\n";
 				write_memory($location++, (ord $c) & 0x7f);
 			}
+	#		print "\n";
 		}
 	}
 	elsif($op eq '.org') {
@@ -857,7 +864,7 @@ sub assemble_instruction {
 
 	my $type = $node->[1]->[0];
 
-	print "$type\n";
+	#print "$type\n";
 
 	if($type eq 'opcode1') {
 		opcode1($node);
@@ -867,6 +874,18 @@ sub assemble_instruction {
 	}
 	elsif($type eq 'opcode3') {
 		opcode3($node);
+	}
+	elsif($type eq 'opcode4') {
+		opcode4($node);
+	}
+	elsif($type eq 'opcode5') {
+		opcode5($node);
+	}
+	elsif($type eq 'opcode6') {
+		opcode6($node);
+	}
+	elsif($type eq 'opcode7') {
+		opcode7($node);
 	}
 }
 
@@ -893,15 +912,22 @@ sub opcode2 {
 
 	my $ins = $node->[1]->[1];
 	my $opcode = $instructions{$ins}->{op};
-	my $dst = $regs{$node->[2]->[1]}->{index};
-	my $src = $regs{$node->[3]->[1]}->{index};
+	my $x = $regs{$node->[2]->[1]}->{index};
+	my $y = $regs{$node->[3]->[1]}->{index};
 	my $C = evaluate_expression($node->[4]);
 
 #	print "$ins $opcode $dst $src $C\n";
 #	print Dumper($node);
 
-	write_memory($location++, ($opcode << 8) | ($dst << 4) | $src);
-	write_memory($location++, $C);
+	if($ins eq 'bne' || $ins eq 'beq') {
+		my $disp = ($C - ($location+2))>>1;
+		write_memory($location++, ($opcode << 8) | ($y << 4) | $x);
+		write_memory($location++, $disp);
+	}
+	else {
+		write_memory($location++, ($opcode << 8) | ($x << 4) | $y);
+		write_memory($location++, $C);
+	}
 }
 
 sub opcode3 {
@@ -926,4 +952,74 @@ sub opcode3 {
 	write_memory($location++, $y << 12);
 }
 
+sub opcode4 {
+
+	my $node = shift;
+
+	my $ins = $node->[1]->[1];
+	my $opcode = $instructions{$ins}->{op};
+	my $dst = $regs{$node->[2]->[1]}->{index};
+	my $C = evaluate_expression($node->[3]);
+	if(!defined $C) {
+		print Dumper($node);
+		die "undefined expression\n";
+	}
+
+	write_memory($location++, ($opcode << 8) | ($dst << 4));
+	write_memory($location++, $C);
+}
+
+sub opcode5 {
+
+	my $node = shift;
+
+	my $ins = $node->[1]->[1];
+	my $opcode = $instructions{$ins}->{op};
+	my $r = $regs{$node->[2]->[1]}->{index};
+
+#	print "$ins $opcode $dst $src $tar\n";
+	#print Dumper($node);
+
+	if($ins eq 'jr') {
+		write_memory($location++, ($opcode << 8));
+		write_memory($location++, ($r << 12));
+	}
+	else {
+		write_memory($location++, ($opcode << 8) | ($r << 4));
+		write_memory($location++, 0);
+	}
+}
+
+sub opcode6 {
+
+	my $node = shift;
+
+	my $ins = $node->[1]->[1];
+	my $opcode = $instructions{$ins}->{op};
+	my $C = evaluate_expression($node->[2]);
+	if(!defined $C) {
+		print Dumper($node);
+		die "undefined expression\n";
+	}
+
+#	print "$ins $opcode $dst $src $tar\n";
+	#print Dumper($node);
+
+	write_memory($location++, ($opcode << 8));
+	write_memory($location++, $C);
+}
+
+sub opcode7 {
+
+	my $node = shift;
+
+	my $ins = $node->[1]->[1];
+	my $opcode = $instructions{$ins}->{op};
+
+#	print "$ins $opcode $dst $src $tar\n";
+	#print Dumper($node);
+
+	write_memory($location++, ($opcode << 8));
+	write_memory($location++, 0);
+}
 
