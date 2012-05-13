@@ -543,7 +543,8 @@ sub collect_directive_symbol {
 	elsif($op eq '.string') {
 		my $c = 0;
 		for(@{$node->[2]}) {
-			$c += length($_);
+			#print "$_->[0]\n";
+			$c += length($_->[0]);
 		}
 		$location += $c;
 	}
