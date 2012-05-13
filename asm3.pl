@@ -196,7 +196,20 @@ my %symbol = ();
 print "\n";
 collect_symbols($ast);
 
-print Dumper(\%symbol);
+#print Dumper(\%symbol);
+
+my @memory = ();
+
+assemble($ast);
+
+my $i = 0;
+for(@memory) {
+	if(!defined $_) {
+		$_ = 0;
+	}
+
+	printf "%04x %04x\n", $i++, $_;
+}
 
 #print "\n";
 #traverse(0, $ast);
@@ -688,4 +701,68 @@ sub evaluate_expression {
 
 	return undef;
 }
+
+sub assemble {
+
+	my $node = shift;
+
+	$location = 0;
+
+	for(@{$node}) {
+
+		my $op = $_->[0];
+
+		if($op eq 'directive')  {
+			assemble_directive($_);
+		}
+	}
+}
+
+sub assemble_directive {
+	
+	my $node = shift;
+
+	my $op = $node->[1];
+
+	print "$op\n";
+
+	if($op eq '.set') {
+		# do nothing
+	}
+	elsif($op eq '.word') {
+
+		for(@{$node->[2]}) {
+			my $val = evaluate_expression($_);
+			if(!defined $val) {
+				print Dumper($_);
+				die ".word expression not defined\n";
+			}
+
+			$memory[$location++] = $val & 0xffff;	
+		}
+
+	}
+	elsif($op eq '.string') {
+
+		for(@{$node->[2]}) {
+			my $str = $_->[0];
+			print "$str\n";
+			for my $c (split(//, $str)) {
+				print "$c\n";
+				$memory[$location++] = (ord $c) & 0x7f;
+			}
+		}
+	}
+	elsif($op eq '.org') {
+		my $result = evaluate_expression($node->[2]) || die ".org expression not constant\n";
+		$location = $result;
+	}
+	elsif($op eq '.align') {
+		$location = ( $location + 1 ) & 0xfffe;
+	}
+	else {
+		die "unknown directive $op\n";
+	}
+}
+
 
