@@ -47,3 +47,13 @@ yeah:
 
 	.set	vvvv, $
 	.set	xxxx, $+10
+
+	.set	w, 1<<5
+	.set	ww, 0x1000 >> 5+1
+	.set	ww2, 0x1000 >> (5+1)
+	.set	www, 10 % 3
+	.set	w1, 0x100 | 0x110
+	.set	w2, 0b1110010101 & 0b10000
+	.set	w3, 0b1010 ^ 0b1010
+
+

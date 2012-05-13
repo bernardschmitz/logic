@@ -29,17 +29,15 @@ my $grammar = <<'_EOGRAMMAR_';
 		| /-?0b[01]+/
 		| /-?[0-9]+/
 
-	addop: m([-+])
+	addop: '+' | '-' | '&' | '^' | '|'
 
-	mulop: m([*/])
+	mulop: '*' | '/' | '%' | '<<' | '>>'
 
 	expression:	sum 
 
-	sum:	prod addop sum
-		| prod 
+	sum:	prod addop sum | prod
 
-	prod:	value mulop prod
-		| value 
+	prod:	value mulop prod | value 
 
 	value:	number | symbol | '(' expression ')' { [@item[0,2]] }
 
@@ -555,7 +553,7 @@ sub evaluate_expression {
 	if($op eq 'expression') {
 		return evaluate_expression($node->[1]);
 	}
-	elsif($op eq 'sum') {
+	elsif($op eq 'sum' || $op eq 'prod') {
 		my $lhs = evaluate_expression($node->[1]);
 
 		if(!defined $lhs) {
@@ -563,51 +561,46 @@ sub evaluate_expression {
 		}
 
 		if(scalar @{$node} == 4) {
-			my $add = $node->[2]->[1];
+			my $oper = $node->[2]->[1];
 			my $rhs = evaluate_expression($node->[3]);
 			if(!defined $rhs) {
 				return undef;
 			}
 
-#			print "$lhs $add $rhs\n";
+#			print "$lhs $oper $rhs\n";
 			
-			if($add eq '+') {
-				return $lhs + $rhs;
-			}
-			elsif($add eq '-') {
-				return $lhs - $rhs;
-			}
-			else {
-				die "unknown op $add\n";
-			}
-		}
-		
-		return $lhs;
-	}
-	elsif($op eq 'prod') {
-		my $lhs = evaluate_expression($node->[1]);
-
-		if(!defined $lhs) {
-			return undef;
-		}
-
-		if(scalar @{$node} == 4) {
-			my $mul = $node->[2]->[1];
-			my $rhs = evaluate_expression($node->[3]);
-			if(!defined $rhs) {
-				return undef;
-			}
-
-#			print "$lhs $mul $rhs\n";
-			
-			if($mul eq '*') {
+			if($oper eq '*') {
 				return $lhs * $rhs;
 			}
-			elsif($mul eq '/') {
+			elsif($oper eq '/') {
 				return $lhs / $rhs;
 			}
+			elsif($oper eq '%') {
+				return $lhs % $rhs;
+			}
+			elsif($oper eq '<<') {
+				return $lhs << $rhs;
+			}
+			elsif($oper eq '>>') {
+				return $lhs >> $rhs;
+			}
+			elsif($oper eq '+') {
+				return $lhs + $rhs;
+			}
+			elsif($oper eq '-') {
+				return $lhs - $rhs;
+			}
+			elsif($oper eq '&') {
+				return $lhs & $rhs;
+			}
+			elsif($oper eq '^') {
+				return $lhs ^ $rhs;
+			}
+			elsif($oper eq '|') {
+				return $lhs | $rhs;
+			}
 			else {
-				die "unknown op $mul\n";
+				die "unknown op $oper\n";
 			}
 		}
 		
@@ -635,7 +628,11 @@ sub evaluate_expression {
 		elsif($node->[1]->[0] eq 'location') {
 			return $location;
 		}
+		if($node->[1]->[0] eq 'expression') {
+			return evaluate_expression($node->[1]->[1]);
+		}
 		else {
+#			print Dumper($node);
 			die "unknown value $node->[1]->[0]\n";
 		}
 	}
