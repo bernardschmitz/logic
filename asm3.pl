@@ -814,7 +814,9 @@ sub assemble_directive {
 				die ".word expression not defined\n";
 			}
 
-			$memory[$location++] = $val & 0xffff;	
+#			$memory[$location++] = $val & 0xffff;	
+			write_memory($location++, $val);
+
 		}
 
 	}
@@ -825,7 +827,8 @@ sub assemble_directive {
 #			print "$str\n";
 			for my $c (split(//, $str)) {
 #				print "$c\n";
-				$memory[$location++] = (ord $c) & 0x7f;
+#				$memory[$location++] = (ord $c) & 0x7f;
+				write_memory($location++, (ord $c) & 0x7f);
 			}
 		}
 	}
@@ -841,13 +844,41 @@ sub assemble_directive {
 	}
 }
 
+sub write_memory {
+
+	my ($addr, $word) = @_;
+
+	$memory[$addr] = $word & 0xffff;
+}
+
 sub assemble_instruction {
+
+	my $node = shift;
+
+	my $type = $node->[1]->[0];
+
+	print "$type\n";
+
+	if($type eq 'opcode1') {
+		opcode1($node);
+	}
+}
+
+sub opcode1 {
 
 	my $node = shift;
 
 	my $ins = $node->[1]->[1];
 
-	print "$ins\n";
-}
+	my $opcode = $instructions{$ins}->{op};
+	my $dst = $regs{$node->[2]->[1]}->{index};
+	my $src = $regs{$node->[3]->[1]}->{index};
+	my $tar = $regs{$node->[4]->[1]}->{index};
 
+	print "$ins $opcode $dst $src $tar\n";
+	#print Dumper($node);
+
+	write_memory($location++, ($opcode << 8) | ($dst << 4) | $src);
+	write_memory($location++, $tar << 12);
+}
 
