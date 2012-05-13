@@ -200,6 +200,79 @@ collect_symbols($ast);
 
 my @memory = ();
 
+my %instructions = (
+
+        add => { op => 0, size => 2, type => 0, mnemonic => 'add' },
+        addi => { op => 1, size => 2, type => 1, mnemonic => 'addi' },
+        sub => { op => 2, size => 2, type => 0, mnemonic => 'sub' },
+        mul => { op => 3, size => 2, type => 2, mnemonic => 'mul' },
+        div => { op => 4, size => 2, type => 2, mnemonic => 'div' },
+        sll => { op => 5, size => 2, type => 1, mnemonic => 'sll' },
+        srl => { op => 6, size => 2, type => 1, mnemonic => 'srl' },
+        sra => { op => 7, size => 2, type => 1, mnemonic => 'sra' },
+        sllv => { op => 8, size => 2, type => 0, mnemonic => 'sllv' },
+        srlv => { op => 9, size => 2, type => 0, mnemonic => 'srlv' },
+        srav => { op => 10, size => 2, type => 0, mnemonic => 'srav' },
+        beq => { op => 11, size => 2, type => 2, mnemonic => 'beq' },
+        bne => { op => 12, size => 2, type => 2, mnemonic => 'bne' },
+        slt => { op => 13, size => 2, type => 0, mnemonic => 'slt' },
+        slti => { op => 14, size => 2, type => 1, mnemonic => 'slti' },
+        and => { op => 15, size => 2, type => 0, mnemonic => 'and' },
+        andi => { op => 16, size => 2, type => 1, mnemonic => 'andi' },
+        or => { op => 17, size => 2, type => 0, mnemonic => 'or' },
+        ori => { op => 18, size => 2, type => 1, mnemonic => 'ori' },
+        xor => { op => 19, size => 2, type => 0, mnemonic => 'xor' },
+        nor => { op => 20, size => 2, type => 0, mnemonic => 'nor' },
+        j => { op => 21, size => 2, type => 2, mnemonic => 'j' },
+        jr => { op => 22, size => 2, type => 2, mnemonic => 'jr' },
+        jal => { op => 23, size => 2, type => 2, mnemonic => 'jal' },
+        jalr => { op => 24, size => 2, type => 2, mnemonic => 'jalr' },
+        lw => { op => 25, size => 2, type => 1, mnemonic => 'lw' },
+        sw => { op => 26, size => 2, type => 1, mnemonic => 'sw' },
+        mfhi => { op => 27, size => 2, type => 2, mnemonic => 'mfhi' },
+        mflo => { op => 28, size => 2, type => 2, mnemonic => 'mflo' },
+        brk => { op => 29, size => 2, type => 2, mnemonic => 'brk' },
+        halt => { op => 30, size => 2, type => 2, mnemonic => 'halt' },
+);
+
+
+my %regs = (
+
+        r0 => { index => 0 },
+        r1 => { index => 1 },
+        r2 => { index => 2 },
+        r3 => { index => 3 },
+        r4 => { index => 4 },
+        r5 => { index => 5 },
+        r6 => { index => 6 },
+        r7 => { index => 7 },
+        r8 => { index => 8 },
+        r9 => { index => 9 },
+        r10 => { index => 10 },
+        r11 => { index => 11 },
+        r12 => { index => 12 },
+        r13 => { index => 13 },
+        r14 => { index => 14 },
+        r15 => { index => 15 },
+        zero => { index => 0 },
+        at => { index => 1 },
+        v0 => { index => 2 },
+        v1 => { index => 3 },
+        a0 => { index => 4 },
+        a1 => { index => 5 },
+        a2 => { index => 6 },
+        s0 => { index => 7 },
+        s1 => { index => 8 },
+        s2 => { index => 9 },
+        t0 => { index => 10 },
+        t1 => { index => 11 },
+        t2 => { index => 12 },
+        fp => { index => 13 },
+        sp => { index => 14 },
+        ra => { index => 15 },
+);
+
+
 assemble($ast);
 
 my $i = 0;
@@ -715,6 +788,9 @@ sub assemble {
 		if($op eq 'directive')  {
 			assemble_directive($_);
 		}
+		elsif($op eq 'instruction') {
+			assemble_instruction($_);
+		}
 	}
 }
 
@@ -724,7 +800,7 @@ sub assemble_directive {
 
 	my $op = $node->[1];
 
-	print "$op\n";
+#	print "$op\n";
 
 	if($op eq '.set') {
 		# do nothing
@@ -746,9 +822,9 @@ sub assemble_directive {
 
 		for(@{$node->[2]}) {
 			my $str = $_->[0];
-			print "$str\n";
+#			print "$str\n";
 			for my $c (split(//, $str)) {
-				print "$c\n";
+#				print "$c\n";
 				$memory[$location++] = (ord $c) & 0x7f;
 			}
 		}
@@ -763,6 +839,15 @@ sub assemble_directive {
 	else {
 		die "unknown directive $op\n";
 	}
+}
+
+sub assemble_instruction {
+
+	my $node = shift;
+
+	my $ins = $node->[1]->[1];
+
+	print "$ins\n";
 }
 
 
