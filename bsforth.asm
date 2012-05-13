@@ -676,12 +676,14 @@ _num0:
 	lw	r4, r3, 0		; get next character
 
 	;subi	r3, r3, ascii_zero
-	addi	r4, r4, 0xffd0		; subtract ascii zero char
+;	addi	r4, r4, 0xffd0		; subtract ascii zero char
+	addi	r4, r4, -ascii_zero	; subtract ascii zero char
 	blt	r4, zero, _num_fail	; finish if < 0
 	ble	r4, r9, _num1		; skip if <= 9
 
 	;subi	r3, r3, ascii_a_0
-	addi	r4, r4, 0xffcf		; substract difference between ascii a and 0
+;	addi	r4, r4, 0xffcf		; substract difference between ascii a and 0
+	addi	r4, r4, -ascii_a_0	; substract difference between ascii a and 0
 	blt	r4, zero, _num_fail	; finish if < 0
 
 	addi	r4, r4, 0xa		; add 10
@@ -754,7 +756,9 @@ loop:
 ; : sum100 0 101 0 do i + loop ;
 ; 13ba
 	DEFWORD(sum100, 0, SUM100)
-	.word	LIT, 0, LIT, 0x64, DUPE, TO_R, PLUS, FROM_R, ONE_MINUS, DUPE, LIT, 0, EQUALS, ZBRANCH, -0xa, DROP, EXIT
+	.word	LIT, 0, LIT, 0x64
+sum100a:	
+	.word	DUPE, TO_R, PLUS, FROM_R, ONE_MINUS, DUPE, LIT, 0, EQUALS, ZBRANCH, sum100a-$, DROP, EXIT
 
 
 	DEFCODE(find, 0, FIND)
@@ -836,15 +840,6 @@ _find_next:
 
 
 	DEFWORD(interpret, 0, INTERPRET)
-;	.word	NUMBER_TIB, FETCH, TO_IN, FETCH, EQUALS, ZBRANCH, 0x11
-;	.word	LIT, ok_msg, LIT, 3, TYPE, CR
-;	.word	TIB, LIT, 0x0ff, ACCEPT, NUMBER_TIB, STORE, LIT, 0, TO_IN, STORE
-;	.word	BL, PARSE, TWO_DUPE, FIND, QUESTION_DUPE, ZBRANCH, 0x8
-;	.word	NIP, NIP, SPACE, TO_CFA, EXECUTE, BRANCH, 0xb
-;	.word	NUMBER, ZERO_EQUALS, ZBRANCH, 0x7
-;	.word	LIT, err_msg, LIT, 4, TYPE, CR
-;	.word	BRANCH, -0x30
-;	.word	EXIT
 skip0:	.word	NUMBER_TIB, FETCH, TO_IN, FETCH, EQUALS, ZBRANCH, skip1-$
 	.word	LIT, ok_msg, LIT, 3, TYPE, CR
 	.word	TIB, LIT, 0x0ff, ACCEPT, NUMBER_TIB, STORE, LIT, 0, TO_IN, STORE
