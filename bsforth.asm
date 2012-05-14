@@ -1026,9 +1026,15 @@ _create_xt:
 
 	DEFWORD(:, 0, COLON)
 	.word	CREATE
-;	.word	LATEST, FETCH, DUPE, HIDDEN
-;	.word	TO_CFA, DOCOL, STORE
-;	.word	LBRAC
+	.word	LATEST, FETCH, DUPE, HIDDEN
+	.word	TO_CFA, DOCOL, STORE
+	.word	RBRAC
+	.word	EXIT
+
+	DEFWORD({;}, f_immediate, SEMICOLON)
+	.word	LIT, EXIT, COMMA
+	.word	LATEST, FETCH, HIDDEN
+	.word	LBRAC
 	.word	EXIT
 
 	DEFWORD(last_word, 0, LAST_WORD)
