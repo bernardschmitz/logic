@@ -962,8 +962,8 @@ _create0:
 	jr	r9
 
 _create_xt:
-	move	r1, r11
-	inc	r1
+	move	r1, r11		; r11 is word pointer (cfa)
+	CFA2DFA(r1)
 	PUSHDSP(r1)	
 	NEXT
 
@@ -1022,6 +1022,13 @@ _create_xt:
 	.word	DECIMAL
 	.word	LIT, 0x293a, DOT, CR
 	.word	LIT, -0x141, DOT, CR
+	.word	EXIT
+
+	DEFWORD(:, 0, COLON)
+	.word	CREATE
+;	.word	LATEST, FETCH, DUPE, HIDDEN
+;	.word	TO_CFA, DOCOL, STORE
+;	.word	LBRAC
 	.word	EXIT
 
 	DEFWORD(last_word, 0, LAST_WORD)

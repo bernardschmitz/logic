@@ -151,7 +151,8 @@ while(!$halt) {
 
 
 	if(!defined $instruction{$ins}) {
-		die sprintf "invalid instruction %04x at pc %04x\n", $ins, $pc-2;
+		printf "invalid instruction %04x at pc %04x\n", $ins, $pc-2;
+		monitor();
 	}
 
 	$instruction{$ins}();
