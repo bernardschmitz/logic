@@ -65,8 +65,8 @@
 
 	j	start
 
-	.org	0x10
-	.align
+;	.org	0x10
+;	.align
 DOCOL:
 	PUSHRSP(r10)
 	inc	r11
