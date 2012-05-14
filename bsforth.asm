@@ -1027,7 +1027,7 @@ _create_xt:
 	DEFWORD(:, 0, COLON)
 	.word	CREATE
 	.word	LATEST, FETCH, DUPE, HIDDEN
-	.word	TO_CFA, DOCOL, STORE
+	.word	TO_CFA, _DOCOL, SWAP, STORE
 	.word	RBRAC
 	.word	EXIT
 
