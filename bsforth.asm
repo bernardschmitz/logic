@@ -116,13 +116,12 @@ start:
 
 	li	r13, return_stack
 	li	r14, data_stack
-	sw	r14, zero, var_SZ
+;	sw	r14, zero, var_SPZ
 
-	li	r10, yeah
+	li	r10, boot
 	NEXT
 
-yeah:	.word	INTERPRET, HALT
-;yeah:	.word	TEST5, HALT
+boot:	.word	QUIT
 
 	DEFWORD(test, 0, TEST)
 	.word LIT, 0xcafe, LIT, 0xbabe, OVER, EXIT
@@ -193,12 +192,12 @@ msg3:	.string	"hidden_test"
 	brk
 	NEXT
 
-	DEFCODE(dsp@, 0, DSPFETCH)
+	DEFCODE(sp@, 0, SPFETCH)
 	move	r1, r14
 	PUSHDSP(r1)
 	NEXT
 
-	DEFCODE(dsp!, 0, DSPSTORE)
+	DEFCODE(sp!, 0, SPSTORE)
 	lw	r1, r14, 0
 	move	r14, r1
 	NEXT
@@ -410,12 +409,14 @@ var_$3:	.word	$4
 
 
 	DEFVAR(state, 0, STATE, 0)
-	DEFVAR(here, 0, HERE, start_dp)
+	DEFVAR(dp, 0, DP, start_dp)
 	DEFVAR(latest, 0, LATEST, name_LAST_WORD)
-	DEFVAR(s0, 0, SZ, data_stack)
 	DEFVAR(base, 0, BASE, 0xa)
 	DEFVAR(>in, 0, TO_IN, 0)
 	DEFVAR(#tib, 0, NUMBER_TIB, 0)
+
+	DEFWORD(here, 0, HERE)
+	.word	DP, FETCH, EXIT
 
 	DEFWORD(binary, 0, BINARY)
 	.word	LIT, 0x2, BASE, STORE, EXIT
@@ -440,7 +441,8 @@ var_$3:	.word	$4
 
 	DEFCONST(version, 0, VERSION, 1)
 	DEFCONST(r0, 0, RZ, return_stack)
-	DEFCONST(docol, 0, _DOCOL, DOCOL)
+	DEFCONST(sp0, 0, SPZ, data_stack)
+	DEFCONST(_docol, 0, _DOCOL, DOCOL)
 	DEFCONST(tib, 0, TIB, buffer)
 
 	.set	blank,0x20
@@ -712,10 +714,6 @@ _not_neg:
 	
 
 
-	DEFWORD(quit, 0, QUIT)
-	.word	LIT, buffer, DUPE, LIT, 0x0ff, ACCEPT, SPACE, TYPE, CR, BRANCH, -0xa, EXIT
-	
-
 
 
 ;hex
@@ -840,20 +838,39 @@ _find_next:
 
 
 	DEFWORD(interpret, 0, INTERPRET)
-skip0:	.word	NUMBER_TIB, FETCH, TO_IN, FETCH, EQUALS, ZBRANCH, skip1-$
-	.word	LIT, ok_msg, LIT, 3, TYPE, CR
-	.word	TIB, LIT, 0x0ff, ACCEPT, NUMBER_TIB, STORE, LIT, 0, TO_IN, STORE
-skip1:	.word	BL, PARSE, TWO_DUPE, FIND, QUESTION_DUPE, ZBRANCH, skip2-$
-	.word	NIP, NIP, SPACE, TO_CFA, EXECUTE, BRANCH, skip3-$
+;skip0:	.word	NUMBER_TIB, FETCH, TO_IN, FETCH, EQUALS, ZBRANCH, skip1-$
+;	.word	LIT, ok_msg, LIT, 3, TYPE, CR
+;	.word	TIB, LIT, 0x0ff, ACCEPT, NUMBER_TIB, STORE, LIT, 0, TO_IN, STORE
+;skip1:	.word	BL, PARSE, TWO_DUPE, FIND, QUESTION_DUPE, ZBRANCH, skip2-$
+;	.word	NIP, NIP, TO_CFA, EXECUTE, BRANCH, skip3-$
+;skip2:	.word	NUMBER, ZERO_EQUALS, ZBRANCH, skip3-$
+;	.word	LIT, err_msg, LIT, 4, TYPE, CR
+;skip3:	.word	BRANCH, skip0-$
+;	.word	EXIT
+skip0:	.word	NUMBER_TIB, FETCH, TO_IN, FETCH, NOT_EQUALS, ZBRANCH, skip4-$
+	.word	BL, PARSE, TWO_DUPE, FIND, QUESTION_DUPE, ZBRANCH, skip2-$
+	.word	NIP, NIP, TO_CFA, EXECUTE, BRANCH, skip3-$
 skip2:	.word	NUMBER, ZERO_EQUALS, ZBRANCH, skip3-$
-	.word	LIT, err_msg, LIT, 4, TYPE, CR
+	.word	ABORT
 skip3:	.word	BRANCH, skip0-$
-	.word	EXIT
+skip4:	.word	EXIT
 ok_msg:
 	.string	" ok"
+
+
+	DEFWORD(abort, 0, ABORT)
+	.word	SPZ, SPSTORE
+	.word	LIT, err_msg, LIT, 4, TYPE, CR
+	.word	QUIT
 err_msg:
 	.string	" err"
 
+	DEFWORD(quit, 0, QUIT)
+	.word	LBRAC, RZ, RSPSTORE
+int:	.word	TIB, LIT, 0x0ff, ACCEPT, NUMBER_TIB, STORE, LIT, 0, TO_IN, STORE
+	.word	INTERPRET
+	.word	LIT, ok_msg, LIT, 3, TYPE, CR
+	.word	BRANCH, int-$
 
 
 	DEFCODE(u., 0, U_DOT)
@@ -925,7 +942,7 @@ _create:
 	li	r2, blank
 	jal	r15, _parse
 
-	lw	r4, zero, var_HERE
+	lw	r4, zero, var_DP
 ;	inc	r4
 ;	andi	r4, r4, 0xfffe	; align data pointer
 
@@ -955,9 +972,9 @@ _create0:
 	ALIGN(r4)
 ;	andi	r4, r4, 0xfffe 	; r4 = dfa
 
-	lw	r1, zero, var_HERE
+	lw	r1, zero, var_DP
 	sw	r1, zero, var_LATEST
-	sw	r4, zero, var_HERE
+	sw	r4, zero, var_DP
 
 	jr	r9
 
@@ -970,10 +987,10 @@ _create_xt:
 
 	DEFCODE({,}, 0, COMMA)
 	POPDSP(r2)
-	lw	r3, zero, var_HERE
+	lw	r3, zero, var_DP
 	sw	r2, r3, 0
 	inc	r3
-	sw	r3, zero, var_HERE
+	sw	r3, zero, var_DP
 	NEXT
 
 
@@ -1011,7 +1028,9 @@ _create_xt:
 
 
 	DEFWORD({'}, 0, TICK)
-	.word	BL, PARSE, FIND, TO_CFA, EXIT
+	.word	BL, PARSE, FIND, ZBRANCH, tick0-$
+	.word	TO_CFA, EXIT
+tick0:	.word	ABORT
 
 	DEFWORD(test-udot, 0, TEST_UDOT)
 	.word	LIT, 0x141, U_DOT, CR

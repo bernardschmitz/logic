@@ -915,6 +915,10 @@ sub opcode2 {
 	my $x = $regs{$node->[2]->[1]}->{index};
 	my $y = $regs{$node->[3]->[1]}->{index};
 	my $C = evaluate_expression($node->[4]);
+	if(!defined $C) { 
+		print Dumper($node);
+		die "undefined expression\n";
+	}
 
 #	print "$ins $opcode $dst $src $C\n";
 #	print Dumper($node);
