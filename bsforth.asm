@@ -1032,6 +1032,9 @@ _create_xt:
 	.word	TO_CFA, EXIT
 tick0:	.word	ABORT
 
+	DEFWORD({[']}, f_immediate, BRACKET_TICK_BRACKET)
+	.word	TICK, LIT, LIT, COMMA, COMMA, EXIT
+
 	DEFWORD(test-udot, 0, TEST_UDOT)
 	.word	LIT, 0x141, U_DOT, CR
 	.word	HEX
