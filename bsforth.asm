@@ -853,6 +853,7 @@ _find_next:
 skip0:	.word	NUMBER_TIB, FETCH, TO_IN, FETCH, NOT_EQUALS, ZBRANCH, skip4-$
 	.word	BL, PARSE, TWO_DUPE, FIND, QUESTION_DUPE, ZBRANCH, skip2-$
 	.word	NIP, NIP, TO_CFA, EXECUTE, BRANCH, skip3-$
+;EXECUTE ?STACK ABORT" Stack empty"
 skip2:	.word	NUMBER, ZERO_EQUALS, ZBRANCH, skip3-$
 	.word	ABORT
 skip3:	.word	BRANCH, skip0-$
@@ -879,8 +880,11 @@ int:	.word	TIB, LIT, 0x0ff, ACCEPT, NUMBER_TIB, STORE, LIT, 0, TO_IN, STORE
 	DEFCODE(u., 0, U_DOT)
 	lw	r2, r14, 0
 	inc	r14
-	jal	r15, _udot
+	jal	r15, _udot0
 	NEXT
+_udot0:
+	li	r1, blank
+	sw	r1, zero, charout
 _udot:
 	lw      r3, zero, var_BASE
 	li	r4, _udot_buf
@@ -904,14 +908,11 @@ _udot_lt_10:
 	bne	r2, zero, _udot_rep
 
 _udot_out:
-	li	r1, blank
-	sw	r1, zero, charout
-_udot_out1:
 	lw	r6, r4, 0
 	beq	r6, zero, _udot_done
 	sw	r6, zero, charout
 	inc	r4
-	j	_udot_out1
+	j	_udot_out
 _udot_done:
 	jr	r15
 
@@ -931,6 +932,9 @@ _udot_buf:
 	jal	r15, _dot
 	NEXT
 _dot:
+	li	r1, blank
+	sw	r1, zero, charout
+
 	bge	r2, zero, _dot_pos
 	li	r1, minus
 	sw	r1, zero, charout
