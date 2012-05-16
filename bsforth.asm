@@ -247,9 +247,19 @@ msg3:	.string	"hidden_test"
 	lw	r3, r14, 1
 	lw	r4, r14, 2
 
-	sw	r4, r14, 0
-	sw	r2, r14, 1
 	sw	r3, r14, 2	
+	sw	r2, r14, 1
+	sw	r4, r14, 0
+	NEXT
+
+	DEFCODE(-rot, 0, MINUS_ROT)
+	lw	r2, r14, 0
+	lw	r3, r14, 1
+	lw	r4, r14, 2
+
+	sw	r2, r14, 2	
+	sw	r4, r14, 1
+	sw	r3, r14, 0
 	NEXT
 
 	DEFCODE(pick, 0, PICK)
@@ -352,38 +362,148 @@ qdup0:
 	NEXT
 
 	DEFCODE(=, 0, EQUALS)
-	clear	r2
 	lw	r3, r14, 0
 	lw	r4, r14, 1
-	bne	r3, r4, equals0
-	not	r2
+	li	r2, 0xffff
+	beq	r3, r4, equals0
+	clear	r2
 equals0:
 	inc	r14
 	sw	r2, r14, 0
 	NEXT
 
-	DEFCODE(<, 0, LESS_THAN)
-	clear	r2
+	DEFCODE(<>, 0, NOT_EQUALS)
 	lw	r3, r14, 0
 	lw	r4, r14, 1
-	bge	r4, r3, not_lt
-	not	r2
-not_lt:
+	li	r2, 0xffff
+	bne	r3, r4, nequals0
+	clear	r2
+nequals0:
+	inc	r14
+	sw	r2, r14, 0
+	NEXT
+
+	DEFCODE(<, 0, LESS_THAN)
+	lw	r3, r14, 0
+	lw	r4, r14, 1
+	li	r2, 0xffff
+	blt	r4, r3, lt0
+	clear	r2
+lt0:
+	inc	r14
+	sw	r2, r14, 0
+	NEXT
+
+	DEFCODE(>, 0, GREATER_THAN)
+	lw	r3, r14, 0
+	lw	r4, r14, 1
+	li	r2, 0xffff
+	bgt	r4, r3, gt0
+	clear	r2
+gt0:
+	inc	r14
+	sw	r2, r14, 0
+	NEXT
+
+	DEFCODE(<=, 0, LESS_THAN_EQUALS)
+	lw	r3, r14, 0
+	lw	r4, r14, 1
+	li	r2, 0xffff
+	ble	r4, r3, le0
+	clear	r2
+le0:
+	inc	r14
+	sw	r2, r14, 0
+	NEXT
+
+	DEFCODE(>=, 0, GREATER_THAN_EQUALS)
+	lw	r3, r14, 0
+	lw	r4, r14, 1
+	li	r2, 0xffff
+	bge	r4, r3, ge0
+	clear	r2
+ge0:
 	inc	r14
 	sw	r2, r14, 0
 	NEXT
 
 	DEFCODE(0=, 0, ZERO_EQUALS)
-	clear	r2
 	lw	r3, r14, 0
-	bne	r3, zero, not_eq
-	not	r2
-not_eq:
+	li	r2, 0xffff
+	beq	r3, zero, zeq0
+	clear	r2
+zeq0:
 	sw	r2, r14, 0
 	NEXT
 
-	DEFWORD(<>, 0, NOT_EQUALS)
-	.word EQUALS, INVERT, EXIT
+	DEFWORD(not, 0, NOT)
+	.word	ZERO_EQUALS, EXIT
+
+	DEFCODE(0<>, 0, ZERO_NOT_EQUALS)
+	lw	r3, r14, 0
+	li	r2, 0xffff
+	bne	r3, zero, zneq0
+	clear	r2
+zneq0:
+	sw	r2, r14, 0
+	NEXT
+
+	DEFCODE(0<, 0, ZERO_LESS_THAN)
+	lw	r3, r14, 0
+	li	r2, 0xffff
+	blt	r3, zero, ltz0
+	clear	r2
+ltz0:
+	sw	r2, r14, 0
+	NEXT
+
+	DEFCODE(0>, 0, ZERO_GREATER_THAN)
+	lw	r3, r14, 0
+	li	r2, 0xffff
+	bgt	r3, zero, gtz0
+	clear	r2
+gtz0:
+	sw	r2, r14, 0
+	NEXT
+
+	DEFCODE(0<=, 0, ZERO_LESS_THAN_EQUALS)
+	lw	r3, r14, 0
+	li	r2, 0xffff
+	ble	r3, zero, lez0
+	clear	r2
+lez0:
+	sw	r2, r14, 0
+	NEXT
+
+	DEFCODE(0>=, 0, ZERO_GREATER_THAN_EQUALS)
+	lw	r3, r14, 0
+	li	r2, 0xffff
+	bge	r3, zero, gez0
+	clear	r2
+gez0:
+	sw	r2, r14, 0
+	NEXT
+
+	DEFCODE(min, 0, MIN)
+	lw	r2, r14, 0
+	lw	r3, r14, 1
+	blt	r2, r3, min0
+	move	r2, r3
+min0:
+	inc	r14
+	sw	r2, r14, 0
+	NEXT	
+
+	DEFCODE(max, 0, MAX)
+	lw	r2, r14, 0
+	lw	r3, r14, 1
+	bgt	r2, r3, max0
+	move	r2, r3
+max0:
+	inc	r14
+	sw	r2, r14, 0
+	NEXT	
+
 
 	DEFCODE(exit, 0, EXIT)
 	POPRSP(r10)
@@ -413,6 +533,15 @@ not_eq:
 	lw	r3, r14, 1
 	lw	r4, r2, 0
 	add	r4, r4, r3
+	sw	r4, r2, 0
+	addi	r14, r14, 2
+	NEXT
+
+	DEFCODE(-!, 0, MINUS_STORE)
+	lw	r2, r14, 0
+	lw	r3, r14, 1
+	lw	r4, r2, 0
+	sub	r4, r4, r3
 	sw	r4, r2, 0
 	addi	r14, r14, 2
 	NEXT
@@ -463,6 +592,9 @@ var_$3:	.word	$4
 	DEFCONST(sp0, 0, SPZ, data_stack)
 	DEFCONST(_docol, 0, _DOCOL, DOCOL)
 	DEFCONST(tib, 0, TIB, buffer)
+	DEFCONST(zero, 0, ZERO, 0)
+	DEFCONST(false, 0, FALSE, 0)
+	DEFCONST(true, 0, TRUE, 0xffff)
 
 	.set	blank,0x20
 
@@ -500,6 +632,24 @@ var_$3:	.word	$4
 	inc	r13
 	NEXT
 
+
+	DEFCODE(fill, 0, FILL)
+	lw	r2, r14, 0
+	lw	r3, r14, 1
+	lw	r4, r14, 2
+	addi	r14, r14, 3
+fill0:
+	sw	r2, r4, 0
+	inc	r4
+	dec	r3
+	bne	r3, zero, fill0
+	NEXT
+
+	DEFWORD(erase, 0, ERASE)
+	.word	ZERO, FILL, EXIT
+
+	DEFWORD(pad, 0, PAD)
+	.word	HERE, LIT, 0xff, PLUS, EXIT
 
 	DEFCODE(key?, 0, KEY_QUESTION)
 	clear	r2
@@ -754,6 +904,23 @@ _not_neg:
 	inc	r14
 	sw	r2, r14, 0
 	NEXT
+
+	DEFCODE(or, 0, OR)
+	lw	r2, r14, 0
+	lw	r3, r14, 1
+	or	r2, r2, r3
+	inc	r14
+	sw	r2, r14, 0
+	NEXT
+
+	DEFCODE(xor, 0, XOR)
+	lw	r2, r14, 0
+	lw	r3, r14, 1
+	xor	r2, r2, r3
+	inc	r14
+	sw	r2, r14, 0
+	NEXT
+
 
 	DEFCONST(rand, 0, RAND, random)
 	DEFCONST(charout, 0, CHAROUT, charout)
