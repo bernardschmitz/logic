@@ -116,12 +116,9 @@ start:
 
 	li	r13, return_stack
 	li	r14, data_stack
-;	sw	r14, zero, var_SPZ
-
-	li	r10, boot
+	li	r10, _boot
 	NEXT
-
-boot:	.word	QUIT
+_boot:	.word	BOOT
 
 	DEFWORD(test, 0, TEST)
 	.word LIT, 0xcafe, LIT, 0xbabe, OVER, EXIT
@@ -432,7 +429,7 @@ var_$3:	.word	$4
 
 	DEFVAR(state, 0, STATE, 0)
 	DEFVAR(dp, 0, DP, start_dp)
-	DEFVAR(latest, 0, LATEST, name_LAST_WORD)
+	DEFVAR(latest, 0, LATEST, name_BOOT)
 	DEFVAR(base, 0, BASE, 0xa)
 	DEFVAR(>in, 0, TO_IN, 0)
 	DEFVAR(#tib, 0, NUMBER_TIB, 0)
@@ -1101,8 +1098,33 @@ tick0:	.word	ABORT
 	.word	LBRAC
 	.word	EXIT
 
-	DEFWORD(last_word, 0, LAST_WORD)
+	DEFWORD(recurse, f_immediate, RECURSE)
+	.word	LATEST, FETCH, TO_CFA, COMMA, EXIT
+
+	DEFWORD(unused, 0, UNUSED)
+	.word	LIT, 0x7000, HERE, FETCH, MINUS, EXIT	
+
+	DEFWORD(welcome, 0, WELCOME)
+	.word	CR
+	.word	LIT, boot_msg1, LIT, boot_msg1_len, TYPE, VERSION, U_DOT, CR
+	.word	UNUSED, U_DOT, LIT, boot_msg2, LIT, boot_msg2_len, TYPE, CR
 	.word	EXIT
+boot_msg1:
+	.string	"bsforth version"
+boot_msg2:
+	.string	" cells free"
+boot_msg3:
+	
+	.set	boot_msg1_len, boot_msg2-boot_msg1
+	.set	boot_msg2_len, boot_msg3-boot_msg2
+
+
+	; should always be last
+	DEFWORD(boot, 0, BOOT)
+	.word	WELCOME
+	.word	LIT, name_WELCOME, HIDDEN, LIT, name_BOOT, HIDDEN	
+	.word	QUIT
+
 	
 	.align
 start_dp:
