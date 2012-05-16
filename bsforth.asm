@@ -208,10 +208,24 @@ msg3:	.string	"hidden_test"
 	NEXT
 
 	DEFCODE(nip, 0, NIP)
+	; swap, drop
 	lw	r2, r14, 0
 	inc	r14
 	sw	r2, r14, 0
 	NEXT
+
+	DEFCODE(tuck, 0, TUCK)
+	; swap over
+	lw	r2, r14, 0
+	lw	r3, r14, 1
+
+	sw	r3, r14, 0
+	sw	r2, r14, 1
+
+	lw	r2, r14, 1
+	PUSHDSP(r2)
+	NEXT
+
 
 	DEFCODE(swap, 0, SWAP)
 	lw	r2, r14, 0
@@ -239,6 +253,14 @@ msg3:	.string	"hidden_test"
 	sw	r4, r14, 0
 	sw	r2, r14, 1
 	sw	r3, r14, 2	
+	NEXT
+
+	DEFCODE(pick, 0, PICK)
+	lw	r2, r14, 0
+	inc	r2
+	add	r2, r2, r14
+	lw	r2, r2, 0
+	sw	r2, r14, 0
 	NEXT
 
 	DEFCODE(2drop, 0, TWO_DROP)
