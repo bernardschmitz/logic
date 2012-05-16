@@ -605,6 +605,19 @@ var_$3:	.word	$4
 	sw	r2, zero, charout
 	NEXT
 
+	DEFCODE(spaces, 0, SPACES)
+	; 0 ?do space loop
+	POPDSP(r2)
+	beq	r2, zero, spaces0
+	li	r3, blank
+spaces1:
+	sw	r3, zero, charout
+	dec	r2
+	bne	r2, zero, spaces1
+spaces0:	
+	NEXT
+
+
 	DEFCODE(cr, 0, CR)
 	li	r2, newline
 	sw	r2, zero, charout
@@ -620,6 +633,11 @@ var_$3:	.word	$4
 	PUSHDSP(r2)
 	NEXT
 
+	DEFCODE(r@, 0, R_FETCH)
+	lw	r2, r13, 0
+	PUSHDSP(r2)
+	NEXT
+
 	DEFCODE(rsp@, 0, RSPFETCH)
 	PUSHDSP(r13)	
 	NEXT
@@ -632,11 +650,62 @@ var_$3:	.word	$4
 	inc	r13
 	NEXT
 
+	DEFCODE(within, 0, WITHIN)
+	lw	r2, r14, 2
+	lw	r3, r14, 1
+	lw	r4, r14, 0
+	addi	r14, r14, 2
+	blt	r2, r3, within0
+	bge	r2, r4, within0
+	li	r5, 0xffff
+	sw	r5, r14, 0	
+	NEXT
+within0:
+	clear	r5
+	sw	r5, r14, 0	
+	NEXT
+
+
+	DEFCODE(cmove, 0, CMOVE)
+	lw	r2, r14, 0	; count
+	lw	r3, r14, 1	; dest
+	lw	r4, r14, 2	; src
+	addi	r14, r14, 3
+cmove0:
+	lw	r1, r4, 0
+	sw	r1, r3, 0
+	inc	r4
+	inc	r3
+	dec	r2
+	bne	r2, zero, cmove0
+	NEXT
+
+	DEFCODE(cmove>, 0, CMOVE_UP)
+	lw	r2, r14, 0	; count
+	lw	r3, r14, 1	; dest
+	lw	r4, r14, 2	; src
+	addi	r14, r14, 3
+	add	r3, r3, r2
+	add	r4, r4, r2
+cmoveup0:
+	dec	r4
+	dec	r3
+	lw	r1, r4, 0
+	sw	r1, r3, 0
+	dec	r2
+	bne	r2, zero, cmoveup0
+	NEXT
+
+	DEFWORD({move}, 0, MOVE)
+	; >r 2dup swap dup r@ + within r> swap if cmove> else cmove then
+	.word	TO_R, TWO_DUPE, SWAP, DUPE, R_FETCH, PLUS, WITHIN, FROM_R, SWAP
+	.word	BRK, ZBRANCH, 4, CMOVE_UP, BRANCH, 2, CMOVE, EXIT
+
 
 	DEFCODE(fill, 0, FILL)
-	lw	r2, r14, 0
-	lw	r3, r14, 1
-	lw	r4, r14, 2
+	lw	r2, r14, 0	; fill
+	lw	r3, r14, 1	; count
+	lw	r4, r14, 2	; dest
 	addi	r14, r14, 3
 fill0:
 	sw	r2, r4, 0
@@ -647,6 +716,9 @@ fill0:
 
 	DEFWORD(erase, 0, ERASE)
 	.word	ZERO, FILL, EXIT
+
+	DEFWORD(blank, 0, BLANK)
+	.word	BL, FILL, EXIT
 
 	DEFWORD(pad, 0, PAD)
 	.word	HERE, LIT, 0xff, PLUS, EXIT
