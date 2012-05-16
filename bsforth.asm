@@ -714,7 +714,11 @@ _not_neg:
 	
 
 
+	DEFWORD(char, 0, CHAR)
+	.word	BL, PARSE, DROP, FETCH, EXIT
 
+	DEFWORD({[char]}, f_immediate, BRACKET_CHAR)
+	.word	CHAR, LIT, LIT, COMMA, COMMA, EXIT
 
 ;hex
 ;0xf002 constant rand
@@ -771,9 +775,6 @@ _find:
 
 _find_search:
 
-;li	r1, 0x2a
-;sw	r1, zero, charout
-
 	lw	r4, r6, 1		; get flags
 	andi	r4, r4, f_hidden
 	bne	r4, zero, _find_next	; skip if hidden
@@ -796,11 +797,13 @@ _find_cmp:
 	jr	r15
 
 _find_next:
-
 	lw	r6, r6, 0		; get link
 	bne	r6, zero, _find_search	; done if link zero
 	clear	r2			; return zero, word not found
 	jr	r15
+
+
+
 
 
 	define(DICT2CFA, {
@@ -868,7 +871,7 @@ err_msg:
 	DEFWORD(quit, 0, QUIT)
 	.word	LBRAC, RZ, RSPSTORE
 int:	.word	TIB, LIT, 0x0ff, ACCEPT, NUMBER_TIB, STORE, LIT, 0, TO_IN, STORE
-	.word	INTERPRET
+	.word	SPACE, INTERPRET
 	.word	LIT, ok_msg, LIT, 3, TYPE, CR
 	.word	BRANCH, int-$
 
@@ -901,11 +904,14 @@ _udot_lt_10:
 	bne	r2, zero, _udot_rep
 
 _udot_out:
+	li	r1, blank
+	sw	r1, zero, charout
+_udot_out1:
 	lw	r6, r4, 0
 	beq	r6, zero, _udot_done
 	sw	r6, zero, charout
 	inc	r4
-	j	_udot_out
+	j	_udot_out1
 _udot_done:
 	jr	r15
 
@@ -932,6 +938,12 @@ _dot:
 _dot_pos:
 	j	_udot
 
+
+	DEFWORD(?, 0, QUESTION)
+	.word	FETCH, DOT, EXIT
+
+	DEFWORD(depth, 0, DEPTH)
+	.word	SPFETCH, SPZ, SWAP, MINUS, EXIT
 
 
 	DEFCODE(create, 0, CREATE)
@@ -1028,12 +1040,16 @@ _create_xt:
 
 
 	DEFWORD({'}, 0, TICK)
-	.word	BL, PARSE, FIND, ZBRANCH, tick0-$
+	.word	BL, PARSE, FIND, DUPE, ZBRANCH, tick0-$
 	.word	TO_CFA, EXIT
 tick0:	.word	ABORT
 
 	DEFWORD({[']}, f_immediate, BRACKET_TICK_BRACKET)
 	.word	TICK, LIT, LIT, COMMA, COMMA, EXIT
+
+	DEFWORD(postpone, f_immediate, POSTPONE)
+	.word	TICK, COMMA, EXIT
+
 
 	DEFWORD(test-udot, 0, TEST_UDOT)
 	.word	LIT, 0x141, U_DOT, CR

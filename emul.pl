@@ -566,13 +566,13 @@ sub mon_reg {
 
 	print "data stack:\n";
 
-	mon_dump($reg[14], 0x8000 - $reg[14]);
+	mon_dump($reg[14], 0x8000 - 1 - $reg[14]) if $reg[14] < 0x8000;
 
 	print "\n";
 
 	print "return stack:\n";
 
-	mon_dump($reg[13], 0x9000 - $reg[13]);
+	mon_dump($reg[13], 0x9000 - 1 - $reg[13]) if $reg[13] < 0x9000;
 
 	print "\n";
 
@@ -599,7 +599,9 @@ sub monitor {
 				return;
 			}
 			elsif($1 eq "d") {
-				mon_dump(hex $2, hex $3);
+				my $l = hex $3;
+				$l = 0xff if $l == 0;
+				mon_dump(hex $2, $l);
 			}
 			elsif($1 eq "r") {
 				mon_reg();
@@ -613,9 +615,9 @@ sub mon_dump {
 
 	my ($a, $l) = @_;
 
-	if($l == 0) {
-		$l = 8*8 - 1;
-	}
+#	if($l == 0) {
+#		$l = 8*8 - 1;
+#	}
 
 	my $ma = $a;
 	if($ma & 0x07) {
