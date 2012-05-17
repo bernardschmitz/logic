@@ -155,8 +155,8 @@ msg:	.string "Hi there, this is bsforth!"
 
 
 	DEFWORD(test8, 0, TEST8)
-	.word	BINARY, LIT, num, LIT, 0xf, NUMBER, HALT
-num:	.string	"-001100000101xx"
+	.word	LIT, num, LIT, 5, NUMBER, BRK, EXIT
+num:	.string	"123xx"
 
 
 
@@ -894,7 +894,7 @@ exec_skip:
 	lw	r2, r14, 0		; length of string
 	lw	r3, r14, 1		; address of string
 	jal	r15, _number
-	sw	r3, r14, 0		; count of parsed chars, 0 = success
+	sw	r3, r14, 0		; count of chars remaining, 0 = success
 	sw	r2, r14, 1		; parsed number
 	NEXT
 _number:
@@ -945,12 +945,11 @@ _over:
 
 _num_fail:
 	beq	r12, zero, _not_neg	; negative flag set?
-
-	not	r7			; negate number
-	inc	r7
+	neg	r7			; negate number
 _not_neg:
-	move	r2, r7
-	move	r3, r8
+	move	r2, r7			; number parsed
+	lw	r4, r14, 0		; length of string
+	sub	r3, r4, r8		; number of chars remaining
 	jr	r15
 	
 
@@ -1113,19 +1112,20 @@ stack_msg1:
 skip0:	.word	NUMBER_TIB, FETCH, TO_IN, FETCH, NOT_EQUALS, ZBRANCH, skip4-$
 	.word	BL, PARSE, TWO_DUPE, FIND, QUESTION_DUPE, ZBRANCH, skip2-$
 	.word	NIP, NIP, TO_CFA, EXECUTE, QUESTION_STACK, BRANCH, skip3-$
-skip2:	.word	NUMBER, ZERO_EQUALS, ZBRANCH, skip3-$
+skip2:	.word	TWO_DUPE, NUMBER, ZBRANCH, skip5-$
+	.word	DROP, TYPE, LIT, err_msg, LIT, 2, TYPE
 	.word	ABORT
+skip5:	.word	NIP, NIP
 skip3:	.word	BRANCH, skip0-$
 skip4:	.word	EXIT
-ok_msg:
-	.string	" ok"
-
+err_msg:
+	.string " ?"
 
 	DEFWORD(abort, 0, ABORT)
 	.word	SPZ, SPSTORE
-	.word	LIT, err_msg, LIT, 4, TYPE, CR
+	.word	LIT, abort_msg, LIT, 4, TYPE, CR
 	.word	QUIT
-err_msg:
+abort_msg:
 	.string	" err"
 
 	DEFWORD(quit, 0, QUIT)
@@ -1134,6 +1134,8 @@ int:	.word	TIB, LIT, 0x0ff, ACCEPT, NUMBER_TIB, STORE, LIT, 0, TO_IN, STORE
 	.word	SPACE, INTERPRET
 	.word	LIT, ok_msg, LIT, 3, TYPE, CR
 	.word	BRANCH, int-$
+ok_msg:
+	.string	" ok"
 
 
 	DEFCODE(u., 0, U_DOT)
