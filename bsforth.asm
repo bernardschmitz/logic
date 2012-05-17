@@ -699,7 +699,7 @@ cmoveup0:
 	DEFWORD({move}, 0, MOVE)
 	; >r 2dup swap dup r@ + within r> swap if cmove> else cmove then
 	.word	TO_R, TWO_DUPE, SWAP, DUPE, R_FETCH, PLUS, WITHIN, FROM_R, SWAP
-	.word	BRK, ZBRANCH, 4, CMOVE_UP, BRANCH, 2, CMOVE, EXIT
+	.word	ZBRANCH, 4, CMOVE_UP, BRANCH, 2, CMOVE, EXIT
 
 
 	DEFCODE(fill, 0, FILL)
@@ -1263,6 +1263,7 @@ _create_xt:
 
 
 	DEFCODE({,}, 0, COMMA)
+	; : , dp @ ! dp @ 1+ dp ! ;
 	POPDSP(r2)
 	lw	r3, zero, var_DP
 	sw	r2, r3, 0
@@ -1270,6 +1271,24 @@ _create_xt:
 	sw	r3, zero, var_DP
 	NEXT
 
+
+	DEFWORD(literal, f_immediate, LITERAL)
+	; : literal ['] lit , , ; immediate
+	.word	LIT, LIT, COMMA, COMMA, EXIT
+
+	DEFCODE(slit, 0, SLIT)
+	lw	r2, r10, 0	; length of string
+	inc	r10		; advance to string address
+	addi	r14, r14, -2
+	sw	r10, r14, 1	; push string address
+	sw	r2, r14, 0	; push string length
+	add	r10, r10, r2	; get past the string
+ 	NEXT
+
+	DEFWORD(sliteral, f_immediate, SLITERAL)
+	; sliteral ( addr count -- ) ['] sliteral , dup , here swap 2dup + dp ! move exit ; immediate
+	.word	LIT, SLIT, COMMA, DUPE, COMMA
+	.word	HERE, SWAP, TWO_DUPE, PLUS, DP, STORE, MOVE, EXIT
 
 	DEFCODE([, f_immediate, LBRAC)
 	clear	r2
