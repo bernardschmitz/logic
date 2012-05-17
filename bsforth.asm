@@ -1097,21 +1097,22 @@ _find_next:
 	sw	r2, r14, 0
 	NEXT
 
+	DEFWORD(?stack, 0, QUESTION_STACK)
+	.word	SPFETCH, SPZ, GREATER_THAN, ZBRANCH, stack_ok-$
+	.word	LIT, stack_msg0, LIT, stack_msg0_len, TYPE, CR, ABORT
+stack_ok:
+	.word	EXIT
+stack_msg0:
+	.string "stack underflow"
+stack_msg1:
+	.set	stack_msg0_len, stack_msg1 - stack_msg0
+
+
 
 	DEFWORD(interpret, 0, INTERPRET)
-;skip0:	.word	NUMBER_TIB, FETCH, TO_IN, FETCH, EQUALS, ZBRANCH, skip1-$
-;	.word	LIT, ok_msg, LIT, 3, TYPE, CR
-;	.word	TIB, LIT, 0x0ff, ACCEPT, NUMBER_TIB, STORE, LIT, 0, TO_IN, STORE
-;skip1:	.word	BL, PARSE, TWO_DUPE, FIND, QUESTION_DUPE, ZBRANCH, skip2-$
-;	.word	NIP, NIP, TO_CFA, EXECUTE, BRANCH, skip3-$
-;skip2:	.word	NUMBER, ZERO_EQUALS, ZBRANCH, skip3-$
-;	.word	LIT, err_msg, LIT, 4, TYPE, CR
-;skip3:	.word	BRANCH, skip0-$
-;	.word	EXIT
 skip0:	.word	NUMBER_TIB, FETCH, TO_IN, FETCH, NOT_EQUALS, ZBRANCH, skip4-$
 	.word	BL, PARSE, TWO_DUPE, FIND, QUESTION_DUPE, ZBRANCH, skip2-$
-	.word	NIP, NIP, TO_CFA, EXECUTE, BRANCH, skip3-$
-;EXECUTE ?STACK ABORT" Stack empty"
+	.word	NIP, NIP, TO_CFA, EXECUTE, QUESTION_STACK, BRANCH, skip3-$
 skip2:	.word	NUMBER, ZERO_EQUALS, ZBRANCH, skip3-$
 	.word	ABORT
 skip3:	.word	BRANCH, skip0-$
