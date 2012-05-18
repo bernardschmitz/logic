@@ -823,7 +823,7 @@ _type:
 	sw	r3, r14, 0		; addr
 	PUSHDSP(r2)			; length
 	NEXT
-	; TODO enable different buffers
+
 _parse:
 	lw	r4, zero, var_NUMBER_TIB ; size of buffer
 	lw	r3, zero, var_TO_IN	; get current index into buffer
@@ -851,11 +851,68 @@ _parse0:
 	jr	r15	
 
 _parse_empty:
+	sw	r3, zero, var_TO_IN	; save index
 	clear	r2
 	li	r3, buffer
 	add	r3, r3, r4
 	jr	r15
 
+
+	DEFCODE(parse-word, 0, PARSE_WORD)
+	li	r2, blank		; delimiter
+	jal	r15, _parse_word
+	sw	r3, r14, 0		; addr
+	PUSHDSP(r2)			; length
+	NEXT
+
+_parse_word:
+	lw	r4, zero, var_NUMBER_TIB ; size of buffer
+	lw	r3, zero, var_TO_IN	; get current index into buffer
+
+_pw_skip:
+	beq	r3, r4, _pw_empty
+	lw	r5, r3, buffer		; get char
+	inc	r3			; bump index
+	beq	r5, r2, _pw_skip	; skip spaces
+
+	li	r7, buffer		; load buffer address
+	add	r7, r7, r3		; address of start of parsed string
+	dec	r7
+;	move	r6, r3			; save index
+	addi	r6, r3, -1		; save index of start of string
+	
+_pw_more:
+	lw	r5, r3, buffer		; get char
+	inc	r3			; bump index
+	beq	r5, r2, _pw_done	; char is a space, so done
+	bne	r3, r4, _pw_more	; not at end of buffer, so continue
+
+	sw	r3, zero, var_TO_IN	; save index
+	j	_pw0
+_pw_done:
+	sw	r3, zero, var_TO_IN	; save index
+	dec	r3
+_pw0:
+	sub	r2, r3, r6		; count of chars
+	move	r3, r7			; address of chars
+	jr	r15
+
+_pw_empty:
+	sw	r3, zero, var_TO_IN	; save index
+	clear	r2			; zero length
+	li	r3, buffer
+	add	r3, r3, r4		; end address of the buffer
+	jr	r15
+
+
+
+	DEFWORD(word, 0, WORD)
+	; : word begin dup parse ?dup 0<> while 2drop repeat rot drop ;
+word0:	.word	DUPE, PARSE
+	.word	CR, LIT, 42, EMIT, TWO_DUPE, TYPE, LIT, 42, EMIT, TWO_DUPE, U_DOT, HEX, U_DOT, DECIMAL, CR
+	.word	DUPE, ZERO_EQUALS, ZBRANCH, word1-$
+	.word	TWO_DROP, BRANCH, word0-$
+word1:	.word	ROT, DROP, EXIT
 
 
 	DEFCODE(execute, 0, EXECUTE)
@@ -955,7 +1012,7 @@ _not_neg:
 
 
 	DEFWORD(char, 0, CHAR)
-	.word	BL, PARSE, DROP, FETCH, EXIT
+	.word	PARSE_WORD, DROP, FETCH, EXIT
 
 	DEFWORD({[char]}, f_immediate, BRACKET_CHAR)
 	.word	CHAR, LIT, LIT, COMMA, COMMA, EXIT
@@ -1110,7 +1167,7 @@ stack_msg1:
 
 	DEFWORD(interpret, 0, INTERPRET)
 skip0:	.word	NUMBER_TIB, FETCH, TO_IN, FETCH, NOT_EQUALS, ZBRANCH, skip4-$
-	.word	BL, PARSE, TWO_DUPE, FIND, QUESTION_DUPE, ZBRANCH, skip2-$
+	.word	PARSE_WORD, TWO_DUPE, FIND, QUESTION_DUPE, ZBRANCH, skip2-$
 	.word	NIP, NIP, TO_CFA, EXECUTE, QUESTION_STACK, BRANCH, skip3-$
 skip2:	.word	TWO_DUPE, NUMBER, ZBRANCH, skip5-$
 	.word	DROP, TYPE, LIT, err_msg, LIT, 2, TYPE
@@ -1320,11 +1377,11 @@ _create_xt:
 	NEXT
 
 	DEFWORD(hide, 0, HIDE)
-	.word	BL, PARSE, FIND, HIDDEN, EXIT
+	.word	PARSE_WORD, FIND, HIDDEN, EXIT
 
 
 	DEFWORD({'}, 0, TICK)
-	.word	BL, PARSE, FIND, DUPE, ZBRANCH, tick0-$
+	.word	PARSE_WORD, FIND, DUPE, ZBRANCH, tick0-$
 	.word	TO_CFA, EXIT
 tick0:	.word	ABORT
 
