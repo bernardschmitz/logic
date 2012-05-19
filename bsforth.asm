@@ -1179,18 +1179,56 @@ stack_msg1:
 
 
 
+dnl;	DEFWORD(interpret, 0, INTERPRET)
+dnl;skip0:	.word	NUMBER_TIB, FETCH, TO_IN, FETCH, NOT_EQUALS, ZBRANCH, skip4-$
+dnl;	.word	PARSE_WORD, TWO_DUPE, FIND, QUESTION_DUPE, ZBRANCH, skip2-$
+dnl;	.word	NIP, NIP, TO_CFA, EXECUTE, QUESTION_STACK, BRANCH, skip3-$
+dnl;skip2:	.word	TWO_DUPE, NUMBER, ZBRANCH, skip5-$
+dnl;	.word	DROP, TYPE, LIT, err_msg, LIT, 2, TYPE
+dnl;	.word	ABORT
+dnl;skip5:	.word	NIP, NIP
+dnl;skip3:	.word	BRANCH, skip0-$
+dnl;skip4:	.word	EXIT
+dnl;err_msg:
+dnl;	.string " ?"
+
 	DEFWORD(interpret, 0, INTERPRET)
-skip0:	.word	NUMBER_TIB, FETCH, TO_IN, FETCH, NOT_EQUALS, ZBRANCH, skip4-$
-	.word	PARSE_WORD, TWO_DUPE, FIND, QUESTION_DUPE, ZBRANCH, skip2-$
-	.word	NIP, NIP, TO_CFA, EXECUTE, QUESTION_STACK, BRANCH, skip3-$
-skip2:	.word	TWO_DUPE, NUMBER, ZBRANCH, skip5-$
-	.word	DROP, TYPE, LIT, err_msg, LIT, 2, TYPE
+int_begin:
+	.word	NUMBER_TIB, FETCH, TO_IN, FETCH, NOT_EQUALS
+	.word	ZBRANCH, int_done-$
+	.word	PARSE_WORD, TWO_DUPE, FIND, QUESTION_DUPE
+	.word	ZBRANCH, int_not_found-$
+	.word	NIP, NIP
+	.word	DUPE, QUESTION_IMMEDIATE, ZBRANCH, int_not_immed-$
+	.word	TO_CFA, EXECUTE, QUESTION_STACK, BRANCH, int_then0-$
+int_not_immed:
+	.word	TO_CFA, STATE, FETCH
+	.word	ZBRANCH, int_execute-$
+	.word	COMMA
+	.word	BRANCH, int_then0-$
+int_execute:
+	.word	EXECUTE, QUESTION_STACK
+int_then0:
+	.word	BRANCH, int_word_end-$
+int_not_found:
+	.word	TWO_DUPE, NUMBER
+	.word	ZBRANCH, int_number-$
+	.word	STATE, FETCH, ZBRANCH, int_err-$
+	.word	LATEST, FETCH, DUPE, FETCH, LATEST, STORE, DP, STORE
+int_err:
+	.word	TYPE, LIT, err_msg, LIT, 2, TYPE
 	.word	ABORT
-skip5:	.word	NIP, NIP
-skip3:	.word	BRANCH, skip0-$
-skip4:	.word	EXIT
+int_number:
+	.word	NIP, NIP, STATE, FETCH, ZBRANCH, int_not_literal-$
+	.word	LITERAL
+int_not_literal:
+int_word_end:
+	.word	BRANCH, int_begin-$
+int_done:
+	.word	EXIT
 err_msg:
 	.string " ?"
+
 
 	DEFWORD(abort, 0, ABORT)
 	.word	SPZ, SPSTORE
@@ -1369,6 +1407,19 @@ _create_xt:
 	DEFCODE(], 0, RBRAC)
 	li	r2, 0xffff
 	sw	r2, zero, var_STATE
+	NEXT
+
+	DEFCODE(?immediate, 0, QUESTION_IMMEDIATE)
+	lw	r2, r14, 0		; dict addr from stack
+	inc	r2			; flags addr
+	lw	r3, r2, 0		; get flags
+	li	r4, f_immediate		; immediate bit
+	and	r3, r3, r4		; isolate immediate bit
+	clear	r2
+	beq	r3, zero, not_immediate
+	not	r2
+not_immediate:
+	sw	r2, r14, 0	
 	NEXT
 
 
