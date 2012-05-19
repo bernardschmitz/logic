@@ -121,7 +121,13 @@ start:
 _boot:	.word	BOOT
 
 	DEFWORD(test, 0, TEST)
-	.word LIT, 0xcafe, LIT, 0xbabe, OVER, EXIT
+	;.word TIB, LIT, 0x0ff, ACCEPT, NUMBER_TIB, STORE, LIT, 0, TO_IN, STORE
+	.word CR
+	.word PARSE_WORD, TWO_DUPE, U_DOT, HEX, U_DOT, DECIMAL, SPACE, LIT, 42, EMIT, TYPE, LIT, 42, EMIT, CR
+	.word PARSE_WORD, TWO_DUPE, U_DOT, HEX, U_DOT, DECIMAL, SPACE, LIT, 42, EMIT, TYPE, LIT, 42, EMIT, CR
+	.word PARSE_WORD, TWO_DUPE, U_DOT, HEX, U_DOT, DECIMAL, SPACE, LIT, 42, EMIT, TYPE, LIT, 42, EMIT, CR
+	.word CR
+	.word EXIT
 
 	DEFWORD(test0, 0, TEST0)
 	.word LIT, 0xcafe, LIT, 0xbabe, LIT, 0x10, ROT, EXIT
@@ -133,7 +139,7 @@ _boot:	.word	BOOT
 	.word STATE, FETCH, VERSION, BASE, FETCH, EXIT
 
 	DEFWORD(test4, 0, TEST4)
-	.word LIT, buffer, LIT, 0x0ff, ACCEPT, LIT, 0, TO_IN, STORE
+	.word LIT, buffer, LIT, 0x0ff, ACCEPT, NUMBER_TIB, STORE, LIT, 0, TO_IN, STORE
 	.word BL, PARSE, CR, TYPE
 	.word BL, PARSE, CR, TYPE
 	.word BL, PARSE, CR, TYPE
@@ -861,38 +867,46 @@ _parse_empty:
 	DEFCODE(parse-word, 0, PARSE_WORD)
 	li	r2, blank		; delimiter
 	jal	r15, _parse_word
-	sw	r3, r14, 0		; addr
-	PUSHDSP(r2)			; length
+	addi	r14, r14, -2
+	sw	r3, r14, 1		; addr
+	sw	r2, r14, 0
 	NEXT
 
 _parse_word:
 	lw	r4, zero, var_NUMBER_TIB ; size of buffer
 	lw	r3, zero, var_TO_IN	; get current index into buffer
+	beq	r3, r4, _pw_empty
 
 _pw_skip:
-	beq	r3, r4, _pw_empty
 	lw	r5, r3, buffer		; get char
 	inc	r3			; bump index
-	beq	r5, r2, _pw_skip	; skip spaces
+	bne	r5, r2, _pw_word	; found start of word
+	beq	r3, r4, _pw_empty
+	j	_pw_skip
+;	beq	r5, r2, _pw_skip	; skip spaces
 
+_pw_word:
 	li	r7, buffer		; load buffer address
 	add	r7, r7, r3		; address of start of parsed string
 	dec	r7
 ;	move	r6, r3			; save index
-	addi	r6, r3, -1		; save index of start of string
-	
+	addi	r6, r3, -1
+	beq	r3, r4, _pw_done1
+
 _pw_more:
 	lw	r5, r3, buffer		; get char
 	inc	r3			; bump index
-	beq	r5, r2, _pw_done	; char is a space, so done
+	beq	r5, r2, _pw_done0	; char is a space, so done
 	bne	r3, r4, _pw_more	; not at end of buffer, so continue
 
+_pw_done1:
 	sw	r3, zero, var_TO_IN	; save index
 	j	_pw0
-_pw_done:
+_pw_done0:
 	sw	r3, zero, var_TO_IN	; save index
 	dec	r3
 _pw0:
+
 	sub	r2, r3, r6		; count of chars
 	move	r3, r7			; address of chars
 	jr	r15
