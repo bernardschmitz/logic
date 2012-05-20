@@ -120,73 +120,6 @@ start:
 	NEXT
 _boot:	.word	BOOT
 
-	DEFWORD(test, 0, TEST)
-	;.word TIB, LIT, 0x0ff, ACCEPT, NUMBER_TIB, STORE, LIT, 0, TO_IN, STORE
-	.word CR
-	.word PARSE_WORD, TWO_DUPE, U_DOT, HEX, U_DOT, DECIMAL, SPACE, LIT, 42, EMIT, TYPE, LIT, 42, EMIT, CR
-	.word PARSE_WORD, TWO_DUPE, U_DOT, HEX, U_DOT, DECIMAL, SPACE, LIT, 42, EMIT, TYPE, LIT, 42, EMIT, CR
-	.word PARSE_WORD, TWO_DUPE, U_DOT, HEX, U_DOT, DECIMAL, SPACE, LIT, 42, EMIT, TYPE, LIT, 42, EMIT, CR
-	.word CR
-	.word EXIT
-
-	DEFWORD(test0, 0, TEST0)
-	.word LIT, 0xcafe, LIT, 0xbabe, LIT, 0x10, ROT, EXIT
-
-	DEFWORD(test2, 0, TEST2)
-	.word LIT, 0xa, LIT, 0x1000, STORE, LIT, 0x1, LIT, 0x1000, PLUS_STORE, EXIT
-	
-	DEFWORD(test3, 0, TEST3)
-	.word STATE, FETCH, VERSION, BASE, FETCH, EXIT
-
-	DEFWORD(test4, 0, TEST4)
-	.word LIT, buffer, LIT, 0x0ff, ACCEPT, NUMBER_TIB, STORE, LIT, 0, TO_IN, STORE
-	.word BL, PARSE, CR, TYPE
-	.word BL, PARSE, CR, TYPE
-	.word BL, PARSE, CR, TYPE
-	.word CR, EXIT
-
-	DEFWORD(test5, 0, TEST5)
-	.word LIT, 0x5, LIT, msg, LIT, 0x1a, TYPE, CR, ONE_MINUS, DUPE, LIT, 0, EQUALS, ZBRANCH, -0xc, EXIT
-msg:	.string "Hi there, this is bsforth!"
-
-
-	DEFWORD(test6, 0, TEST6)
-	.word	LIT, buffer, LIT, 0x0ff, ACCEPT, LIT, 0, TO_IN, STORE
-	.word	BL, PARSE, CR, TYPE
-	.word	EXIT
-
-	DEFWORD(test7, 0, TEST7)
-	;dw	LIT, 0x2a, LIT, EMIT, EXECUTE, EXIT
-	.word	LIT, TEST9, BRK, EXECUTE, EXIT
-
-
-	DEFWORD(test8, 0, TEST8)
-	.word	LIT, num, LIT, 5, NUMBER, BRK, EXIT
-num:	.string	"123xx"
-
-
-
-	DEFWORD(test9, 0, TEST9)
-	.word	LIT, msg1, LIT, 5, TYPE, EXIT
-msg1:	.string	"sheep"
-
-
-	DEFWORD(test10, 0, TEST10)
-	.word	LIT, msg2, LIT, 5, FIND, TO_CFA, EXECUTE, EXIT
-msg2:	.string	"test9"
-
-	DEFWORD(test11, 0, TEST11)
-	.word	LIT, msg1, LIT, 5, FIND, EXIT
-
-	DEFWORD(hidden_test, f_hidden, HIDDEN_TEST)
-	.word	TEST9, EXIT
-
-	DEFWORD(test12, 0, TEST12)
-	.word	LIT, msg3, LIT, 0xb, FIND, QUESTION_DUPE, ZBRANCH, 9
-	.word	LIT, 0x2a, EMIT, CR, TO_CFA, EXECUTE, BRANCH, 7
-	.word	LIT, msg3, LIT, 0xb, TYPE, CR, EXIT
-msg3:	.string	"hidden_test"
-
 
 	DEFCODE(halt, 0, HALT)
 	halt
@@ -853,8 +786,6 @@ _parse_done:
 _parse0:
 	sub	r2, r3, r6		; length of parsed string
 	move	r3, r7
-;	li	r7, buffer
-;	add	r3, r7, r6		; address of start of parsed string
 	jr	r15	
 
 _parse_empty:
@@ -884,13 +815,11 @@ _pw_skip:
 	bne	r5, r2, _pw_word	; found start of word
 	beq	r3, r4, _pw_empty
 	j	_pw_skip
-;	beq	r5, r2, _pw_skip	; skip spaces
 
 _pw_word:
 	li	r7, buffer		; load buffer address
 	add	r7, r7, r3		; address of start of parsed string
 	dec	r7
-;	move	r6, r3			; save index
 	addi	r6, r3, -1
 	beq	r3, r4, _pw_done1
 
@@ -921,13 +850,6 @@ _pw_empty:
 
 
 
-	DEFWORD(word, 0, WORD)
-	; : word begin dup parse ?dup 0<> while 2drop repeat rot drop ;
-word0:	.word	DUPE, PARSE
-	.word	CR, LIT, 42, EMIT, TWO_DUPE, TYPE, LIT, 42, EMIT, TWO_DUPE, U_DOT, HEX, U_DOT, DECIMAL, CR
-	.word	DUPE, ZERO_EQUALS, ZBRANCH, word1-$
-	.word	TWO_DROP, BRANCH, word0-$
-word1:	.word	ROT, DROP, EXIT
 
 
 	DEFCODE(execute, 0, EXECUTE)
@@ -990,14 +912,10 @@ _pos:
 _num0:
 	lw	r4, r3, 0		; get next character
 
-	;subi	r3, r3, ascii_zero
-;	addi	r4, r4, 0xffd0		; subtract ascii zero char
 	addi	r4, r4, -ascii_zero	; subtract ascii zero char
 	blt	r4, zero, _num_fail	; finish if < 0
 	ble	r4, r9, _num1		; skip if <= 9
 
-	;subi	r3, r3, ascii_a_0
-;	addi	r4, r4, 0xffcf		; substract difference between ascii a and 0
 	addi	r4, r4, -ascii_a_0	; substract difference between ascii a and 0
 	blt	r4, zero, _num_fail	; finish if < 0
 
@@ -1032,13 +950,6 @@ _not_neg:
 	DEFWORD({[char]}, f_immediate, BRACKET_CHAR)
 	.word	CHAR, LIT, LIT, COMMA, COMMA, EXIT
 
-;hex
-;0xf002 constant rand
-;0xfffe constant screen
-
-; : randchar rand @ 0x1f and 0x20 + ;
-
-; : randchars begin pad dup 0xa + do randchar i ! loop pad 0xa type again ;
 
 	DEFCODE(and, 0, AND)
 	lw	r2, r14, 0
@@ -1071,25 +982,6 @@ _not_neg:
 
 	DEFWORD(randchar, 0, RANDCHAR)
 	.word	RAND, FETCH, LIT, 0x1f, AND, LIT, 0x20, PLUS, EXIT
-
-	DEFWORD(randchars, 0, RANDCHARS)
-	.word	RANDCHAR, EMIT, BRANCH, -0x3, EXIT
-
-	DEFCODE(rc, 0, RC)
-loop:
-	lw	r2, zero, random ; get random num
-	andi	r3, r2, 0x1f
-	addi	r3, r3, 0x20
-	sw	r3, zero, charout ; write random character
-	j	loop
-	NEXT
-
-; : sum100 0 101 0 do i + loop ;
-; 13ba
-	DEFWORD(sum100, 0, SUM100)
-	.word	LIT, 0, LIT, 0x64
-sum100a:	
-	.word	DUPE, TO_R, PLUS, FROM_R, ONE_MINUS, DUPE, LIT, 0, EQUALS, ZBRANCH, sum100a-$, DROP, EXIT
 
 
 	DEFCODE(find, 0, FIND)
@@ -1180,18 +1072,6 @@ stack_msg1:
 
 
 
-dnl;	DEFWORD(interpret, 0, INTERPRET)
-dnl;skip0:	.word	NUMBER_TIB, FETCH, TO_IN, FETCH, NOT_EQUALS, ZBRANCH, skip4-$
-dnl;	.word	PARSE_WORD, TWO_DUPE, FIND, QUESTION_DUPE, ZBRANCH, skip2-$
-dnl;	.word	NIP, NIP, TO_CFA, EXECUTE, QUESTION_STACK, BRANCH, skip3-$
-dnl;skip2:	.word	TWO_DUPE, NUMBER, ZBRANCH, skip5-$
-dnl;	.word	DROP, TYPE, LIT, err_msg, LIT, 2, TYPE
-dnl;	.word	ABORT
-dnl;skip5:	.word	NIP, NIP
-dnl;skip3:	.word	BRANCH, skip0-$
-dnl;skip4:	.word	EXIT
-dnl;err_msg:
-dnl;	.string " ?"
 
 	DEFWORD(interpret, 0, INTERPRET)
 int_begin:
@@ -1336,13 +1216,10 @@ _create:
 	jal	r15, _parse
 
 	lw	r4, zero, var_DP
-;	inc	r4
-;	andi	r4, r4, 0xfffe	; align data pointer
 
 	lw	r1, zero, var_LATEST
 	sw	r1, r4, 0	; store link
 
-;	clear	r1
 	sw	zero, r4, 1	; store flags
 	sw	r2, r4, 2	; store len
 	addi	r4, r4, 3	; address of dict name
@@ -1355,15 +1232,12 @@ _create0:
 	bne	r2, zero, _create0	; keep copying until done
 
 	ALIGN(r4)
-;	inc	r4
-;	andi	r4, r4, 0xfffe	; align cfa field
 				; r4 = cfa addr
 	li	r1, _create_xt
 	sw	r1, r4, 0	; store create xt in cfa
 
 	inc	r4		; align
 	ALIGN(r4)
-;	andi	r4, r4, 0xfffe 	; r4 = dfa
 
 	lw	r1, zero, var_DP
 	sw	r1, zero, var_LATEST
