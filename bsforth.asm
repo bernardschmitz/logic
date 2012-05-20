@@ -568,6 +568,7 @@ var_$3:	.word	$4
 	DEFVAR(base, 0, BASE, 0xa)
 	DEFVAR(>in, 0, TO_IN, 0)
 	DEFVAR(#tib, 0, NUMBER_TIB, 0)
+	DEFVAR(source-id, 0, SOURCE_ID, 0)
 
 	DEFWORD(here, 0, HERE)
 	.word	DP, FETCH, EXIT
@@ -1216,7 +1217,7 @@ int_not_found:
 	.word	STATE, FETCH, ZBRANCH, int_err-$
 	.word	LATEST, FETCH, DUPE, FETCH, LATEST, STORE, DP, STORE
 int_err:
-	.word	TYPE, LIT, err_msg, LIT, 2, TYPE
+	.word	DROP, SPACE, LIT, 0x3e, EMIT, TYPE, LIT, err_msg, LIT, 3, TYPE
 	.word	ABORT
 int_number:
 	.word	NIP, NIP, STATE, FETCH, ZBRANCH, int_not_literal-$
@@ -1227,24 +1228,30 @@ int_word_end:
 int_done:
 	.word	EXIT
 err_msg:
-	.string " ?"
+	.string "< ?"
 
 
 	DEFWORD(abort, 0, ABORT)
-	.word	SPZ, SPSTORE
-	.word	LIT, abort_msg, LIT, 4, TYPE, CR
+	.word	SPZ, SPSTORE, LBRAC
+	.word	LIT, abort_msg, LIT, 6, TYPE, CR
 	.word	QUIT
 abort_msg:
-	.string	" err"
+	.string	" abort"
 
 	DEFWORD(quit, 0, QUIT)
 	.word	LBRAC, RZ, RSPSTORE
-int:	.word	TIB, LIT, 0x0ff, ACCEPT, NUMBER_TIB, STORE, LIT, 0, TO_IN, STORE
+quit_loop:
+	.word	TIB, LIT, 0x0ff, ACCEPT, NUMBER_TIB, STORE, LIT, 0, TO_IN, STORE
 	.word	SPACE, INTERPRET
+	.word	STATE, FETCH, ZBRANCH, quit_int-$
+	.word	LIT, comp_msg, LIT, 9, TYPE, CR, BRANCH, quit_loop-$
+quit_int:
 	.word	LIT, ok_msg, LIT, 3, TYPE, CR
-	.word	BRANCH, int-$
+	.word	BRANCH, quit_loop-$
 ok_msg:
 	.string	" ok"
+comp_msg:
+	.string	" compiled"
 
 
 	DEFCODE(u., 0, U_DOT)
