@@ -1392,7 +1392,7 @@ _create_xt:
 	; : literal ['] lit , , ; immediate
 	.word	LIT, LIT, COMMA, COMMA, EXIT
 
-	DEFCODE(slit, 0, SLIT)
+	DEFCODE(litstring, 0, LITSTRING)
 	lw	r2, r10, 0	; length of string
 	inc	r10		; advance to string address
 	addi	r14, r14, -2
@@ -1403,8 +1403,9 @@ _create_xt:
 
 	DEFWORD(sliteral, f_immediate, SLITERAL)
 	; sliteral ( addr count -- ) ['] sliteral , dup , here swap 2dup + dp ! move exit ; immediate
-	.word	LIT, SLIT, COMMA, DUPE, COMMA
+	.word	LIT, LITSTRING, COMMA, DUPE, COMMA
 	.word	HERE, SWAP, TWO_DUPE, PLUS, DP, STORE, MOVE, EXIT
+
 
 	DEFCODE([, f_immediate, LBRAC)
 	clear	r2
@@ -1514,6 +1515,12 @@ boot_msg3:
 	.word	WELCOME
 	.word	LIT, name_WELCOME, HIDDEN, LIT, name_BOOT, HIDDEN	
 	.word	QUIT
+
+; : s" [char] " parse postpone sliteral ; immediate
+; : ." postpone s" ['] type , ; immediate
+
+; : if ['] 0branch , here 0 , ; immediate
+; : then dup here swap - swap ! ; immediate
 
 	
 	.align
