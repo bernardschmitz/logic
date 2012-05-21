@@ -505,23 +505,18 @@ var_$3:	.word	$4
 	DEFVAR(source-id, 0, SOURCE_ID, 0)
 	DEFVAR(buf, 0, BUF, buffer)
 
-	DEFWORD(tib, 0, TIB)
-	.word	BUF, FETCH, EXIT
 
-	DEFWORD(here, 0, HERE)
-	.word	DP, FETCH, EXIT
+	DEFCODE(tib, 0, TIB)
+	lw	r2, zero, var_BUF
+	PUSHDSP(r2)
+	NEXT
 
-	DEFWORD(binary, 0, BINARY)
-	.word	LIT, 0x2, BASE, STORE, EXIT
 
-	DEFWORD(octal, 0, OCTAL)
-	.word	LIT, 0x8, BASE, STORE, EXIT
+	DEFCODE(here, 0, HERE)
+	lw	r2, zero, var_DP
+	PUSHDSP(r2)
+	NEXT
 
-	DEFWORD(hex, 0, HEX)
-	.word	LIT, 0x10, BASE, STORE, EXIT
-
-	DEFWORD(decimal, 0, DECIMAL)
-	.word	LIT, 0xa, BASE, STORE, EXIT
 
 
 	define(DEFCONST, {
@@ -1226,11 +1221,12 @@ _dot_pos:
 	j	_udot
 
 
-	DEFWORD(?, 0, QUESTION)
-	.word	FETCH, DOT, EXIT
+dnl;	DEFWORD(?, 0, QUESTION)
+dnl;	.word	FETCH, DOT, EXIT
 
-	DEFWORD(depth, 0, DEPTH)
-	.word	SPFETCH, SPZ, SWAP, MINUS, EXIT
+dnl;	DEFWORD(depth, 0, DEPTH)
+dnl;	.word	SPFETCH, SPZ, SWAP, MINUS, EXIT
+
 
 
 	DEFCODE(create, 0, CREATE)
@@ -1421,27 +1417,47 @@ code:
 
 cr
 
+: progress [char] . emit ;
+
+progress
+
 : .( [char] ) parse type ; immediate 
 
 .( init ) cr
 
 : newline 10 ;
 
-: \ newline parse ; immediate
+: \ newline parse 2drop ; immediate
 
 \ line comment test
 
-: ( [char] ) parse ; immediate
+: ( [char] ) parse 2drop ; immediate
+
+progress
 
 ( comment test )
 
+
+: binary 2 base ! ;
+: octal 8 base ! ;
+: decimal 10 base ! ;
+: hex 16 base ! ;
+
+: ? @ . ;
+progress
+: u? @ u. ;
+: depth sp@ sp0 swap - ;
+
 : mod /mod drop ;
+
 
 : star ( -- ) [char] * emit ;
 
 : s" [char] " parse postpone sliteral ; immediate
 
 : ." postpone s" ['] type , ; immediate
+
+progress
 
 : if ['] 0branch , here 0 , ; immediate
 
@@ -1451,12 +1467,15 @@ cr
 
 : recurse latest @ >cfa , ;  immediate
 
+
 : unused top here - ;
 
 : welcome 
 	cr ." bsforth version" version u. cr
 	unused u. ."  cells free" cr cr
 	;
+
+progress
 
 .( ready ) cr
 
