@@ -17,7 +17,6 @@
 	.set	data_stack,0x8000
 	.set	return_stack,0x9000
 	.set	buffer,0xa000
-	.set	bufferlen,0x00ff
 
         define(id, 0)dnl
         define(l, {$1{}id})dnl
@@ -499,9 +498,14 @@ var_$3:	.word	$4
 	DEFVAR(dp, 0, DP, start_dp)
 	DEFVAR(latest, 0, LATEST, name_BOOT)
 	DEFVAR(base, 0, BASE, 0xa)
+
 	DEFVAR(>in, 0, TO_IN, 0)
 	DEFVAR(#tib, 0, NUMBER_TIB, 0)
 	DEFVAR(source-id, 0, SOURCE_ID, 0)
+	DEFVAR(buf, 0, BUF, buffer)
+
+	DEFWORD(tib, 0, TIB)
+	.word	BUF, FETCH, EXIT
 
 	DEFWORD(here, 0, HERE)
 	.word	DP, FETCH, EXIT
@@ -519,7 +523,6 @@ var_$3:	.word	$4
 	.word	LIT, 0xa, BASE, STORE, EXIT
 
 
-
 	define(DEFCONST, {
 	DEFCODE($1, $2, $3)
 	li	r2, $4
@@ -531,7 +534,7 @@ var_$3:	.word	$4
 	DEFCONST(r0, 0, RZ, return_stack)
 	DEFCONST(sp0, 0, SPZ, data_stack)
 	DEFCONST(_docol, 0, _DOCOL, DOCOL)
-	DEFCONST(tib, 0, TIB, buffer)
+
 	DEFCONST(zero, 0, ZERO, 0)
 	DEFCONST(false, 0, FALSE, 0)
 	DEFCONST(true, 0, TRUE, 0xffff)
@@ -768,12 +771,19 @@ _parse:
 	lw	r4, zero, var_NUMBER_TIB ; size of buffer
 	lw	r3, zero, var_TO_IN	; get current index into buffer
 	move	r6, r3			; save index
-	li	r7, buffer		; load buffer address
-	add	r7, r7, r3		; address of start of parsed string
+;	li	r7, buffer		; load buffer address
+;	add	r7, r7, r3		; address of start of parsed string
+	lw	r9, zero, var_BUF
+	add	r9, r9, r3
+	move	r8, r9
+	move	r7, r9
+
 	beq	r3, r4, _parse_empty
 
 _parse_more:
-	lw	r5, r3, buffer		; load char at buffer index
+;	lw	r5, r3, buffer		; load char at buffer index
+	lw	r5, r8, 0
+	inc	r8
 	inc	r3			; incr index
 	beq	r5, r2, _parse_done	; char equals to delimiter?
 	bne	r3, r4, _parse_more	; compare index to buffer size
@@ -791,13 +801,13 @@ _parse0:
 _parse_empty:
 	sw	r3, zero, var_TO_IN	; save index
 	clear	r2
-	li	r3, buffer
+;	li	r3, buffer
+	lw	r3, zero, var_BUF
 	add	r3, r3, r4
 	jr	r15
 
 
 	DEFCODE(parse-word, 0, PARSE_WORD)
-	li	r2, blank		; delimiter
 	jal	r15, _parse_word
 	addi	r14, r14, -2
 	sw	r3, r14, 1		; addr
@@ -805,26 +815,35 @@ _parse_empty:
 	NEXT
 
 _parse_word:
+	li	r2, blank		; delimiter
 	lw	r4, zero, var_NUMBER_TIB ; size of buffer
 	lw	r3, zero, var_TO_IN	; get current index into buffer
+	lw	r9, zero, var_BUF
+	add	r9, r9, r3
+	move	r8, r9
 	beq	r3, r4, _pw_empty
 
 _pw_skip:
-	lw	r5, r3, buffer		; get char
+;	lw	r5, r3, buffer		; get char
+	lw	r5, r8, 0
+	inc	r8
 	inc	r3			; bump index
 	bne	r5, r2, _pw_word	; found start of word
 	beq	r3, r4, _pw_empty
 	j	_pw_skip
 
 _pw_word:
-	li	r7, buffer		; load buffer address
-	add	r7, r7, r3		; address of start of parsed string
+	move	r7, r8
+;	li	r7, buffer		; load buffer address
+;	add	r7, r7, r3		; address of start of parsed string
 	dec	r7
 	addi	r6, r3, -1
 	beq	r3, r4, _pw_done1
 
 _pw_more:
-	lw	r5, r3, buffer		; get char
+;	lw	r5, r3, buffer		; get char
+	lw	r5, r8, 0
+	inc	r8
 	inc	r3			; bump index
 	beq	r5, r2, _pw_done0	; char is a space, so done
 	bne	r3, r4, _pw_more	; not at end of buffer, so continue
@@ -844,7 +863,8 @@ _pw0:
 _pw_empty:
 	sw	r3, zero, var_TO_IN	; save index
 	clear	r2			; zero length
-	li	r3, buffer
+;	li	r3, buffer
+	lw	r3, zero, var_BUF
 	add	r3, r3, r4		; end address of the buffer
 	jr	r15
 
@@ -1112,7 +1132,8 @@ err_msg:
 
 
 	DEFWORD(abort, 0, ABORT)
-	.word	SPZ, SPSTORE, LBRAC
+	.word	SPZ, SPSTORE, ZERO, SOURCE_ID, STORE
+	.word	LBRAC
 	.word	LIT, abort_msg, LIT, 6, TYPE, CR
 	.word	QUIT
 abort_msg:
@@ -1121,7 +1142,7 @@ abort_msg:
 	DEFWORD(quit, 0, QUIT)
 	.word	LBRAC, RZ, RSPSTORE
 quit_loop:
-	.word	TIB, LIT, 0x0ff, ACCEPT, NUMBER_TIB, STORE, LIT, 0, TO_IN, STORE
+	.word	TIB, LIT, 0x0ff, ACCEPT, NUMBER_TIB, STORE, ZERO, TO_IN, STORE
 	.word	SPACE, INTERPRET
 	.word	STATE, FETCH, ZBRANCH, quit_int-$
 	.word	LIT, comp_msg, LIT, 9, TYPE, CR, BRANCH, quit_loop-$
@@ -1208,15 +1229,10 @@ _dot_pos:
 
 
 	DEFCODE(create, 0, CREATE)
-	jal	r15, _create
-	NEXT
 _create:
-	move	r9, r15		; save return address
-	li	r2, blank
-	jal	r15, _parse
+	jal	r15, _parse_word
 
 	lw	r4, zero, var_DP
-
 	lw	r1, zero, var_LATEST
 	sw	r1, r4, 0	; store link
 
@@ -1242,8 +1258,7 @@ _create0:
 	lw	r1, zero, var_DP
 	sw	r1, zero, var_LATEST
 	sw	r4, zero, var_DP
-
-	jr	r9
+	NEXT
 
 _create_xt:
 	move	r1, r11		; r11 is word pointer (cfa)
@@ -1304,6 +1319,28 @@ not_immediate:
 	sw	r2, r14, 0	
 	NEXT
 
+	DEFWORD(source, 0, SOURCE)
+	.word	TIB, NUMBER_TIB, FETCH, EXIT
+
+	DEFWORD(save-input, 0, SAVE_INPUT)
+	.word	SOURCE, TO_IN, FETCH, SOURCE_ID, FETCH, LIT, 4, EXIT
+
+	DEFWORD(restore-input, 0, RESTORE_INPUT)
+	.word	LIT, 4, NOT_EQUALS, ZBRANCH, 2, ABORT
+	.word	DUPE, SOURCE_ID, FETCH, NOT_EQUALS, ZBRANCH, 2, ABORT
+	.word	SOURCE_ID, STORE, TO_IN, STORE, NUMBER_TIB, STORE, BUF, STORE
+	.word	ZERO
+	.word	EXIT
+
+
+	DEFWORD(evaluate, 0, EVALUATE)
+	.word	SAVE_INPUT, TO_R, TO_R, TO_R, TO_R, TO_R, NUMBER_TIB, STORE, BUF, STORE
+	.word	ZERO, TO_IN, STORE
+	.word	LIT, -1, SOURCE_ID, STORE
+	.word	INTERPRET
+	.word	ZERO, SOURCE_ID, STORE
+	.word	FROM_R, FROM_R, FROM_R, FROM_R, FROM_R, RESTORE_INPUT, ZBRANCH, 2, ABORT
+	.word	EXIT
 
 	DEFCODE(immediate, 0, IMMEDIATE)
 	lw	r2, zero, var_LATEST	; get latest word
@@ -1384,11 +1421,10 @@ boot_msg3:
 	.set	boot_msg2_len, boot_msg3-boot_msg2
 
 
-	; should always be last
-	DEFWORD(boot, 0, BOOT)
-	.word	WELCOME
-	.word	LIT, name_WELCOME, HIDDEN, LIT, name_BOOT, HIDDEN	
-	.word	QUIT
+
+	DEFWORD(init, 0, INIT)
+	.word	LIT, code, LIT, end_code-code, EVALUATE
+	.word	EXIT
 
 ; : s" [char] " parse postpone sliteral ; immediate
 ; : ." postpone s" ['] type , ; immediate
@@ -1396,7 +1432,26 @@ boot_msg3:
 ; : if ['] 0branch , here 0 , ; immediate
 ; : then dup here swap - swap ! ; immediate
 
-	
+	; should always be last
+	DEFWORD(boot, 0, BOOT)
+	.word	WELCOME
+	.word	LIT, name_WELCOME, HIDDEN, LIT, name_BOOT, HIDDEN	
+	.word	QUIT
+
 	.align
 start_dp:
 
+	.org	0xb000-1
+	.word	end_code - code
+	.org	0xb000
+code:
+	.string	": .( [char] ) parse type ; immediate " 
+	.string ".( init ) cr "
+	.string	": star [char] * emit ; "
+	.string ".( ready ) cr "
+	.string	"
+
+	34 56 + .
+
+"
+end_code:
