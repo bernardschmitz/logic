@@ -17,6 +17,7 @@
 	.set	data_stack,0x8000
 	.set	return_stack,0x9000
 	.set	buffer,0xa000
+	.set	top, 0x8000
 
         define(id, 0)dnl
         define(l, {$1{}id})dnl
@@ -534,6 +535,8 @@ var_$3:	.word	$4
 	DEFCONST(r0, 0, RZ, return_stack)
 	DEFCONST(sp0, 0, SPZ, data_stack)
 	DEFCONST(_docol, 0, _DOCOL, DOCOL)
+
+	DEFCONST(top, 0, TOP, top)
 
 	DEFCONST(zero, 0, ZERO, 0)
 	DEFCONST(false, 0, FALSE, 0)
@@ -1145,7 +1148,7 @@ abort_msg:
 	.word	LBRAC, RZ, RSPSTORE
 quit_loop:
 	.word	TIB, LIT, 0x0ff, ACCEPT, NUMBER_TIB, STORE, ZERO, TO_IN, STORE
-	.word	SPACE, INTERPRET
+	.word	INTERPRET
 	.word	STATE, FETCH, ZBRANCH, quit_int-$
 	.word	LIT, comp_msg, LIT, 9, TYPE, CR, BRANCH, quit_loop-$
 quit_int:
@@ -1377,18 +1380,6 @@ tick0:	.word	ABORT
 	DEFWORD(postpone, f_immediate, POSTPONE)
 	.word	TICK, COMMA, EXIT
 
-
-	DEFWORD(test-udot, 0, TEST_UDOT)
-	.word	LIT, 0x141, U_DOT, CR
-	.word	HEX
-	.word	LIT, 0xcafe, U_DOT, CR
-	.word	BINARY
-	.word	LIT, 0xbabe, U_DOT, CR
-	.word	DECIMAL
-	.word	LIT, 0x293a, DOT, CR
-	.word	LIT, -0x141, DOT, CR
-	.word	EXIT
-
 	DEFWORD(:, 0, COLON)
 	.word	CREATE
 	.word	LATEST, FETCH, DUPE, HIDDEN
@@ -1402,42 +1393,20 @@ tick0:	.word	ABORT
 	.word	LBRAC
 	.word	EXIT
 
-	DEFWORD(recurse, f_immediate, RECURSE)
-	.word	LATEST, FETCH, TO_CFA, COMMA, EXIT
+dnl;	DEFWORD(recurse, f_immediate, RECURSE)
+dnl;	.word	LATEST, FETCH, TO_CFA, COMMA, EXIT
 
-	DEFWORD(unused, 0, UNUSED)
-	.word	LIT, 0x7000, HERE, FETCH, MINUS, EXIT	
-
-	DEFWORD(welcome, 0, WELCOME)
-	.word	CR
-	.word	LIT, boot_msg1, LIT, boot_msg1_len, TYPE, VERSION, U_DOT, CR
-	.word	UNUSED, U_DOT, LIT, boot_msg2, LIT, boot_msg2_len, TYPE, CR
-	.word	EXIT
-boot_msg1:
-	.string	"bsforth version"
-boot_msg2:
-	.string	" cells free"
-boot_msg3:
-	
-	.set	boot_msg1_len, boot_msg2-boot_msg1
-	.set	boot_msg2_len, boot_msg3-boot_msg2
-
+dnl;	DEFWORD(unused, 0, UNUSED)
+dnl;	.word	LIT, 0x9fff, HERE, FETCH, MINUS, EXIT	
 
 
 	DEFWORD(init, 0, INIT)
 	.word	LIT, code, LIT, end_code-code, EVALUATE
 	.word	EXIT
 
-; : s" [char] " parse postpone sliteral ; immediate
-; : ." postpone s" ['] type , ; immediate
-
-; : if ['] 0branch , here 0 , ; immediate
-; : then dup here swap - swap ! ; immediate
 
 	; should always be last
 	DEFWORD(boot, 0, BOOT)
-	.word	WELCOME
-	.word	LIT, name_WELCOME, HIDDEN, LIT, name_BOOT, HIDDEN	
 	.word	INIT
 	.word	QUIT
 
@@ -1452,7 +1421,7 @@ code:
 
 cr
 
-: .( [char] ) parse type ; immediate
+: .( [char] ) parse type ; immediate 
 
 .( init ) cr
 
@@ -1480,14 +1449,21 @@ cr
 
 : else ['] branch , here >r 0 , dup here swap - swap ! r> ; immediate
 
+: recurse latest @ >cfa , ;  immediate
 
+: unused top here - ;
+
+: welcome 
+	cr ." bsforth version" version u. cr
+	unused u. ."  cells free" cr cr
+	;
 
 .( ready ) cr
 
+welcome
+hide welcome
+
 |
 
-;	.string	": .( [char] ) parse type ; immediate " 
-;	.string ".( init ) cr "
-;	.string	": star [char] * emit ; "
-;	.string ".( ready ) cr "
 end_code:
+
