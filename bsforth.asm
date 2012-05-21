@@ -1456,14 +1456,31 @@ cr
 
 .( init ) cr
 
-: star [char] * emit ;
+: newline 10 ;
+
+: \ newline parse ; immediate
+
+\ line comment test
+
+: ( [char] ) parse ; immediate
+
+( comment test )
+
+: mod /mod drop ;
+
+: star ( -- ) [char] * emit ;
 
 : s" [char] " parse postpone sliteral ; immediate
 
 : ." postpone s" ['] type , ; immediate
 
 : if ['] 0branch , here 0 , ; immediate
+
 : then dup here swap - swap ! ; immediate
+
+: else ['] branch , here >r 0 , dup here swap - swap ! r> ; immediate
+
+
 
 .( ready ) cr
 
