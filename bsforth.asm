@@ -808,7 +808,6 @@ _parse_empty:
 
 
 	DEFCODE(parse-word, 0, PARSE_WORD)
-	li	r2, blank		; delimiter
 	jal	r15, _parse_word
 	addi	r14, r14, -2
 	sw	r3, r14, 1		; addr
@@ -816,6 +815,7 @@ _parse_empty:
 	NEXT
 
 _parse_word:
+	li	r2, blank		; delimiter
 	lw	r4, zero, var_NUMBER_TIB ; size of buffer
 	lw	r3, zero, var_TO_IN	; get current index into buffer
 	lw	r9, zero, var_BUF
@@ -1229,15 +1229,10 @@ _dot_pos:
 
 
 	DEFCODE(create, 0, CREATE)
-	jal	r15, _create
-	NEXT
 _create:
-	move	r9, r15		; save return address
-	li	r2, blank
-	jal	r15, _parse
+	jal	r15, _parse_word
 
 	lw	r4, zero, var_DP
-
 	lw	r1, zero, var_LATEST
 	sw	r1, r4, 0	; store link
 
@@ -1263,8 +1258,7 @@ _create0:
 	lw	r1, zero, var_DP
 	sw	r1, zero, var_LATEST
 	sw	r4, zero, var_DP
-
-	jr	r9
+	NEXT
 
 _create_xt:
 	move	r1, r11		; r11 is word pointer (cfa)
@@ -1451,5 +1445,13 @@ start_dp:
 	.word	end_code - code
 	.org	0xb000
 code:
-	.string	": star [char] * emit ;"
+	.string	": .( [char] ) parse type ; immediate " 
+	.string ".( init ) cr "
+	.string	": star [char] * emit ; "
+	.string ".( ready ) cr "
+	.string	"
+
+	34 56 + .
+
+"
 end_code:
