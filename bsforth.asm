@@ -828,7 +828,8 @@ _pw_skip:
 	lw	r5, r8, 0
 	inc	r8
 	inc	r3			; bump index
-	bne	r5, r2, _pw_word	; found start of word
+	;bne	r5, r2, _pw_word	; found start of word
+	bgt	r5, r2, _pw_word	; found start of word
 	beq	r3, r4, _pw_empty
 	j	_pw_skip
 
@@ -845,7 +846,8 @@ _pw_more:
 	lw	r5, r8, 0
 	inc	r8
 	inc	r3			; bump index
-	beq	r5, r2, _pw_done0	; char is a space, so done
+	;beq	r5, r2, _pw_done0	; char is a space, so done
+	ble	r5, r2, _pw_done0	; char is a space, so done
 	bne	r3, r4, _pw_more	; not at end of buffer, so continue
 
 _pw_done1:
@@ -1436,6 +1438,7 @@ boot_msg3:
 	DEFWORD(boot, 0, BOOT)
 	.word	WELCOME
 	.word	LIT, name_WELCOME, HIDDEN, LIT, name_BOOT, HIDDEN	
+	.word	INIT
 	.word	QUIT
 
 	.align
@@ -1445,13 +1448,29 @@ start_dp:
 	.word	end_code - code
 	.org	0xb000
 code:
-	.string	": .( [char] ) parse type ; immediate " 
-	.string ".( init ) cr "
-	.string	": star [char] * emit ; "
-	.string ".( ready ) cr "
-	.string	"
+	.string |
 
-	34 56 + .
+cr
 
-"
+: .( [char] ) parse type ; immediate
+
+.( init ) cr
+
+: star [char] * emit ;
+
+: s" [char] " parse postpone sliteral ; immediate
+
+: ." postpone s" ['] type , ; immediate
+
+: if ['] 0branch , here 0 , ; immediate
+: then dup here swap - swap ! ; immediate
+
+.( ready ) cr
+
+|
+
+;	.string	": .( [char] ) parse type ; immediate " 
+;	.string ".( init ) cr "
+;	.string	": star [char] * emit ; "
+;	.string ".( ready ) cr "
 end_code:
