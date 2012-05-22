@@ -1465,6 +1465,10 @@ progress
 
 : recurse latest @ >cfa , ;  immediate
 
+: begin here ; immediate
+
+: until ['] 0branch , here - , ; immediate
+
 
 : unused top here - ;
 
@@ -1479,6 +1483,7 @@ progress
 
 welcome
 hide welcome
+
 
 |
 
