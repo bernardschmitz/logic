@@ -375,9 +375,6 @@ zeq0:
 	sw	r2, r14, 0
 	NEXT
 
-	DEFWORD(not, 0, NOT)
-	.word	ZERO_EQUALS, EXIT
-
 	DEFCODE(0<>, 0, ZERO_NOT_EQUALS)
 	lw	r3, r14, 0
 	li	r2, 0xffff
@@ -1469,6 +1466,10 @@ progress
 
 : until ['] 0branch , here - , ; immediate
 
+: while postpone if ; immediate
+
+: repeat ['] branch , swap here - , dup here swap - swap ! ; immediate
+
 
 : unused top here - ;
 
@@ -1484,6 +1485,9 @@ progress
 welcome
 hide welcome
 
+
+: bu ( n -- ) begin dup . 1- ?dup 0= until cr ;
+: bwr ( n -- ) begin ?dup 0> while dup . 1- repeat cr ;
 
 |
 
