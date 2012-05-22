@@ -1419,11 +1419,9 @@ cr
 
 : progress [char] . emit ;
 
-progress
-
 : .( [char] ) parse type ; immediate 
 
-.( init ) cr
+.( init )
 
 : newline 10 ;
 
