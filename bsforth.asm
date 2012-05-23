@@ -209,6 +209,20 @@ _boot:	.word	BOOT
 	sw	r2, r14, 0
 	NEXT
 
+	DEFCODE(roll, 0, ROLL)
+	POPDSP(r2)
+	add	r3, r14, r2	; stack address of new tos
+	lw	r5, r3, 0	; save tos
+roll_more:
+	beq	r3, r14, roll_done
+	lw	r6, r3, -1
+	sw	r6, r3, 0
+	dec	r3
+	j	roll_more
+roll_done:
+	sw	r5, r14, 0
+	NEXT
+
 	DEFCODE(2drop, 0, TWO_DROP)
 	addi	r14, r14, 2
 	NEXT
