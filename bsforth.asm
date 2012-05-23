@@ -1393,6 +1393,7 @@ dnl;	DEFWORD(unused, 0, UNUSED)
 dnl;	.word	LIT, 0x9fff, HERE, FETCH, MINUS, EXIT	
 
 
+
 	DEFWORD(init, 0, INIT)
 	.word	LIT, code, LIT, end_code-code, EVALUATE
 	.word	EXIT
@@ -1470,6 +1471,20 @@ progress
 
 : repeat ['] branch , swap here - , dup here swap - swap ! ; immediate
 
+: (do) swap r> -rot >r >r >r ;
+
+: do ['] (do) , here ; immediate
+
+: (loop) r> r> 1+ dup r@ < dup if swap >r else rdrop nip then 0= swap >r ;
+
+: loop ['] (loop) , ['] 0branch , here - , ; immediate
+
+: i r> r@ swap >r ;
+
+: j r> r> r> r@ -rot >r >r swap >r ;
+
+: k r> r> r> r> r> r@ -rot >r >r -rot >r >r swap >r ;
+
 
 : unused top here - ;
 
@@ -1488,6 +1503,8 @@ hide welcome
 
 : bu ( n -- ) begin dup . 1- ?dup 0= until cr ;
 : bwr ( n -- ) begin ?dup 0> while dup . 1- repeat cr ;
+
+: test-loop ( n -- ) 0 do ." loop" cr loop ;
 
 |
 
