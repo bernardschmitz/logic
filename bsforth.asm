@@ -1467,21 +1467,35 @@ progress
 
 : until ['] 0branch , here - , ; immediate
 
+progress
+
 : while postpone if ; immediate
 
 : repeat ['] branch , swap here - , dup here swap - swap ! ; immediate
 
 : (do) swap r> -rot >r >r >r ;
 
-: do ['] (do) , here ; immediate
+: do ['] (do) , 0 here ; immediate
+
+: (do) swap r> -rot >r >r >r ;
+
+: ?do ['] 2dup , ['] <> , ['] 0branch , here 0 , ['] (do) , here ; immediate
+
+progress
 
 : (loop) r> r> 1+ dup r@ < dup if swap >r else rdrop nip then 0= swap >r ;
 
-: loop ['] (loop) , ['] 0branch , here - , ; immediate
+: loop ['] (loop) , ['] 0branch , here - , ?dup if dup here swap - swap ! then ; immediate
+
+: (+loop) r> r> rot + dup r@ < dup if swap >r else rdrop nip then 0= swap >r ;
+
+: +loop ['] (+loop) , ['] 0branch , here - , ?dup if dup here swap - swap ! then ; immediate
 
 : i r> r@ swap >r ;
 
 : j r> r> r> r@ -rot >r >r swap >r ;
+
+progress
 
 : k r> r> r> r> r> r@ -rot >r >r -rot >r >r swap >r ;
 
@@ -1501,12 +1515,8 @@ welcome
 hide welcome
 
 
-: bu ( n -- ) begin dup . 1- ?dup 0= until cr ;
-: bwr ( n -- ) begin ?dup 0> while dup . 1- repeat cr ;
-
-: test-loop ( n -- ) 0 do ." loop" cr loop ;
-
 |
+
 
 end_code:
 
