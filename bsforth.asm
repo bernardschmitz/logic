@@ -1154,7 +1154,7 @@ abort_msg:
 	.word	LBRAC, RZ, RSPSTORE
 quit_loop:
 	.word	TIB, LIT, 0x0ff, ACCEPT, NUMBER_TIB, STORE, ZERO, TO_IN, STORE
-	.word	INTERPRET
+	.word	SPACE, INTERPRET
 	.word	STATE, FETCH, ZBRANCH, quit_int-$
 	.word	LIT, comp_msg, LIT, 9, TYPE, CR, BRANCH, quit_loop-$
 quit_int:

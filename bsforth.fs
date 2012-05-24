@@ -85,6 +85,7 @@ progress
 
 : k r> r> r> r> r> r@ -rot >r >r -rot >r >r swap >r ;
 
+: .s depth u. [char] ; emit space depth 0 ?do depth i - 1- pick . loop ;
 
 : unused top here - ;
 
