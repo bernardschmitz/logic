@@ -65,8 +65,6 @@ progress
 
 : do ['] (do) , 0 here ; immediate
 
-: (do) swap r> -rot >r >r >r ;
-
 : ?do ['] 2dup , ['] <> , ['] 0branch , here 0 , ['] (do) , here ; immediate
 
 progress
@@ -85,7 +83,7 @@ progress
 
 progress
 
-: k r> r> r> r> r> r@ -rot >r >r -rot >r >r swap >r ;
+\ : k r> r> r> r> r> r@ -rot >r >r -rot >r >r swap >r ;
 
 : .s depth u. [char] ; emit space depth 0 ?do depth i - 1- pick . loop ;
 

@@ -590,6 +590,32 @@ spaces0:
 	PUSHDSP(r2)
 	NEXT
 
+	DEFCODE(2>r, 0, TWO_TO_R)
+	lw	r2, r14, 0
+	lw	r3, r14, 1
+	addi	r14, r14, 2
+	addi	r13, r13, -2
+	sw	r2, r13, 0
+	sw	r3, r13, 1
+	NEXT
+
+	DEFCODE(2r>, 0, TWO_FROM_R)
+	lw	r2, r13, 0
+	lw	r3, r13, 1
+	addi	r13, r13, 2
+	addi	r14, r14, -2
+	sw	r2, r14, 0
+	sw	r3, r14, 1
+	NEXT
+
+	DEFCODE(2r@, 0, TWO_R_FETCH)
+	lw	r2, r13, 0
+	lw	r3, r13, 1
+	addi	r14, r14, -2
+	sw	r2, r14, 0
+	sw	r3, r14, 1
+	NEXT
+
 	DEFCODE(rsp@, 0, RSPFETCH)
 	PUSHDSP(r13)	
 	NEXT
