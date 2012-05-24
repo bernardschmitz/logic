@@ -1229,6 +1229,8 @@ _udot_out:
 	inc	r4
 	j	_udot_out
 _udot_done:
+	li	r1, blank
+	sw	r1, zero, charout
 	jr	r15
 
 	.word      0,0,0,0,0,0,0,0
@@ -1247,9 +1249,6 @@ _udot_buf:
 	jal	r15, _dot
 	NEXT
 _dot:
-	li	r1, blank
-	sw	r1, zero, charout
-
 	bge	r2, zero, _dot_pos
 	li	r1, minus
 	sw	r1, zero, charout

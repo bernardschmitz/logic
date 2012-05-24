@@ -1,17 +1,18 @@
 
 cr
 
-: progress [char] . emit ;
+: newline 10 ;
+: \ newline parse 2drop ; immediate
+
+: id. 3 + dup 1- @ type ;
+\ : ; latest @ id. cr postpone ; ; immediate
+
+: depth sp@ sp0 swap - ;
+: progress [char] . emit space depth . cr ;
 
 : .( [char] ) parse type ; immediate 
 
 .( init )
-
-: newline 10 ;
-
-: \ newline parse 2drop ; immediate
-
-\ line comment test
 
 : ( [char] ) parse 2drop ; immediate
 
@@ -30,7 +31,6 @@ progress
 progress
 
 : u? @ u. ;
-: depth sp@ sp0 swap - ;
 
 : mod /mod drop ;
 
@@ -65,7 +65,10 @@ progress
 
 : do ['] (do) , 0 here ; immediate
 
-: ?do ['] 2dup , ['] <> , ['] 0branch , here 0 , ['] (do) , here ; immediate
+\ : ?do ['] 2dup , ['] <> , ['] 0branch , here 0 , ['] (do) , here ; immediate
+
+: (?do) 2dup = dup if -rot 2drop else -rot swap r> -rot >r >r >r then 0= ;
+: ?do ['] (?do) , ['] 0branch , here 0 , here ; immediate
 
 progress
 
@@ -87,8 +90,6 @@ progress
 
 : .s depth u. [char] ; emit space depth 0 ?do depth i - 1- pick . loop ;
 
-: id. 3 + dup 1- @ type ;
-
 : words latest begin @ ?dup while dup ?hidden 0= if dup id. space then repeat ;
 
 : unused top here - ;
@@ -104,4 +105,6 @@ progress
 
 welcome
 hide welcome
+
+progress
 
