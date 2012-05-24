@@ -26,7 +26,9 @@ progress
 : hex 16 base ! ;
 
 : ? @ . ;
+
 progress
+
 : u? @ u. ;
 : depth sp@ sp0 swap - ;
 
@@ -87,6 +89,10 @@ progress
 
 : .s depth u. [char] ; emit space depth 0 ?do depth i - 1- pick . loop ;
 
+: id. 3 + dup 1- @ type ;
+
+: words latest begin @ ?dup while dup ?hidden 0= if dup id. space then repeat ;
+
 : unused top here - ;
 
 : welcome 
@@ -100,5 +106,4 @@ progress
 
 welcome
 hide welcome
-
 

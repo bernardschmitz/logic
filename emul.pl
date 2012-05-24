@@ -191,12 +191,12 @@ mon_reg();
 
 
 
-#print STDERR "\nfetch mem\n";
-#
-#for(sort { $a <=> $b } keys %fetch_memory) {
-#	printf STDERR "%04x %08x %04x\n", $_, $fetch_memory{$_}, $mem[$_];
-#}
-#
+print STDERR "\nfetch mem\n";
+
+for(sort { $a <=> $b } keys %fetch_memory) {
+	printf STDERR "%04x %08x %04x\n", $_, $fetch_memory{$_}, $mem[$_];
+}
+
 #print "\n";
 #
 #print STDERR "\nread mem\n";

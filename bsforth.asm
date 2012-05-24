@@ -1331,6 +1331,20 @@ not_immediate:
 	sw	r2, r14, 0	
 	NEXT
 
+	DEFCODE(?hidden, 0, QUESTION_HIDDEN)
+	lw	r2, r14, 0		; dict addr from stack
+	inc	r2			; flags addr
+	lw	r3, r2, 0		; get flags
+	li	r4, f_hidden		; immediate bit
+	and	r3, r3, r4		; isolate immediate bit
+	clear	r2
+	beq	r3, zero, not_hidden
+	not	r2
+not_hidden:
+	sw	r2, r14, 0	
+	NEXT
+
+
 	DEFWORD(source, 0, SOURCE)
 	.word	TIB, NUMBER_TIB, FETCH, EXIT
 
@@ -1427,7 +1441,7 @@ start_dp:
 code:
 	.string |
 
-include(bsforth.fs)
+undivert(bsforth.fs)
 
 |
 
