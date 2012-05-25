@@ -297,8 +297,7 @@ qdup0:
 	inc	r14
 	sw	r2, r14, 0
 	NEXT
-	
-	
+
 	DEFCODE(/mod, 0, SLASH_MOD)
 	lw	r2, r14, 0
 	lw	r3, r14, 1
@@ -312,6 +311,40 @@ qdup0:
 	lw	r2, r14, 0
 	not	r2
 	sw	r2, r14, 0
+	NEXT
+
+	DEFCODE(negate, 0, NEGATE)
+	lw	r2, r14, 0
+	neg	r2
+	sw	r2, r14, 0
+	NEXT
+
+	DEFCODE(2*, 0, TWO_STAR)
+	lw	r2, r14, 0
+	sll	r2, r2, 1
+	sw	r2, r14, 0
+	NEXT
+
+	DEFCODE(2/, 0, TWO_SLASH)
+	lw	r2, r14, 0
+	sra	r2, r2, 1
+	sw	r2, r14, 0
+	NEXT
+	
+	DEFCODE(lshift, 0, LSHIFT)
+	lw	r2, r14, 0
+	lw	r3, r14, 1
+	sllv	r3, r3, r2
+	inc	r14
+	sw	r3, r14, 0
+	NEXT
+
+	DEFCODE(rshift, 0, RSHIFT)
+	lw	r2, r14, 0
+	lw	r3, r14, 1
+	srlv	r3, r3, r2
+	inc	r14
+	sw	r3, r14, 0
 	NEXT
 
 	DEFCODE(=, 0, EQUALS)
@@ -1000,7 +1033,6 @@ _not_neg:
 	jr	r15
 	
 
-
 	DEFWORD(char, 0, CHAR)
 	.word	PARSE_WORD, DROP, FETCH, EXIT
 
@@ -1123,7 +1155,7 @@ _find_next:
 stack_ok:
 	.word	EXIT
 stack_msg0:
-	.string "stack underflow"
+	.string " stack underflow"
 stack_msg1:
 	.set	stack_msg0_len, stack_msg1 - stack_msg0
 
