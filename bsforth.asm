@@ -1166,7 +1166,8 @@ stack_msg1:
 int_begin:
 	.word	NUMBER_TIB, FETCH, TO_IN, FETCH, NOT_EQUALS
 	.word	ZBRANCH, int_done-$
-	.word	PARSE_WORD, TWO_DUPE, FIND, QUESTION_DUPE
+	.word	PARSE_WORD, QUESTION_DUPE, ZBRANCH, int_zero_len-$
+	.word	TWO_DUPE, FIND, QUESTION_DUPE
 	.word	ZBRANCH, int_not_found-$
 	.word	NIP, NIP
 	.word	DUPE, QUESTION_IMMEDIATE, ZBRANCH, int_not_immed-$
@@ -1194,6 +1195,8 @@ int_number:
 int_not_literal:
 int_word_end:
 	.word	BRANCH, int_begin-$
+int_zero_len:
+	.word	DROP
 int_done:
 	.word	EXIT
 err_msg:

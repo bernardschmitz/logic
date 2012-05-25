@@ -8,7 +8,7 @@ cr
 \ : ; latest @ id. cr postpone ; ; immediate
 
 : depth sp@ sp0 swap - ;
-: progress [char] . emit space depth . cr ;
+: progress [char] . emit ;
 
 : .( [char] ) parse type ; immediate 
 
@@ -106,5 +106,4 @@ progress
 welcome
 hide welcome
 
-progress
 
