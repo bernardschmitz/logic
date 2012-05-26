@@ -1233,11 +1233,11 @@ comp_msg:
 	DEFCODE(u., 0, U_DOT)
 	lw	r2, r14, 0
 	inc	r14
-	jal	r15, _udot0
-	NEXT
-_udot0:
+	jal	r15, _udot
+	jal	r15, _udot_out
 	li	r1, blank
 	sw	r1, zero, _charout
+	NEXT
 _udot:
 	lw      r3, zero, var_BASE
 	li	r4, _udot_buf
@@ -1253,12 +1253,15 @@ _udot_rep:
 	addi	r6, r6, 0x57		; add -10 + 'a'
 	sw	r6, r4, 0
 	bne	r2, zero, _udot_rep
-	j	_udot_out
+	jr	r15
 
 _udot_lt_10:
 	addi	r6, r6, 0x30
 	sw	r6, r4, 0
 	bne	r2, zero, _udot_rep
+	jr	r15
+
+
 
 _udot_out:
 	lw	r6, r4, 0
@@ -1267,8 +1270,8 @@ _udot_out:
 	inc	r4
 	j	_udot_out
 _udot_done:
-	li	r1, blank
-	sw	r1, zero, _charout
+;	li	r1, blank
+;	sw	r1, zero, _charout
 	jr	r15
 
 	.word      0,0,0,0,0,0,0,0
@@ -1279,12 +1282,81 @@ _udot_done:
 	.word      0,0,0,0,0,0,0,0
 _udot_buf:
 	.word	0
+_dot_neg:
+	.word	0
+
+	DEFCODE(u.r, 0, U_DOT_R)
+	lw	r2, r14, 1
+	jal	r15, _udot
+	lw	r2, r14, 0		; field width
+	addi	r14, r14, 2
+
+	li	r8, _udot_buf
+	sub	r5, r8, r4		; num digits
+	sub	r2, r2, r5
+	dec	r2
+;	addi	r2, r2, -2
+
+	ble	r2, zero, _udotr_out
+	li	r3, blank
+_udotr_spc:
+	sw	r3, zero, _charout	; print space
+	dec	r2
+	bge	r2, zero, _udotr_spc
+	
+_udotr_out:
+	jal	r15, _udot_out
+	NEXT
+
+
+	DEFCODE(.r, 0, DOT_R)
+	lw	r2, r14, 1
+
+	clear	r3
+	bge	r2, zero, _dotr_pos
+	neg	r2
+	not	r3
+_dotr_pos:
+	sw	r3, zero, _dot_neg
+
+	jal	r15, _udot
+	
+	lw	r2, r14, 0		; field width
+	addi	r14, r14, 2
+;	dec	r2
+
+	li	r8, _udot_buf
+	sub	r5, r8, r4		; num digits
+	sub	r2, r2, r5
+;	dec	r2
+	addi	r2, r2, -2
+
+	li	r3, blank
+	ble	r2, zero, _dotr_out
+_dotr_spc:
+	sw	r3, zero, _charout	; print space
+	dec	r2
+	bge	r2, zero, _dotr_spc
+
+_dotr_out:
+	lw	r2, zero, _dot_neg
+	beq	r2, zero, _dotr_pos1
+	li	r3, minus
+_dotr_pos1:
+	sw	r3, zero, _charout
+	
+	jal	r15, _udot_out
+	NEXT
+	
 
 
 	DEFCODE(., 0, DOT)
 	lw	r2, r14, 0
 	inc	r14
 	jal	r15, _dot
+	jal	r15, _udot_out
+	li	r1, blank
+	sw	r1, zero, _charout
 	NEXT
 _dot:
 	bge	r2, zero, _dot_pos
@@ -1295,11 +1367,6 @@ _dot_pos:
 	j	_udot
 
 
-dnl;	DEFWORD(?, 0, QUESTION)
-dnl;	.word	FETCH, DOT, EXIT
-
-dnl;	DEFWORD(depth, 0, DEPTH)
-dnl;	.word	SPFETCH, SPZ, SWAP, MINUS, EXIT
 
 
 
