@@ -2,14 +2,14 @@
 	changecom
 	changequote`'changequote(`{',`}')dnl
 
-	.set	timerlo,0xf000
-	.set	timerhi,0xf001
-	.set	random,0xf002
-	.set	bufferclr,0xfffb
-	.set	charrdy,0xfffc
-	.set	charin,0xfffd
-	.set	charout,0xfffe
-	.set	screenclr,0xffff
+	.set	_timerlo,0xf000
+	.set	_timerhi,0xf001
+	.set	_random,0xf002
+	.set	_bufferclr,0xfffb
+	.set	_charrdy,0xfffc
+	.set	_charin,0xfffd
+	.set	_charout,0xfffe
+	.set	_screenclr,0xffff
 
 	.set	f_immediate,0x8000
 	.set	f_hidden,0x0001
@@ -581,13 +581,16 @@ var_$3:	.word	$4
 	DEFCONST(false, 0, FALSE, 0)
 	DEFCONST(true, 0, TRUE, 0xffff)
 
+	DEFCONST(timerlo, 0, TIMERLO, _timerlo)
+	DEFCONST(timerhi, 0, TIMERHI, _timerhi)
+
 	.set	blank,0x20
 
 	DEFCONST(bl, 0, BL, blank)
 
 	DEFCODE(space, 0, SPACE)
 	li	r2, blank
-	sw	r2, zero, charout
+	sw	r2, zero, _charout
 	NEXT
 
 	DEFCODE(spaces, 0, SPACES)
@@ -596,7 +599,7 @@ var_$3:	.word	$4
 	beq	r2, zero, spaces0
 	li	r3, blank
 spaces1:
-	sw	r3, zero, charout
+	sw	r3, zero, _charout
 	dec	r2
 	bne	r2, zero, spaces1
 spaces0:	
@@ -605,7 +608,7 @@ spaces0:
 
 	DEFCODE(cr, 0, CR)
 	li	r2, newline
-	sw	r2, zero, charout
+	sw	r2, zero, _charout
 	NEXT
 
 	DEFCODE(>r, 0, TO_R)
@@ -736,7 +739,7 @@ fill0:
 
 	DEFCODE(key?, 0, KEY_QUESTION)
 	clear	r2
-	lw	r3, zero, charrdy
+	lw	r3, zero, _charrdy
 	beq	r3, zero, _keyq0
 	not	r2
 _keyq0:
@@ -749,15 +752,15 @@ _keyq0:
 	PUSHDSP(r2)
 	NEXT
 _key:
-	lw	r2, zero, charrdy
+	lw	r2, zero, _charrdy
 	beq	r2, zero, _key
-	lw	r2, zero, charin
+	lw	r2, zero, _charin
 	jr	r15
 
 
 	DEFCODE(emit, 0, EMIT)
 	POPDSP(r2)
-	sw	r2, zero, charout
+	sw	r2, zero, _charout
 	NEXT
 
 	.set delete,0x08
@@ -776,23 +779,23 @@ _accept:
 	li	r6, newline		; eol char
 	li	r7, delete		; bs char
 _accept0:
-	lw	r2, zero, charrdy
+	lw	r2, zero, _charrdy
 	beq	r2, zero, _accept0
-	lw	r2, zero, charin
+	lw	r2, zero, _charin
 
 	beq	r2, r6, eol0		; is it eol char?
 	beq	r2, r7, bs0		; is it bs char?
 	beq	r4, zero, lim0		; have we reached the char limit?
 
-	sw	r2, zero, charout	; output char
+	sw	r2, zero, _charout	; output char
 	sw	r2, r3, 0		; store char
 	inc	r5			; count char
 	inc	r3			; inc buffer address
 	dec	r4			; decr max count
 	j	_accept0		; get next char
 lim0:
-	sw	r7, zero, charout
-	sw	r2, zero, charout	; output char
+	sw	r7, zero, _charout
+	sw	r2, zero, _charout	; output char
 	sw	r2, r3, -1
 	j	_accept0		; get next char
 eol0:
@@ -800,7 +803,7 @@ eol0:
 	jr	r15			; return
 bs0:
 	beq	r5, zero, _accept0	; ignore bs if first key
-	sw	r7, zero, charout
+	sw	r7, zero, _charout
 	dec	r5			; backspace buffer
 	dec	r3
 	inc	r4
@@ -820,7 +823,7 @@ _type1:
 	NEXT
 _type:
 	lw	r4, r3, 0
-	sw	r4, zero, charout
+	sw	r4, zero, _charout
 	inc	r3
 	dec	r2
 	bne	r2, zero, _type
@@ -1065,8 +1068,8 @@ _not_neg:
 	NEXT
 
 
-	DEFCONST(rand, 0, RAND, random)
-	DEFCONST(charout, 0, CHAROUT, charout)
+	DEFCONST(rand, 0, RAND, _random)
+	DEFCONST(charout, 0, CHAROUT, _charout)
 
 
 	DEFWORD(randchar, 0, RANDCHAR)
@@ -1234,7 +1237,7 @@ comp_msg:
 	NEXT
 _udot0:
 	li	r1, blank
-	sw	r1, zero, charout
+	sw	r1, zero, _charout
 _udot:
 	lw      r3, zero, var_BASE
 	li	r4, _udot_buf
@@ -1260,12 +1263,12 @@ _udot_lt_10:
 _udot_out:
 	lw	r6, r4, 0
 	beq	r6, zero, _udot_done
-	sw	r6, zero, charout
+	sw	r6, zero, _charout
 	inc	r4
 	j	_udot_out
 _udot_done:
 	li	r1, blank
-	sw	r1, zero, charout
+	sw	r1, zero, _charout
 	jr	r15
 
 	.word      0,0,0,0,0,0,0,0
@@ -1286,7 +1289,7 @@ _udot_buf:
 _dot:
 	bge	r2, zero, _dot_pos
 	li	r1, minus
-	sw	r1, zero, charout
+	sw	r1, zero, _charout
 	neg	r2
 _dot_pos:
 	j	_udot
