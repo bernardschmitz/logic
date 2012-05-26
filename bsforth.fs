@@ -94,6 +94,13 @@ progress
 
 : unused top here - ;
 
+: variable create 0 , ;
+
+: allot here + dp ! ;
+
+\ : constant create , does> @ ;
+
+
 : welcome 
 	cr ." bsforth version" version u. cr
 	unused u. ."  cells free" cr cr
