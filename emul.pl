@@ -3,7 +3,7 @@ use strict;
 use integer;
 
 use Term::ReadKey;
-use Time::HiRes qw(usleep);
+#use Time::HiRes qw(usleep);
 
 my @mem = ();
 
@@ -182,7 +182,7 @@ while(!$halt) {
 	}
 
 
-	usleep(100);
+	#usleep(100);
 }
 
 
