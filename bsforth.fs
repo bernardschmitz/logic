@@ -98,7 +98,9 @@ progress
 
 : allot here + dp ! ;
 
+\ : <builds 0 constant ;
 \ : constant create , does> @ ;
+\ : does> r> ... ;
 
 
 : welcome 
