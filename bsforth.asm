@@ -26,7 +26,6 @@
 	define(LINK, 0)dnl
 
 
-; tos r8
 ; i r10
 ; w r11
 ; x r12
@@ -75,6 +74,7 @@ DOCOL:
 _NEXT:
 	lw	r11, r10, 0
 	inc	r10
+_RUN:
 	lw	r12, r11, 0
 	jr	r12
 
