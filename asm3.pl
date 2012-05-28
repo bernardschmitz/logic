@@ -200,7 +200,12 @@ my %symbol = ();
 #print "\n";
 collect_symbols($ast);
 
-#print Dumper(\%symbol);
+#print STDERR Dumper(\%symbol);
+
+#for(sort { $a cmp $b } keys %symbol) {
+##	next if $_ !~ m/^code_/;
+#	printf STDERR "%s = %04x\n", $_, $symbol{$_}->{value};
+#}
 
 my @memory = ();
 

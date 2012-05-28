@@ -65,11 +65,11 @@
 	j	start
 
 ;	.org	0x10
-;	.align
+	.align
 DOCOL:
 	PUSHRSP(r10)
 	inc	r11
-	ALIGN(r11)
+dnl;	ALIGN(r11)
 	move	r10, r11
 _NEXT:
 	lw	r11, r10, 0
@@ -80,29 +80,29 @@ _RUN:
 
 
 	define(DEFWORD, {
-	.align
+;	.align
 name_$3:
 	.word	LINK
 	define({LINK}, name_$3)dnl
 	.word	$2
 	.word	{0x}format({%04x}, len({$1}))
 	.string "$1"
-	.align
+;	.align
 $3:
 	.word	DOCOL
-	.align
+;	.align
 	})dnl
 
 
 	define(DEFCODE, {
-	.align
+;	.align
 name_$3:
 	.word	LINK
 	define({LINK}, name_$3)dnl
 	.word	$2
 	.word	{0x}format({%04x}, len({$1}))
 	.string "$1"
-	.align
+;	.align
 $3:
 	.word	code_$3
 	.align
@@ -111,7 +111,7 @@ code_$3:
 
 
 
-
+	.align
 start:
 
 	li	r13, return_stack
@@ -1123,13 +1123,14 @@ _find_next:
 		lw	r1, $1, 2		; get length
 		addi	$1, $1, 3		; get addr of name
 		add	$1, $1, r1		; add length
-		ALIGN($1)
+dnl		;ALIGN($1)
 	})dnl
 
 
 	define(CFA2DFA, {
 		inc	$1
-		ALIGN($1)
+dnl		;ALIGN($1)
+		
 	})dnl
 
 
@@ -1389,19 +1390,21 @@ _create0:
 	dec	r2		; decr char count
 	bne	r2, zero, _create0	; keep copying until done
 
-	ALIGN(r4)
+dnl	;ALIGN(r4)
 				; r4 = cfa addr
 	li	r1, _create_xt
 	sw	r1, r4, 0	; store create xt in cfa
 
+;	addi	r4, r4, 2
 	inc	r4		; align
-	ALIGN(r4)
+dnl	;ALIGN(r4)
 
 	lw	r1, zero, var_DP
 	sw	r1, zero, var_LATEST
 	sw	r4, zero, var_DP
 	NEXT
 
+	.align
 _create_xt:
 	move	r1, r11		; r11 is word pointer (cfa)
 	CFA2DFA(r1)
@@ -1562,7 +1565,7 @@ dnl;	.word	LIT, 0x9fff, HERE, FETCH, MINUS, EXIT
 	.word	INIT
 	.word	QUIT
 
-	.align
+;	.align
 start_dp:
 
 	.org	0xb000-1
