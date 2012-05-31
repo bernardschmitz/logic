@@ -68,9 +68,9 @@
 	.align
 DOCOL:
 	PUSHRSP(r10)
-	;inc	r11
-	;move	r10, r11
-	lw	r10, r11, 1
+	inc	r11
+	move	r10, r11
+	;lw	r10, r11, 1
 _NEXT:
 	lw	r11, r10, 0
 	inc	r10
@@ -90,7 +90,7 @@ name_$3:
 ;	.align
 $3:
 	.word	DOCOL
-	.word	$+1
+;	.word	$+1
 ;	.align
 	})dnl
 
@@ -1128,8 +1128,8 @@ _find_next:
 
 
 	define(CFA2DFA, {
-		addi	$1, $1, 2
-;		inc	$1
+;		addi	$1, $1, 2
+		inc	$1
 		
 	})dnl
 
@@ -1393,9 +1393,9 @@ _create0:
 	li	r1, _create_xt
 	sw	r1, r4, 0	; store create xt in cfa
 
-;	inc	r4
-	addi	r4, r4, 2	; dfa
-	sw	r4, r4, -1	; code pointer
+	inc	r4
+;	addi	r4, r4, 2	; dfa
+;	sw	r4, r4, -1	; code pointer
 
 
 	lw	r1, zero, var_DP
@@ -1423,9 +1423,9 @@ dnl;	DEFWORD(<builds, 0, BUILDS)
 dnl;	.word	CREATE, ZERO, COMMA, EXIT
 
 	DEFCODE(xdoes>, f_hidden, XDOES)
-	move	r1, r11		; r11 is word pointer cfa
-	CFA2DFA(r1)
-	PUSHDSP(r1)	
+	move	r2, r11		; r11 is word pointer cfa
+	CFA2DFA(r2)
+	PUSHDSP(r2)	
 	j	DOCOL
 	
 	DEFCODE(does>, 0, DOES)
@@ -1433,7 +1433,7 @@ dnl;	.word	CREATE, ZERO, COMMA, EXIT
 	DICT2CFA(r2)
 	li	r1, XDOES
 	sw	r1, r2, 0
-	sw	r10, r2, 1	; r10 is i pointer, next word to exec
+;	sw	r10, r2, 1	; r10 is i pointer, next word to exec
 	POPRSP(r10)
 	NEXT
 
