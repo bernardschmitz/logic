@@ -104,8 +104,8 @@ progress
 
 
 : welcome 
-	cr ." bsforth version" version u. cr
-	unused u. ."  cells free" cr cr
+	cr ." bsforth version " version u. cr
+	unused u. ." cells free" cr cr
 	;
 
 progress
