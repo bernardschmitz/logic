@@ -68,9 +68,9 @@
 	.align
 DOCOL:
 	PUSHRSP(r10)
-	inc	r11
-dnl;	ALIGN(r11)
-	move	r10, r11
+	;inc	r11
+	;move	r10, r11
+	lw	r10, r11, 1
 _NEXT:
 	lw	r11, r10, 0
 	inc	r10
@@ -90,6 +90,7 @@ name_$3:
 ;	.align
 $3:
 	.word	DOCOL
+	.word	$+1
 ;	.align
 	})dnl
 
@@ -1123,13 +1124,12 @@ _find_next:
 		lw	r1, $1, 2		; get length
 		addi	$1, $1, 3		; get addr of name
 		add	$1, $1, r1		; add length
-dnl		;ALIGN($1)
 	})dnl
 
 
 	define(CFA2DFA, {
-		inc	$1
-dnl		;ALIGN($1)
+		addi	$1, $1, 2
+;		inc	$1
 		
 	})dnl
 
@@ -1390,14 +1390,13 @@ _create0:
 	dec	r2		; decr char count
 	bne	r2, zero, _create0	; keep copying until done
 
-dnl	;ALIGN(r4)
-				; r4 = cfa addr
 	li	r1, _create_xt
 	sw	r1, r4, 0	; store create xt in cfa
 
-;	addi	r4, r4, 2
-	inc	r4		; align
-dnl	;ALIGN(r4)
+;	inc	r4
+	addi	r4, r4, 2	; dfa
+	sw	r4, r4, -1	; code pointer
+
 
 	lw	r1, zero, var_DP
 	sw	r1, zero, var_LATEST
@@ -1411,6 +1410,32 @@ _create_xt:
 	PUSHDSP(r1)	
 	NEXT
 
+
+dnl;	DEFWORD(does>, 0, DOES)
+dnl;	.word	STATE, FETCH, ZBRANCH, does_run-$
+dnl;	.word	LATEST, FETCH, TO_CFA, DUPE, DUPE
+dnl;	.word	_DOCOL, SWAP, STORE
+dnl;	.word	ONE_PLUS, R_FETCH, SWAP, STORE
+dnl;	.word	LIT, 2, PLUS 
+dnl;	.word	EXIT
+
+dnl;	DEFWORD(<builds, 0, BUILDS)
+dnl;	.word	CREATE, ZERO, COMMA, EXIT
+
+	DEFCODE(xdoes>, f_hidden, XDOES)
+	move	r1, r11		; r11 is word pointer cfa
+	CFA2DFA(r1)
+	PUSHDSP(r1)	
+	j	DOCOL
+	
+	DEFCODE(does>, 0, DOES)
+	lw	r2, zero, var_LATEST
+	DICT2CFA(r2)
+	li	r1, XDOES
+	sw	r1, r2, 0
+	sw	r10, r2, 1	; r10 is i pointer, next word to exec
+	POPRSP(r10)
+	NEXT
 
 	DEFCODE({,}, 0, COMMA)
 	; : , dp @ ! dp @ 1+ dp ! ;
@@ -1547,11 +1572,6 @@ tick0:	.word	ABORT
 	.word	LBRAC
 	.word	EXIT
 
-dnl;	DEFWORD(recurse, f_immediate, RECURSE)
-dnl;	.word	LATEST, FETCH, TO_CFA, COMMA, EXIT
-
-dnl;	DEFWORD(unused, 0, UNUSED)
-dnl;	.word	LIT, 0x9fff, HERE, FETCH, MINUS, EXIT	
 
 
 
@@ -1575,6 +1595,14 @@ code:
 	.string |
 
 undivert(bsforth.fs)
+
+dnl : constant create , does> @ ;
+
+dnl 16 base ! cafe constant leng
+
+dnl leng .
+
+
 
 |
 
