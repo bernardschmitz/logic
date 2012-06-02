@@ -65,9 +65,8 @@ progress
 
 : do ['] (do) , 0 here ; immediate
 
-\ : ?do ['] 2dup , ['] <> , ['] 0branch , here 0 , ['] (do) , here ; immediate
-
 : (?do) 2dup = dup if -rot 2drop else -rot swap r> -rot >r >r >r then 0= ;
+
 : ?do ['] (?do) , ['] 0branch , here 0 , here ; immediate
 
 progress
@@ -86,7 +85,7 @@ progress
 
 progress
 
-\ : k r> r> r> r> r> r@ -rot >r >r -rot >r >r swap >r ;
+: k r> r> r> r> r> r@ -rot >r >r -rot >r >r swap >r ;
 
 : .s depth u. [char] ; emit space depth 0 ?do depth i - 1- pick . loop ;
 
@@ -98,14 +97,13 @@ progress
 
 : allot here + dp ! ;
 
+progress
+
 : does> latest @ >cfa _does_xt over ! r> swap 1+ ! ;
 
 : constant create , does> @ ;
 
-
-\ : <builds 0 constant ;
-\ : constant create , does> @ ;
-\ : does> r> ... ;
+: @execute @ execute ;
 
 
 : welcome 
@@ -115,7 +113,7 @@ progress
 
 progress
 
-.( ready ) cr
+.(  ready ) cr
 
 welcome
 hide welcome
