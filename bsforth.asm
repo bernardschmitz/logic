@@ -1410,6 +1410,30 @@ _create_xt:
 	PUSHDSP(r2)	
 	NEXT
 
+	DEFCODE(xcreate, 0, XCREATE)
+	lw	r4, zero, var_DP
+	lw	r1, zero, var_LATEST
+	sw	r1, r4, 0	; store link
+
+	sw	zero, r4, 1	; store flags
+	sw	zero, r4, 2	; store len
+	addi	r4, r4, 3	; address of dict name
+
+	li	r1, _create_xt
+	sw	r1, r4, 0	; store create xt in cfa
+
+	PUSHDSP(r4)		; push xt addr to stack (cfa)
+
+;	inc	r4
+	addi	r4, r4, 2	; dfa
+	sw	r4, r4, -1	; code pointer
+
+	lw	r1, zero, var_DP
+	sw	r1, zero, var_LATEST
+	sw	r4, zero, var_DP
+	NEXT
+
+	DEFCONST(_create_xt, 0, _CREATE_XT, _create_xt)
 	DEFCONST(_does_xt, 0, _DOES_XT, _does_xt)
 
 ;: does> latest @ >cfa _does_xt over ! r> swap 1+ ! ;
@@ -1594,7 +1618,11 @@ tick0:	.word	ABORT
 	.word	LBRAC
 	.word	EXIT
 
-
+	DEFWORD(:noname, 0, NONAME)
+	.word	XCREATE, DUPE
+	.word	_DOCOL, SWAP, STORE
+	.word	RBRAC
+	.word	EXIT
 
 
 	DEFWORD(init, 0, INIT)
