@@ -5,10 +5,11 @@ cr
 : \ newline parse 2drop ; immediate
 
 : id. 3 + dup 1- @ type ;
-\ : ; latest @ id. cr postpone ; ; immediate
+: ; latest @ id. space postpone ; ; immediate
 
 : depth sp@ sp0 swap - ;
-: progress [char] . emit ;
+: progress ;
+\ : progress [char] . emit ;
 
 : .( [char] ) parse type ; immediate 
 
@@ -27,6 +28,14 @@ progress
 : hex 16 base ! ;
 
 : ? @ . ;
+
+: cells ;
+
+: cell+ 1+ ;
+
+: chars ;
+
+: char+ 1+ ;
 
 progress
 
@@ -78,6 +87,10 @@ progress
 : (+loop) r> r> rot + dup r@ < dup if swap >r else rdrop nip then 0= swap >r ;
 
 : +loop ['] (+loop) , ['] 0branch , here - , ?dup if dup here swap - swap ! then ; immediate
+
+: unloop r> r> drop r> drop >r ;
+
+\ : leave ['] unloop , ['] branch , here  ;
 
 : i r> r@ swap >r ;
 
