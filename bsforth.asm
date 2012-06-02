@@ -1410,14 +1410,12 @@ _create_xt:
 	PUSHDSP(r2)	
 	NEXT
 
-	DEFCODE(xcreate, 0, XCREATE)
+	DEFCODE(build, 0, BUILD)
 	lw	r4, zero, var_DP
-	lw	r1, zero, var_LATEST
-	sw	r1, r4, 0	; store link
-
-	sw	zero, r4, 1	; store flags
-	sw	zero, r4, 2	; store len
-	addi	r4, r4, 3	; address of dict name
+;	lw	r1, zero, var_LATEST
+;	sw	r1, r4, 0	; store link
+;	sw	zero, r4, 2	; store len
+;	addi	r4, r4, 3	; address of dict name
 
 	li	r1, _create_xt
 	sw	r1, r4, 0	; store create xt in cfa
@@ -1429,7 +1427,7 @@ _create_xt:
 	sw	r4, r4, -1	; code pointer
 
 	lw	r1, zero, var_DP
-	sw	r1, zero, var_LATEST
+;	sw	r1, zero, var_LATEST
 	sw	r4, zero, var_DP
 	NEXT
 
@@ -1608,19 +1606,25 @@ tick0:	.word	ABORT
 	DEFWORD(:, 0, COLON)
 	.word	CREATE
 	.word	LATEST, FETCH, DUPE, HIDDEN
-	.word	TO_CFA, _DOCOL, SWAP, STORE
+	.word	DUPE, TO_CFA, _DOCOL, SWAP, STORE
+	.word	TRUE
 	.word	RBRAC
 	.word	EXIT
 
 	DEFWORD({;}, f_immediate, SEMICOLON)
 	.word	LIT, EXIT, COMMA
-	.word	LATEST, FETCH, HIDDEN
+	.word	ZBRANCH, _semi0-$
+	.word	HIDDEN, BRANCH, _semi1-$
+_semi0:
+	.word	DROP
+_semi1:
 	.word	LBRAC
 	.word	EXIT
 
 	DEFWORD(:noname, 0, NONAME)
-	.word	XCREATE, DUPE
+	.word	BUILD, DUPE, DUPE
 	.word	_DOCOL, SWAP, STORE
+	.word	FALSE
 	.word	RBRAC
 	.word	EXIT
 
@@ -1645,16 +1649,6 @@ code:
 	.string |
 
 undivert(bsforth.fs)
-
-dnl : does> latest @ >cfa _does_xt over ! r> swap 1+ ! ;
-
-dnl : constant create , does> @ ;
-
-dnl 16 base ! cafe constant leng
-
-dnl leng .
-
-
 
 |
 
