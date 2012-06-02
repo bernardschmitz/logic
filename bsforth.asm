@@ -68,9 +68,9 @@
 	.align
 DOCOL:
 	PUSHRSP(r10)
-	inc	r11
-	move	r10, r11
-	;lw	r10, r11, 1
+	;inc	r11
+	;move	r10, r11
+	lw	r10, r11, 1
 _NEXT:
 	lw	r11, r10, 0
 	inc	r10
@@ -90,7 +90,7 @@ name_$3:
 ;	.align
 $3:
 	.word	DOCOL
-;	.word	$+1
+	.word	$+1
 ;	.align
 	})dnl
 
@@ -1128,8 +1128,8 @@ _find_next:
 
 
 	define(CFA2DFA, {
-;		addi	$1, $1, 2
-		inc	$1
+		addi	$1, $1, 2
+;;		inc	$1
 		
 	})dnl
 
@@ -1393,9 +1393,9 @@ _create0:
 	li	r1, _create_xt
 	sw	r1, r4, 0	; store create xt in cfa
 
-	inc	r4
-;	addi	r4, r4, 2	; dfa
-;	sw	r4, r4, -1	; code pointer
+;	inc	r4
+	addi	r4, r4, 2	; dfa
+	sw	r4, r4, -1	; code pointer
 
 
 	lw	r1, zero, var_DP
@@ -1405,37 +1405,59 @@ _create0:
 
 	.align
 _create_xt:
-	move	r1, r11		; r11 is word pointer (cfa)
-	CFA2DFA(r1)
-	PUSHDSP(r1)	
-	NEXT
-
-
-dnl;	DEFWORD(does>, 0, DOES)
-dnl;	.word	STATE, FETCH, ZBRANCH, does_run-$
-dnl;	.word	LATEST, FETCH, TO_CFA, DUPE, DUPE
-dnl;	.word	_DOCOL, SWAP, STORE
-dnl;	.word	ONE_PLUS, R_FETCH, SWAP, STORE
-dnl;	.word	LIT, 2, PLUS 
-dnl;	.word	EXIT
-
-dnl;	DEFWORD(<builds, 0, BUILDS)
-dnl;	.word	CREATE, ZERO, COMMA, EXIT
-
-	DEFCODE(xdoes>, f_hidden, XDOES)
-	move	r2, r11		; r11 is word pointer cfa
+	move	r2, r11		; r11 is word pointer (cfa)
 	CFA2DFA(r2)
 	PUSHDSP(r2)	
-	j	DOCOL
-	
-	DEFCODE(does>, 0, DOES)
-	lw	r2, zero, var_LATEST
-	DICT2CFA(r2)
-	li	r1, XDOES
-	sw	r1, r2, 0
-;	sw	r10, r2, 1	; r10 is i pointer, next word to exec
-	POPRSP(r10)
 	NEXT
+
+	DEFCONST(_does_xt, 0, _DOES_XT, _does_xt)
+
+;: does> latest @ >cfa _does_xt over ! r> swap 1+ ! ;
+dnl;	DEFWORD(does>, 0, DOES)
+dnl;	.word	LATEST, FETCH, TO_CFA
+dnl;	.word	LIT, _does_xt
+dnl;	.word	OVER, STORE
+dnl;	.word	FROM_R, SWAP, 1+, STORE
+dnl;	.word	EXIT
+
+	.align
+_does_xt:
+	move	r2, r11		; r11 is word pointer (cfa)
+	CFA2DFA(r2)
+	PUSHDSP(r2)		; push dfa to stack
+xDOCOL:
+	PUSHRSP(r10)
+	;inc	r11
+	;move	r10, r11
+	lw	r10, r11, 1
+xNEXT:
+	lw	r11, r10, 0
+	inc	r10
+xRUN:
+	lw	r12, r11, 0
+	jr	r12
+	NEXT
+
+dnl;	DEFWORD(constant, 0, CONSTANT)
+dnl;	.word	CREATE, COMMA
+dnl;const_does:
+dnl;	;.word	DOCOL, $+1
+dnl;	.word	 FETCH, EXIT
+dnl;
+dnl;name_LENG:
+dnl;	.word	LINK
+dnl;	define({LINK}, name_LENG)dnl
+dnl;	.word	0
+dnl;	.word	{0x}format({%04x}, len({leng}))
+dnl;	.string "leng"
+dnl;LENG:
+dnl;	.word	_does_xt
+dnl;	.word	const_does
+dnl;code_LENG:
+dnl;	.word	10
+dnl;
+
+
 
 	DEFCODE({,}, 0, COMMA)
 	; : , dp @ ! dp @ 1+ dp ! ;
@@ -1595,6 +1617,8 @@ code:
 	.string |
 
 undivert(bsforth.fs)
+
+dnl : does> latest @ >cfa _does_xt over ! r> swap 1+ ! ;
 
 dnl : constant create , does> @ ;
 

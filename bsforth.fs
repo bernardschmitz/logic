@@ -98,6 +98,11 @@ progress
 
 : allot here + dp ! ;
 
+: does> latest @ >cfa _does_xt over ! r> swap 1+ ! ;
+
+: constant create , does> @ ;
+
+
 \ : <builds 0 constant ;
 \ : constant create , does> @ ;
 \ : does> r> ... ;
