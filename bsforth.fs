@@ -5,15 +5,15 @@ cr
 : \ newline parse 2drop ; immediate
 
 : id. 3 + dup 1- @ type ;
-: ; latest @ id. space postpone ; ; immediate
+\ : ; latest @ id. space postpone ; ; immediate
 
 : depth sp@ sp0 swap - ;
 : progress ;
-\ : progress [char] . emit ;
+: progress [char] . emit ;
 
 : .( [char] ) parse type ; immediate 
 
-\ .( init )
+.( init )
 
 : ( [char] ) parse 2drop ; immediate
 
@@ -126,7 +126,7 @@ progress
 
 progress
 
-\ .(  ready ) 
+.(  ready ) 
 cr
 
 welcome
