@@ -13,7 +13,7 @@ cr
 
 : .( [char] ) parse type ; immediate 
 
-.( init )
+\ .( init )
 
 : ( [char] ) parse 2drop ; immediate
 
@@ -126,7 +126,8 @@ progress
 
 progress
 
-.(  ready ) cr
+\ .(  ready ) 
+cr
 
 welcome
 hide welcome
