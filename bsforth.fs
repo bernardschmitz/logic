@@ -118,6 +118,9 @@ progress
 
 : @execute @ execute ;
 
+: u< 2dup < -rot 0< swap 0< <> xor ;
+
+: u> 2dup u< -rot = or invert ;
 
 : welcome 
 	cr ." bsforth version " version u. cr
