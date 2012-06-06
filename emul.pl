@@ -370,9 +370,13 @@ sub init() {
 
 	$instruction{0x07} = sub() {
 #		print STDERR "sra\n";
-		$reg[$rd] = $reg[$rs] >> ($op & 0xf);	
-		my $mask = 0xffff >> ($op & 0xf);
-		$reg[$rd] &= $mask;
+		my ($a, $b, $c) = ($reg[$rd], $reg[$rs], $op);
+		$a = $b >> $c;
+		if($b & 0x8000) {
+			my $mask = 0xffff >> $c;
+			$a |= ~$mask;
+		}
+		$reg[$rd] = $a;
 		$clock += 2;	
 	};
 
@@ -390,9 +394,13 @@ sub init() {
 
 	$instruction{0x0a} = sub() {
 #		print STDERR "srav\n";
-		$reg[$rd] = $reg[$rs] >> ($reg[$rt] & 0xf);	
-		my $mask = 0xffff >> ($op & 0xf);
-		$reg[$rd] &= $mask;
+		my ($a, $b, $c) = ($reg[$rd], $reg[$rs], $reg[$rt] & 0xf);
+		$a = $b >> $c;
+		if($b & 0x8000) {
+			my $mask = 0xffff >> $c;
+			$a |= ~$mask;
+		}
+		$reg[$rd] = $a;
 		$clock += 2;	
 	};
 

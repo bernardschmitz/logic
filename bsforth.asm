@@ -348,6 +348,14 @@ qdup0:
 	sw	r3, r14, 0
 	NEXT
 
+	DEFCODE(arshift, 0, ARSHIFT)
+	lw	r2, r14, 0
+	lw	r3, r14, 1
+	srav	r3, r3, r2
+	inc	r14
+	sw	r3, r14, 0
+	NEXT
+
 	DEFCODE(=, 0, EQUALS)
 	lw	r3, r14, 0
 	lw	r4, r14, 1
