@@ -3,7 +3,7 @@
 
 	.word 4+5+6, 0xcafe, 0xbabe
 
-leng:	.string	"hello", "yeah"
+leng:	.string	"xxxxxxxxxxxx hello", "yeah ####"
 leng1:
 
 	.word	leng * leng
