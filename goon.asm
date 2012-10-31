@@ -35,6 +35,8 @@ yeah:
 
 	.set	qwerty, 45
 
+	.set	we, 22
+
 	.set	abc, 10+20*blah
 
 	.org	0x100*2
