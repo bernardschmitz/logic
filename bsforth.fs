@@ -45,8 +45,6 @@ progress
 : mod /mod drop ;
 
 
-: star ( -- ) [char] * emit ;
-
 : s" [char] " parse postpone sliteral ; immediate
 
 : ." postpone s" ['] type , ; immediate
@@ -135,4 +133,6 @@ cr
 
 welcome
 hide welcome
+
+: star ( -- ) [char] * emit ;
 
