@@ -2,6 +2,7 @@
 cr
 
 : newline 10 ;
+
 : \ newline parse 2drop ; immediate
 
 : id. 3 + dup 1- @ type ;

@@ -1162,6 +1162,7 @@ _find_next:
 	NEXT
 
 	DEFWORD(?stack, 0, QUESTION_STACK)
+;	.word	EXIT
 	.word	SPFETCH, SPZ, GREATER_THAN, ZBRANCH, stack_ok-$
 	.word	LIT, stack_msg0, LIT, stack_msg0_len, TYPE, CR, ABORT
 stack_ok:
@@ -1657,6 +1658,8 @@ code:
 	.string |
 
 undivert(bsforth.fs)
+
+
 
 |
 
