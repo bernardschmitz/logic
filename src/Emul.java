@@ -142,7 +142,7 @@ public class Emul {
 
 	private void execute() {
 
-		// System.out.printf("%04x %s r%d, r%d, r%d %04x %04x \n", this.pc,
+		// System.err.printf("%04x %s r%d, r%d, r%d %04x %04x \n", this.pc,
 		// this.ins, this.rd, this.rs, this.rt, this.op, this.ir);
 
 		int mask;
@@ -156,6 +156,7 @@ public class Emul {
 		case INS_ADDI:
 			this.reg[this.rd] = (short) (this.reg[this.rs] + this.op);
 			this.clock += 2;
+
 			break;
 
 		case INS_SUB:
@@ -176,11 +177,21 @@ public class Emul {
 				this.result = this.reg[this.rs];
 				this.hi = 0;
 			} else {
-				this.result = this.reg[this.rs] / this.reg[this.rt] & 0xffff;
-				this.hi = (short) (this.reg[this.rs] % this.reg[this.rt] & 0xffff);
+				this.result = (this.reg[this.rs] & 0x0000ffff)
+						/ (this.reg[this.rt] & 0x0000ffff) & 0xffff;
+				this.hi = (short) ((this.reg[this.rs] & 0x0000ffff)
+						% (this.reg[this.rt] & 0x0000ffff) & 0xffff);
+
 			}
 			this.lo = (short) this.result;
 			this.clock++;
+
+			// System.err.printf("%04x %s r%d, r%d, r%d %04x %04x \n", this.pc,
+			// this.ins, this.rd, this.rs, this.rt, this.op, this.ir);
+			// System.err.printf("%04x %s %04x, %04x, %04x, %04x, %04x \n",
+			// this.pc, this.ins, this.reg[this.rd], this.reg[this.rs],
+			// this.reg[this.rt], this.hi, this.lo);
+
 			break;
 
 		case INS_SLL:
@@ -327,6 +338,10 @@ public class Emul {
 					this.ins, this.pc - 2);
 			System.exit(1);
 		}
+
+		// System.err.printf("\t%04x %s r%d, r%d, r%d %04x %04x \n", this.pc,
+		// this.ins, this.rd, this.rs, this.rt, this.op, this.ir);
+
 	}
 
 	private void write_mem(int address, final short word) {
