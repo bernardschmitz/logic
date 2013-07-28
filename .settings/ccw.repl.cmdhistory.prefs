@@ -1,0 +1,3 @@
+#Mon May 21 16:57:03 PDT 2012
+cmdhistory=["(slurp \\"bsforth.bin\\")\\n\\n" "(slurp \\"rand.bin\\")" "(read-file \\"rand.bin\\")" "(defn read-file [filename]\\r\\n  (with-open [rdr (java.io.BufferedReader. (java.io.FileReader. filename))]\\r\\n    (apply str (line-seq rdr))))" "(read-file \\"rand.bin\\")"]
+eclipse.preferences.version=1
