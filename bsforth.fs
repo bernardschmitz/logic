@@ -1,9 +1,27 @@
 
 cr
 
+: 2drop drop drop ;
+
 : newline 10 ;
 
 : \ newline parse 2drop ; immediate
+
+: progress ;
+\ : progress [char] . emit ;
+
+
+: nip swap drop ;
+: tuck swap over ;
+: -rot rot rot ;
+: 2dup over over ;
+: 2swap 3 roll 3 roll ;
+
+: 1+ 1 + ;
+: 1- 1 - ;
+
+progress
+
 
 : id. 3 + dup 1- @ type ;
 
@@ -29,6 +47,10 @@ progress
 : decimal 10 base ! ;
 : hex 16 base ! ;
 
+: negate 0 swap - ;
+
+: ? @ . ;
+
 : cells ;
 
 : cell+ 1+ ;
@@ -37,9 +59,23 @@ progress
 
 : char+ 1+ ;
 
+
 progress
 
+: u? @ u. ;
+
 : mod /mod drop ;
+
+: <= > invert ;
+: >= < invert ;
+
+: 0= 0 = ;
+: 0<> 0= invert ;
+: 0< 0 < ;
+: 0> 0 > ;
+: 0<= 0 > invert ;
+: 0>= 0 < invert ;
+
 
 : s" [char] " parse postpone sliteral ; immediate
 
@@ -144,6 +180,8 @@ variable num-buf
 
 
 progress
+
+: :noname build dup dup _docol swap ! false ] ;
 
 : does> latest @ >cfa _does_xt over ! r> swap 1+ ! ;
 

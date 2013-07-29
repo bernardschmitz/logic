@@ -146,24 +146,24 @@ _boot:	.word	BOOT
 	inc	r14
 	NEXT
 
-	DEFCODE(nip, 0, NIP)
-	; swap, drop
-	lw	r2, r14, 0
-	inc	r14
-	sw	r2, r14, 0
-	NEXT
+dnl	DEFCODE(nip, 0, NIP)
+dnl	; swap, drop
+dnl	lw	r2, r14, 0
+dnl	inc	r14
+dnl	sw	r2, r14, 0
+dnl	NEXT
 
-	DEFCODE(tuck, 0, TUCK)
-	; swap over
-	lw	r2, r14, 0
-	lw	r3, r14, 1
-
-	sw	r3, r14, 0
-	sw	r2, r14, 1
-
-	lw	r2, r14, 1
-	PUSHDSP(r2)
-	NEXT
+dnl	DEFCODE(tuck, 0, TUCK)
+dnl	; swap over
+dnl	lw	r2, r14, 0
+dnl	lw	r3, r14, 1
+dnl
+dnl	sw	r3, r14, 0
+dnl	sw	r2, r14, 1
+dnl
+dnl	lw	r2, r14, 1
+dnl	PUSHDSP(r2)
+dnl	NEXT
 
 
 	DEFCODE(swap, 0, SWAP)
@@ -194,15 +194,15 @@ _boot:	.word	BOOT
 	sw	r4, r14, 0
 	NEXT
 
-	DEFCODE(-rot, 0, MINUS_ROT)
-	lw	r2, r14, 0
-	lw	r3, r14, 1
-	lw	r4, r14, 2
-
-	sw	r2, r14, 2	
-	sw	r4, r14, 1
-	sw	r3, r14, 0
-	NEXT
+dnl	DEFCODE(-rot, 0, MINUS_ROT)
+dnl	lw	r2, r14, 0
+dnl	lw	r3, r14, 1
+dnl	lw	r4, r14, 2
+dnl
+dnl	sw	r2, r14, 2	
+dnl	sw	r4, r14, 1
+dnl	sw	r3, r14, 0
+dnl	NEXT
 
 	DEFCODE(pick, 0, PICK)
 	lw	r2, r14, 0
@@ -226,48 +226,48 @@ roll_done:
 	sw	r5, r14, 0
 	NEXT
 
-	DEFCODE(2drop, 0, TWO_DROP)
-	addi	r14, r14, 2
-	NEXT
+dnl	DEFCODE(2drop, 0, TWO_DROP)
+dnl	addi	r14, r14, 2
+dnl	NEXT
 
-	DEFCODE(2dup, 0, TWO_DUPE)
-	lw	r2, r14, 0
-	lw	r3, r14, 1
-	addi	r14, r14, -2
-	sw	r2, r14, 0
-	sw	r3, r14, 1
-	NEXT
+dnl	DEFCODE(2dup, 0, TWO_DUPE)
+dnl	lw	r2, r14, 0
+dnl	lw	r3, r14, 1
+dnl	addi	r14, r14, -2
+dnl	sw	r2, r14, 0
+dnl	sw	r3, r14, 1
+dnl	NEXT
 
-	DEFCODE(2swap, 0, TWO_SWAP)
-	lw	r2, r14, 0
-	lw	r3, r14, 1
-	lw	r4, r14, 2
-	lw	r5, r14, 3
-
-	sw	r4, r14, 0
-	sw	r5, r14, 1
-	sw	r2, r14, 2
-	sw	r3, r14, 3
-	NEXT
+dnl	DEFCODE(2swap, 0, TWO_SWAP)
+dnl	lw	r2, r14, 0
+dnl	lw	r3, r14, 1
+dnl	lw	r4, r14, 2
+dnl	lw	r5, r14, 3
+dnl
+dnl	sw	r4, r14, 0
+dnl	sw	r5, r14, 1
+dnl	sw	r2, r14, 2
+dnl	sw	r3, r14, 3
+dnl	NEXT
 
 	DEFCODE(?dup, 0, QUESTION_DUPE)
 	lw	r2, r14, 0
 	beq	r2, zero, qdup0
 	PUSHDSP(r2)
 qdup0:
-	NEXT
+  	NEXT
 
-	DEFCODE(1+, 0, ONE_PLUS)
-	lw	r2, r14, 0
-	inc	r2
-	sw	r2, r14, 0
-	NEXT
+dnl	DEFCODE(1+, 0, ONE_PLUS)
+dnl	lw	r2, r14, 0
+dnl	inc	r2
+dnl	sw	r2, r14, 0
+dnl	NEXT
 
-	DEFCODE(1-, 0, ONE_MINUS)
-	lw	r2, r14, 0
-	dec	r2
-	sw	r2, r14, 0
-	NEXT
+dnl	DEFCODE(1-, 0, ONE_MINUS)
+dnl	lw	r2, r14, 0
+dnl	dec	r2
+dnl	sw	r2, r14, 0
+dnl	NEXT
 
 	DEFCODE(+, 0, PLUS)
 	lw	r2, r14, 0
@@ -316,11 +316,11 @@ qdup0:
 	sw	r2, r14, 0
 	NEXT
 
-	DEFCODE(negate, 0, NEGATE)
-	lw	r2, r14, 0
-	neg	r2
-	sw	r2, r14, 0
-	NEXT
+dnl	DEFCODE(negate, 0, NEGATE)
+dnl	lw	r2, r14, 0
+dnl	neg	r2
+dnl	sw	r2, r14, 0
+dnl	NEXT
 
 	DEFCODE(2*, 0, TWO_STAR)
 	lw	r2, r14, 0
@@ -402,81 +402,81 @@ gt0:
 	sw	r2, r14, 0
 	NEXT
 
-	DEFCODE(<=, 0, LESS_THAN_EQUALS)
-	lw	r3, r14, 0
-	lw	r4, r14, 1
-	li	r2, 0xffff
-	ble	r4, r3, le0
-	clear	r2
-le0:
-	inc	r14
-	sw	r2, r14, 0
-	NEXT
+dnl	DEFCODE(<=, 0, LESS_THAN_EQUALS)
+dnl	lw	r3, r14, 0
+dnl	lw	r4, r14, 1
+dnl	li	r2, 0xffff
+dnl	ble	r4, r3, le0
+dnl	clear	r2
+dnl le0:
+dnl  	inc	r14
+ dnl 	sw	r2, r14, 0
+ dnl 	NEXT
 
-	DEFCODE(>=, 0, GREATER_THAN_EQUALS)
-	lw	r3, r14, 0
-	lw	r4, r14, 1
-	li	r2, 0xffff
-	bge	r4, r3, ge0
-	clear	r2
-ge0:
-	inc	r14
-	sw	r2, r14, 0
-	NEXT
+dnl 	DEFCODE(>=, 0, GREATER_THAN_EQUALS)
+dnl 	lw	r3, r14, 0
+dnl 	lw	r4, r14, 1
+dnl 	li	r2, 0xffff
+dnl 	bge	r4, r3, ge0
+dnl 	clear	r2
+dnl ge0:
+dnl 	inc	r14
+dnl 	sw	r2, r14, 0
+dnl 	NEXT
 
-	DEFCODE(0=, 0, ZERO_EQUALS)
-	lw	r3, r14, 0
-	li	r2, 0xffff
-	beq	r3, zero, zeq0
-	clear	r2
-zeq0:
-	sw	r2, r14, 0
-	NEXT
+dnl 	DEFCODE(0=, 0, ZERO_EQUALS)
+dnl 	lw	r3, r14, 0
+dnl 	li	r2, 0xffff
+dnl 	beq	r3, zero, zeq0
+dnl 	clear	r2
+dnl zeq0:
+dnl 	sw	r2, r14, 0
+dnl 	NEXT
 
-	DEFCODE(0<>, 0, ZERO_NOT_EQUALS)
-	lw	r3, r14, 0
-	li	r2, 0xffff
-	bne	r3, zero, zneq0
-	clear	r2
-zneq0:
-	sw	r2, r14, 0
-	NEXT
+dnl 	DEFCODE(0<>, 0, ZERO_NOT_EQUALS)
+dnl 	lw	r3, r14, 0
+dnl 	li	r2, 0xffff
+dnl 	bne	r3, zero, zneq0
+dnl 	clear	r2
+dnl zneq0:
+dnl 	sw	r2, r14, 0
+dnl 	NEXT
 
-	DEFCODE(0<, 0, ZERO_LESS_THAN)
-	lw	r3, r14, 0
-	li	r2, 0xffff
-	blt	r3, zero, ltz0
-	clear	r2
-ltz0:
-	sw	r2, r14, 0
-	NEXT
+dnl 	DEFCODE(0<, 0, ZERO_LESS_THAN)
+dnl 	lw	r3, r14, 0
+dnl 	li	r2, 0xffff
+dnl 	blt	r3, zero, ltz0
+dnl dnl 	clear	r2
+dnl ltz0:
+dnl 	sw	r2, r14, 0
+dnl 	NEXT
 
-	DEFCODE(0>, 0, ZERO_GREATER_THAN)
-	lw	r3, r14, 0
-	li	r2, 0xffff
-	bgt	r3, zero, gtz0
-	clear	r2
-gtz0:
-	sw	r2, r14, 0
-	NEXT
+dnl 	DEFCODE(0>, 0, ZERO_GREATER_THAN)
+dnl 	lw	r3, r14, 0
+dnl 	li	r2, 0xffff
+dnl 	bgt	r3, zero, gtz0
+dnl 	clear	r2
+dnl gtz0:
+dnl 	sw	r2, r14, 0
+dnl 	NEXT
 
-	DEFCODE(0<=, 0, ZERO_LESS_THAN_EQUALS)
-	lw	r3, r14, 0
-	li	r2, 0xffff
-	ble	r3, zero, lez0
-	clear	r2
-lez0:
-	sw	r2, r14, 0
-	NEXT
+dnl 	DEFCODE(0<=, 0, ZERO_LESS_THAN_EQUALS)
+dnl 	lw	r3, r14, 0
+dnl 	li	r2, 0xffff
+dnl 	ble	r3, zero, lez0
+dnl 	clear	r2
+dnl lez0:
+dnl 	sw	r2, r14, 0
+dnl 	NEXT
 
-	DEFCODE(0>=, 0, ZERO_GREATER_THAN_EQUALS)
-	lw	r3, r14, 0
-	li	r2, 0xffff
-	bge	r3, zero, gez0
-	clear	r2
-gez0:
-	sw	r2, r14, 0
-	NEXT
+dnl 	DEFCODE(0>=, 0, ZERO_GREATER_THAN_EQUALS)
+dnl 	lw	r3, r14, 0
+dnl 	li	r2, 0xffff
+dnl 	bge	r3, zero, gez0
+dnl 	clear	r2
+dnl gez0:
+dnl 	sw	r2, r14, 0
+dnl 	NEXT
 
 	DEFCODE(min, 0, MIN)
 	lw	r2, r14, 0
@@ -723,7 +723,7 @@ cmoveup0:
 
 	DEFWORD({move}, 0, MOVE)
 	; >r 2dup swap dup r@ + within r> swap if cmove> else cmove then
-	.word	TO_R, TWO_DUPE, SWAP, DUPE, R_FETCH, PLUS, WITHIN, FROM_R, SWAP
+	.word	TO_R, OVER, OVER, SWAP, DUPE, R_FETCH, PLUS, WITHIN, FROM_R, SWAP
 	.word	ZBRANCH, 4, CMOVE_UP, BRANCH, 2, CMOVE, EXIT
 
 
@@ -1203,9 +1203,9 @@ int_begin:
 	.word	NUMBER_TIB, FETCH, TO_IN, FETCH, NOT_EQUALS
 	.word	ZBRANCH, int_done-$
 	.word	PARSE_WORD, QUESTION_DUPE, ZBRANCH, int_zero_len-$
-	.word	TWO_DUPE, FIND, QUESTION_DUPE
+	.word	OVER, OVER, FIND, QUESTION_DUPE
 	.word	ZBRANCH, int_not_found-$
-	.word	NIP, NIP
+	.word	SWAP, DROP, SWAP, DROP
 	.word	DUPE, QUESTION_IMMEDIATE, ZBRANCH, int_not_immed-$
 	.word	TO_CFA, EXECUTE, QUESTION_STACK, BRANCH, int_then0-$
 int_not_immed:
@@ -1218,7 +1218,7 @@ int_execute:
 int_then0:
 	.word	BRANCH, int_word_end-$
 int_not_found:
-	.word	TWO_DUPE, NUMBER
+	.word	OVER, OVER, NUMBER
 	.word	ZBRANCH, int_number-$
 	.word	STATE, FETCH, ZBRANCH, int_err-$
 	.word	LATEST, FETCH, DUPE, FETCH, LATEST, STORE, DP, STORE
@@ -1226,7 +1226,7 @@ int_err:
 	.word	DROP, SPACE, LIT, 0x3e, EMIT, TYPE, LIT, err_msg, LIT, 3, TYPE
 	.word	ABORT
 int_number:
-	.word	NIP, NIP, STATE, FETCH, ZBRANCH, int_not_literal-$
+	.word	SWAP, DROP, SWAP, DROP, STATE, FETCH, ZBRANCH, int_not_literal-$
 	.word	LITERAL
 int_not_literal:
 int_word_end:
@@ -1544,7 +1544,7 @@ dnl;
 	DEFWORD(sliteral, f_immediate, SLITERAL)
 	; sliteral ( addr count -- ) ['] sliteral , dup , here swap 2dup + dp ! move exit ; immediate
 	.word	LIT, LITSTRING, COMMA, DUPE, COMMA
-	.word	HERE, SWAP, TWO_DUPE, PLUS, DP, STORE, MOVE, EXIT
+	.word	HERE, SWAP, OVER, OVER, PLUS, DP, STORE, MOVE, EXIT
 
 
 	DEFCODE([, f_immediate, LBRAC)
@@ -1658,12 +1658,12 @@ _semi1:
 	.word	LBRAC
 	.word	EXIT
 
-	DEFWORD(:noname, 0, NONAME)
-	.word	BUILD, DUPE, DUPE
-	.word	_DOCOL, SWAP, STORE
-	.word	FALSE
-	.word	RBRAC
-	.word	EXIT
+dnl	DEFWORD(:noname, 0, NONAME)
+dnl	.word	BUILD, DUPE, DUPE
+dnl	.word	_DOCOL, SWAP, STORE
+dnl	.word	FALSE
+dnl	.word	RBRAC
+dnl	.word	EXIT
 
 
 
