@@ -69,8 +69,8 @@ public class Emul {
 	static final short INS_SW = 0x1a;
 	static final short INS_MFHI = 0x1b;
 	static final short INS_MFLO = 0x1c;
-	// static final short INS_UNDEF = 0x1d;
-	static final short INS_BRK = 0x1e;
+	static final short INS_BRK = 0x1d;
+	// static final short INS_UNDEF = 0x1e;
 	static final short INS_HALT = 0x1f;
 
 	private static final short TIMER_LO = (short) 0xf000;
