@@ -136,3 +136,6 @@ hide welcome
 
 : star ( -- ) [char] * emit ;
 
+: prev dup @ swap ;
+: prev-word prev dup . id. ;
+: _words latest @ begin prev-word cr ?dup 0= until ; 
