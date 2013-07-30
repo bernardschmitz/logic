@@ -87,6 +87,7 @@ name_$3:
 	.word	$2
 	.word	{0x}format({%04x}, len({$1}))
 	.string "$1"
+	.word	LINK
 ;	.align
 $3:
 	.word	DOCOL
@@ -103,6 +104,7 @@ name_$3:
 	.word	$2
 	.word	{0x}format({%04x}, len({$1}))
 	.string "$1"
+	.word	LINK
 ;	.align
 $3:
 	.word	code_$3
@@ -1132,6 +1134,7 @@ _find_next:
 		lw	r1, $1, 2		; get length
 		addi	$1, $1, 3		; get addr of name
 		add	$1, $1, r1		; add length
+		inc	$1			; skip back pointer
 	})dnl
 
 
@@ -1141,11 +1144,31 @@ _find_next:
 		
 	})dnl
 
+	define(CFA2DICT, {
+		lw	$1, $1, -1		; get dict addr from contents of cfa-1
+	})dnl
+
+	define(DFA2DICT, {
+		lw	$1, $1, -3		; get dict addr from contents of dfa-3
+	})dnl
 
 	define(DICT2DFA, {
 		DICT2CFA($1)
 		CFA2DFA($1)
 	})dnl
+
+	
+	DEFCODE(cfa>dict, 0, CFA_TO_DICT)
+	lw	r2, r14, 0		; cfa
+	CFA2DICT(r2)
+	sw	r2, r14, 0
+	NEXT
+
+	DEFCODE(dfa>dict, 0, DFA_TO_DICT)
+	lw	r2, r14, 0		; dfa
+	DFA2DICT(r2)
+	sw	r2, r14, 0
+	NEXT
 
 
 	DEFCODE(>cfa, 0, TO_CFA)
@@ -1390,6 +1413,8 @@ _create:
 
 	sw	zero, r4, 1	; store flags
 	sw	r2, r4, 2	; store len
+	move	r5, r4		; save dict ptr
+
 	addi	r4, r4, 3	; address of dict name
 _create0:
 	lw	r1, r3, 0	; get name char
@@ -1398,6 +1423,9 @@ _create0:
 	inc	r3
 	dec	r2		; decr char count
 	bne	r2, zero, _create0	; keep copying until done
+
+	sw	r5, r4, 0	; store back ptr
+	inc	r4
 
 	li	r1, _create_xt
 	sw	r1, r4, 0	; store create xt in cfa
