@@ -3,7 +3,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -84,6 +83,8 @@ public class Emul {
 
 	private final Random rand = new Random(0xcafebabe);
 
+	private BufferedReader reader;
+
 	public static void main(final String[] args) throws IOException {
 
 		new Emul("bsforth.bin").start();
@@ -97,6 +98,7 @@ public class Emul {
 
 		final BufferedReader reader = new BufferedReader(new FileReader(
 				new File(filename)));
+
 		String line = reader.readLine();
 		if (!line.equals("v2.0 raw")) {
 			throw new IllegalArgumentException("invalid bin file");
@@ -111,9 +113,7 @@ public class Emul {
 
 	private void start() throws IOException {
 
-		// final Reader reader = System.console().reader();
-		final Reader reader = new BufferedReader(new InputStreamReader(
-				System.in));
+		this.reader = new BufferedReader(new InputStreamReader(System.in));
 
 		while (!this.halt) {
 			this.ir = this.read_mem(this.pc, true);
@@ -133,8 +133,8 @@ public class Emul {
 
 			this.reg[0] = 0;
 
-			if (reader.ready()) {
-				final int ch = reader.read();
+			if (this.reader.ready()) {
+				final int ch = this.reader.read();
 				this.keyboard_buf.add((char) ch);
 			}
 		}
@@ -327,6 +327,7 @@ public class Emul {
 			break;
 
 		case INS_BRK:
+			this.monitor();
 			break;
 
 		case INS_HALT:
@@ -402,6 +403,41 @@ public class Emul {
 				address += 0x10000;
 			}
 			return this.mem[address];
+		}
+	}
+
+	private void monitor() {
+
+		try {
+			// final BufferedReader in = new BufferedReader(new
+			// InputStreamReader(
+			// System.in));
+
+			boolean quit = false;
+
+			while (!quit) {
+
+				System.err.print("\n- ");
+				final String line = this.reader.readLine();
+				System.err.println();
+
+				final String[] cmd = line.split("\\s+");
+
+				// if (cmd.length > 0) {
+
+				if (cmd[0].equals("q")) {
+					quit = true;
+				} else if (cmd[0].equals("d")) {
+					//
+				} else if (cmd[0].equals("r")) {
+					//
+				} else {
+					System.err.println("?");
+				}
+			}
+
+		} catch (final IOException e) {
+			e.printStackTrace();
 		}
 	}
 }

@@ -721,6 +721,22 @@ cmoveup0:
 	bne	r2, zero, cmoveup0
 	NEXT
 
+	define(DEFWORD, {
+;	.align
+name_$3:
+	.word	LINK
+	define({LINK}, name_$3)dnl
+	.word	$2
+	.word	{0x}format({%04x}, len({$1}))
+	.string "$1"
+;	.align
+$3:
+	.word	DOCOL
+	.word	$+1
+;	.align
+	})dnl
+
+
 	DEFWORD({move}, 0, MOVE)
 	; >r 2dup swap dup r@ + within r> swap if cmove> else cmove then
 	.word	TO_R, OVER, OVER, SWAP, DUPE, R_FETCH, PLUS, WITHIN, FROM_R, SWAP
@@ -1640,7 +1656,7 @@ tick0:	.word	ABORT
 	DEFWORD(postpone, f_immediate, POSTPONE)
 	.word	TICK, COMMA, EXIT
 
-	DEFWORD(:, 0, COLON)
+	DEFWORD(:, 0, DEFINE)
 	.word	CREATE
 	.word	LATEST, FETCH, DUPE, HIDDEN
 	.word	DUPE, TO_CFA, _DOCOL, SWAP, STORE
