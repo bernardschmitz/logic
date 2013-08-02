@@ -131,6 +131,22 @@ progress
 .(  ready ) 
 cr
 
+
+create digits char 0 , char 1 , char 2 , char 3 , char 4 , char 5 , char 6 , char 7 , char 8 , char 9 , char a , char b , char c , char d , char e , char f ,
+
+variable num-buf
+
+: <# pad num-buf ! ;
+
+: get-digit base @ /mod swap ;
+
+: store-digit digits + @ num-buf @ ! ;
+
+: # get-digit store-digit num-buf @ 1- num-buf ! ;
+
+: #> drop num-buf @ 1+ pad num-buf @ - ;
+
+
 welcome
 hide welcome
 
