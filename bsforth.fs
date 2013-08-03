@@ -140,9 +140,17 @@ variable num-buf
 
 : get-digit base @ /mod swap ;
 
-: store-digit digits + @ num-buf @ ! ;
+: store-buf num-buf @ ! ;
 
-: # get-digit store-digit num-buf @ 1- num-buf ! ;
+: store-digit digits + @ store-buf ;
+
+: dec-buf num-buf @ 1- num-buf ! ;
+
+: # get-digit store-digit dec-buf ;
+
+: #s begin # ?dup 0= until ;
+
+: hold store-buf dec-buf ;
 
 : #> drop num-buf @ 1+ pad num-buf @ - ;
 
