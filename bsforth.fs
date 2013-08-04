@@ -7,10 +7,11 @@ cr
 
 : id. 3 + dup 1- @ type ;
 
-: ; latest @ id. space postpone ; ; immediate
+\ : ; latest @ id. space postpone ; ; immediate
 
 : depth sp@ sp0 swap - ;
-: progress ;
+
+\ : progress ;
 : progress [char] . emit ;
 
 : .( [char] ) parse type ; immediate
@@ -28,8 +29,6 @@ progress
 : decimal 10 base ! ;
 : hex 16 base ! ;
 
-: ? @ . ;
-
 : cells ;
 
 : cell+ 1+ ;
@@ -40,10 +39,7 @@ progress
 
 progress
 
-: u? @ u. ;
-
 : mod /mod drop ;
-
 
 : s" [char] " parse postpone sliteral ; immediate
 
@@ -95,19 +91,56 @@ progress
 
 : j r> r> r> r@ -rot >r >r swap >r ;
 
-progress
-
 : k r> r> r> r> r> r@ -rot >r >r -rot >r >r swap >r ;
-
-: .s depth u. [char] ; emit space depth 0 ?do depth i - 1- pick . loop ;
-
-: words latest begin @ ?dup while dup ?hidden 0= if dup id. space then repeat ;
 
 : unused top here - ;
 
 : variable create 0 , ;
 
 : allot here + dp ! ;
+
+progress
+
+create digits char 0 , char 1 , char 2 , char 3 , char 4 , char 5 , char 6 , char 7 , char 8 , char 9 , char a , char b , char c , char d , char e , char f ,
+
+variable num-buf
+
+: abs dup 0< if negate then ; 
+
+: <# pad num-buf ! ;
+
+: store-buf num-buf @ ! ;
+
+: dec-buf num-buf @ 1- num-buf ! ;
+
+: hold store-buf dec-buf ;
+
+: sign 0< if [char] - hold then ;
+
+: get-digit base @ /mod swap digits + @ ;
+
+: # get-digit hold ;
+
+: #s begin # dup 0= until ;
+
+: #> drop num-buf @ 1+ pad num-buf @ - ;
+
+: (.) abs <# #s swap sign #> ;
+: (u.) <# #s #> ;
+
+: . dup (.) type space ;
+: u. (u.) type space ;
+
+: .r swap (.) rot over - spaces type ;
+: u.r swap (u.) rot over - spaces type ;
+
+: ? @ . ;
+: u? @ u. ;
+
+: .s depth u. [char] ; emit space depth 0 ?do depth i - 1- pick . loop ;
+
+: words latest begin @ ?dup while dup ?hidden 0= if dup id. space then repeat ;
+
 
 progress
 
@@ -121,6 +154,28 @@ progress
 
 : u> 2dup u< -rot = or invert ;
 
+
+
+: 4hex. <# # # # # #> type ;
+
+: addr. 4hex. [char] : emit space ;
+
+: 8cells. dup 8 + swap do i @ 4hex. space loop ;
+
+: 1char. dup bl >= over [char] ~ <= and if emit else drop [char] . emit then ;
+
+: 8chars. dup 8 + swap do i @ 1char. loop ;
+
+: (dump) dup addr. dup 8cells. space space 8chars. ;
+
+: dump ( addr count -- ) 
+	base @ >r hex 
+	cr 
+	8 * over + swap do i (dump) cr 8 +loop
+	r> base ! ;
+
+
+
 : welcome 
 	cr ." bsforth version " version u. cr
 	unused u. ." cells free" cr cr
@@ -132,27 +187,6 @@ progress
 cr
 
 
-create digits char 0 , char 1 , char 2 , char 3 , char 4 , char 5 , char 6 , char 7 , char 8 , char 9 , char a , char b , char c , char d , char e , char f ,
-
-variable num-buf
-
-: <# pad num-buf ! ;
-
-: get-digit base @ /mod swap ;
-
-: store-buf num-buf @ ! ;
-
-: store-digit digits + @ store-buf ;
-
-: dec-buf num-buf @ 1- num-buf ! ;
-
-: # get-digit store-digit dec-buf ;
-
-: #s begin # ?dup 0= until ;
-
-: hold store-buf dec-buf ;
-
-: #> drop num-buf @ 1+ pad num-buf @ - ;
 
 
 welcome
@@ -163,3 +197,4 @@ hide welcome
 : prev dup @ swap ;
 : prev-word prev dup . id. ;
 : _words latest @ begin prev-word cr ?dup 0= until ; 
+

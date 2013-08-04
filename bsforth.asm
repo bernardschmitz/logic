@@ -798,15 +798,15 @@ _accept0:
 	beq	r2, r7, bs0		; is it bs char?
 	beq	r4, zero, lim0		; have we reached the char limit?
 
-	sw	r2, zero, _charout	; output char
+dnl	sw	r2, zero, _charout	; output char
 	sw	r2, r3, 0		; store char
 	inc	r5			; count char
 	inc	r3			; inc buffer address
 	dec	r4			; decr max count
 	j	_accept0		; get next char
 lim0:
-	sw	r7, zero, _charout
-	sw	r2, zero, _charout	; output char
+dnl	sw	r7, zero, _charout
+dnl	sw	r2, zero, _charout	; output char
 	sw	r2, r3, -1
 	j	_accept0		; get next char
 eol0:
@@ -814,7 +814,7 @@ eol0:
 	jr	r15			; return
 bs0:
 	beq	r5, zero, _accept0	; ignore bs if first key
-	sw	r7, zero, _charout
+dnl	sw	r7, zero, _charout
 	dec	r5			; backspace buffer
 	dec	r3
 	inc	r4
@@ -1263,141 +1263,141 @@ comp_msg:
 	.string	" compiled"
 
 
-	DEFCODE(u., 0, U_DOT)
-	lw	r2, r14, 0
-	inc	r14
-	jal	r15, _udot
-	jal	r15, _udot_out
-	li	r1, blank
-	sw	r1, zero, _charout
-	NEXT
-_udot:
-	lw      r3, zero, var_BASE
-	li	r4, _udot_buf
-	li	r5, 0xa
-_udot_rep:
-	dec	r4
-	div     r2, r3
-	mflo    r2
-	mfhi    r6
-
-	blt	r6, r5, _udot_lt_10	; less than 10?
-
-	addi	r6, r6, 0x57		; add -10 + 'a'
-	sw	r6, r4, 0
-	bne	r2, zero, _udot_rep
-	jr	r15
-
-_udot_lt_10:
-	addi	r6, r6, 0x30
-	sw	r6, r4, 0
-	bne	r2, zero, _udot_rep
-	jr	r15
-
-
-
-_udot_out:
-	lw	r6, r4, 0
-	beq	r6, zero, _udot_done
-	sw	r6, zero, _charout
-	inc	r4
-	j	_udot_out
-_udot_done:
-;	li	r1, blank
-;	sw	r1, zero, _charout
-	jr	r15
-
-	.word      0,0,0,0,0,0,0,0
-	.word      0,0,0,0,0,0,0,0
-	.word      0,0,0,0,0,0,0,0
-	.word      0,0,0,0,0,0,0,0
-	.word      0,0,0,0,0,0,0,0
-	.word      0,0,0,0,0,0,0,0
-_udot_buf:
-	.word	0
-_dot_neg:
-	.word	0
-
-	DEFCODE(u.r, 0, U_DOT_R)
-	lw	r2, r14, 1
-	jal	r15, _udot
-	lw	r2, r14, 0		; field width
-	addi	r14, r14, 2
-
-	li	r8, _udot_buf
-	sub	r5, r8, r4		; num digits
-	sub	r2, r2, r5
-	dec	r2
-;	addi	r2, r2, -2
-
-	ble	r2, zero, _udotr_out
-	li	r3, blank
-_udotr_spc:
-	sw	r3, zero, _charout	; print space
-	dec	r2
-	bge	r2, zero, _udotr_spc
-	
-_udotr_out:
-	jal	r15, _udot_out
-	NEXT
-
-
-	DEFCODE(.r, 0, DOT_R)
-	lw	r2, r14, 1
-
-	clear	r3
-	bge	r2, zero, _dotr_pos
-	neg	r2
-	not	r3
-_dotr_pos:
-	sw	r3, zero, _dot_neg
-
-	jal	r15, _udot
-	
-	lw	r2, r14, 0		; field width
-	addi	r14, r14, 2
-;	dec	r2
-
-	li	r8, _udot_buf
-	sub	r5, r8, r4		; num digits
-	sub	r2, r2, r5
-;	dec	r2
-	addi	r2, r2, -2
-
-	li	r3, blank
-	ble	r2, zero, _dotr_out
-_dotr_spc:
-	sw	r3, zero, _charout	; print space
-	dec	r2
-	bge	r2, zero, _dotr_spc
-
-_dotr_out:
-	lw	r2, zero, _dot_neg
-	beq	r2, zero, _dotr_pos1
-	li	r3, minus
-_dotr_pos1:
-	sw	r3, zero, _charout
-	
-	jal	r15, _udot_out
-	NEXT
-	
-
-
-	DEFCODE(., 0, DOT)
-	lw	r2, r14, 0
-	inc	r14
-	jal	r15, _dot
-	jal	r15, _udot_out
-	li	r1, blank
-	sw	r1, zero, _charout
-	NEXT
-_dot:
-	bge	r2, zero, _dot_pos
-	li	r1, minus
-	sw	r1, zero, _charout
-	neg	r2
-_dot_pos:
-	j	_udot
+dnl 	DEFCODE(u., 0, U_DOT)
+dnl 	lw	r2, r14, 0
+dnl 	inc	r14
+dnl 	jal	r15, _udot
+dnl 	jal	r15, _udot_out
+dnl 	li	r1, blank
+dnl 	sw	r1, zero, _charout
+dnl 	NEXT
+dnl _udot:
+dnl 	lw      r3, zero, var_BASE
+dnl 	li	r4, _udot_buf
+dnl 	li	r5, 0xa
+dnl _udot_rep:
+dnl 	dec	r4
+dnl 	div     r2, r3
+dnl 	mflo    r2
+dnl 	mfhi    r6
+dnl 
+dnl 	blt	r6, r5, _udot_lt_10	; less than 10?
+dnl 
+dnl 	addi	r6, r6, 0x57		; add -10 + 'a'
+dnl 	sw	r6, r4, 0
+dnl 	bne	r2, zero, _udot_rep
+dnl 	jr	r15
+dnl 
+dnl _udot_lt_10:
+dnl 	addi	r6, r6, 0x30
+dnl 	sw	r6, r4, 0
+dnl 	bne	r2, zero, _udot_rep
+dnl 	jr	r15
+dnl 
+dnl 
+dnl 
+dnl _udot_out:
+dnl 	lw	r6, r4, 0
+dnl 	beq	r6, zero, _udot_done
+dnl 	sw	r6, zero, _charout
+dnl 	inc	r4
+dnl 	j	_udot_out
+dnl _udot_done:
+dnl ;	li	r1, blank
+dnl ;	sw	r1, zero, _charout
+dnl 	jr	r15
+dnl 
+dnl 	.word      0,0,0,0,0,0,0,0
+dnl 	.word      0,0,0,0,0,0,0,0
+dnl 	.word      0,0,0,0,0,0,0,0
+dnl 	.word      0,0,0,0,0,0,0,0
+dnl 	.word      0,0,0,0,0,0,0,0
+dnl 	.word      0,0,0,0,0,0,0,0
+dnl _udot_buf:
+dnl 	.word	0
+dnl _dot_neg:
+dnl 	.word	0
+dnl 
+dnl 	DEFCODE(u.r, 0, U_DOT_R)
+dnl 	lw	r2, r14, 1
+dnl 	jal	r15, _udot
+dnl 	lw	r2, r14, 0		; field width
+dnl 	addi	r14, r14, 2
+dnl 
+dnl 	li	r8, _udot_buf
+dnl 	sub	r5, r8, r4		; num digits
+dnl 	sub	r2, r2, r5
+dnl 	dec	r2
+dnl ;	addi	r2, r2, -2
+dnl 
+dnl 	ble	r2, zero, _udotr_out
+dnl 	li	r3, blank
+dnl _udotr_spc:
+dnl 	sw	r3, zero, _charout	; print space
+dnl 	dec	r2
+dnl 	bge	r2, zero, _udotr_spc
+dnl 	
+dnl _udotr_out:
+dnl 	jal	r15, _udot_out
+dnl 	NEXT
+dnl 
+dnl 
+dnl 	DEFCODE(.r, 0, DOT_R)
+dnl 	lw	r2, r14, 1
+dnl 
+dnl 	clear	r3
+dnl 	bge	r2, zero, _dotr_pos
+dnl 	neg	r2
+dnl 	not	r3
+dnl _dotr_pos:
+dnl 	sw	r3, zero, _dot_neg
+dnl 
+dnl 	jal	r15, _udot
+dnl 	
+dnl 	lw	r2, r14, 0		; field width
+dnl 	addi	r14, r14, 2
+dnl ;	dec	r2
+dnl 
+dnl 	li	r8, _udot_buf
+dnl 	sub	r5, r8, r4		; num digits
+dnl 	sub	r2, r2, r5
+dnl ;	dec	r2
+dnl 	addi	r2, r2, -2
+dnl 
+dnl 	li	r3, blank
+dnl 	ble	r2, zero, _dotr_out
+dnl _dotr_spc:
+dnl 	sw	r3, zero, _charout	; print space
+dnl 	dec	r2
+dnl 	bge	r2, zero, _dotr_spc
+dnl 
+dnl _dotr_out:
+dnl 	lw	r2, zero, _dot_neg
+dnl 	beq	r2, zero, _dotr_pos1
+dnl 	li	r3, minus
+dnl _dotr_pos1:
+dnl 	sw	r3, zero, _charout
+dnl 	
+dnl 	jal	r15, _udot_out
+dnl 	NEXT
+dnl 	
+dnl 
+dnl 
+dnl 	DEFCODE(., 0, DOT)
+dnl 	lw	r2, r14, 0
+dnl 	inc	r14
+dnl 	jal	r15, _dot
+dnl 	jal	r15, _udot_out
+dnl 	li	r1, blank
+dnl 	sw	r1, zero, _charout
+dnl 	NEXT
+dnl _dot:
+dnl 	bge	r2, zero, _dot_pos
+dnl 	li	r1, minus
+dnl 	sw	r1, zero, _charout
+dnl 	neg	r2
+dnl _dot_pos:
+dnl 	j	_udot
 
 
 
