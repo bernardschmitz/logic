@@ -138,6 +138,7 @@ variable num-buf
 : u? @ u. ;
 
 : .s depth u. [char] ; emit space depth 0 ?do depth i - 1- pick . loop ;
+: u.s depth u. [char] ; emit space depth 0 ?do depth i - 1- pick u. loop ;
 
 : words latest begin @ ?dup while dup ?hidden 0= if dup id. space then repeat ;
 
