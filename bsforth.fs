@@ -6,13 +6,14 @@ cr
 : \ newline parse 2drop ; immediate
 
 : id. 3 + dup 1- @ type ;
-\ : ; latest @ id. space postpone ; ; immediate
+
+: ; latest @ id. space postpone ; ; immediate
 
 : depth sp@ sp0 swap - ;
 : progress ;
 : progress [char] . emit ;
 
-: .( [char] ) parse type ; immediate 
+: .( [char] ) parse type ; immediate
 
 .( init )
 
@@ -21,7 +22,6 @@ cr
 progress
 
 ( comment test )
-
 
 : binary 2 base ! ;
 : octal 8 base ! ;
@@ -44,8 +44,6 @@ progress
 
 : mod /mod drop ;
 
-
-: star ( -- ) [char] * emit ;
 
 : s" [char] " parse postpone sliteral ; immediate
 
@@ -136,4 +134,5 @@ cr
 welcome
 hide welcome
 
+: star ( -- ) [char] * emit ;
 

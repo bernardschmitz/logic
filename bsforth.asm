@@ -1638,6 +1638,7 @@ _semi1:
 	.word	EXIT
 
 
+
 	DEFWORD(init, 0, INIT)
 	.word	LIT, code, LIT, end_code-code, EVALUATE
 	.word	EXIT
@@ -1659,10 +1660,7 @@ code:
 
 undivert(bsforth.fs)
 
-
-
 |
-
 
 end_code:
 
