@@ -79,23 +79,6 @@ _RUN:
 	jr	r12
 
 
-	define(DEFWORD, {
-;	.align
-name_$3:
-	.word	LINK
-	define({LINK}, name_$3)dnl
-	.word	$2
-	.word	{0x}format({%04x}, len({$1}))
-	.string "$1"
-	.word	LINK
-;	.align
-$3:
-	.word	DOCOL
-	.word	$+1
-;	.align
-	})dnl
-
-
 	define(DEFCODE, {
 ;	.align
 name_$3:
@@ -729,12 +712,14 @@ name_$3:
 	.word	$2
 	.word	{0x}format({%04x}, len({$1}))
 	.string "$1"
+	.word	LINK
 ;	.align
 $3:
 	.word	DOCOL
 	.word	$+1
 ;	.align
 	})dnl
+
 
 
 	DEFWORD({move}, 0, MOVE)

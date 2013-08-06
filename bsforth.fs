@@ -1,14 +1,23 @@
 
 cr
 
+: ; [char] . emit postpone ; ; immediate
+
 : 2drop drop drop ;
 
 : newline 10 ;
 
 : \ newline parse 2drop ; immediate
 
+: 1+ 1 + ;
+: 1- 1 - ;
+
+: id. 3 + dup 1- @ type ;
+
 : progress ;
 \ : progress [char] . emit ;
+
+\ : ; latest @ id. space postpone ; ; immediate
 
 
 : nip swap drop ;
@@ -17,20 +26,10 @@ cr
 : 2dup over over ;
 : 2swap 3 roll 3 roll ;
 
-: 1+ 1 + ;
-: 1- 1 - ;
-
 progress
 
 
-: id. 3 + dup 1- @ type ;
-
-\ : ; latest @ id. space postpone ; ; immediate
-
 : depth sp@ sp0 swap - ;
-
-\ : progress ;
-: progress [char] . emit ;
 
 : .( [char] ) parse type ; immediate
 
@@ -49,8 +48,6 @@ progress
 
 : negate 0 swap - ;
 
-: ? @ . ;
-
 : cells ;
 
 : cell+ 1+ ;
@@ -62,7 +59,6 @@ progress
 
 progress
 
-: u? @ u. ;
 
 : mod /mod drop ;
 
