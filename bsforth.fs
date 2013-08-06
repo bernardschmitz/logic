@@ -111,7 +111,8 @@ variable num-buf
 
 : store-buf num-buf @ ! ;
 
-: dec-buf num-buf @ 1- num-buf ! ;
+\ : dec-buf num-buf @ 1- num-buf ! ;
+: dec-buf 1 num-buf -! ;
 
 : hold store-buf dec-buf ;
 
