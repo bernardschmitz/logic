@@ -29,6 +29,8 @@ progress
 : decimal 10 base ! ;
 : hex 16 base ! ;
 
+: s>d 0 swap ;
+
 : cells ;
 
 : cell+ 1+ ;
@@ -46,6 +48,8 @@ progress
 : 2r> r> r> r> swap rot >r ;
 
 : 2r@ r> r> r> 2dup >r >r swap rot >r ;
+
+\ : within ( test min max -- flag ) over - >r - r> u< ;
  
 progress
 
