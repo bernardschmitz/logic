@@ -250,6 +250,15 @@ roll_done:
 	sw	r3, r14, 3
 	NEXT
 
+	DEFCODE(2over, 0, TWO_OVER)
+	lw	r2, r14, 2
+	lw	r3, r14, 3
+
+	sw	r3, r14, -1
+	sw	r2, r14, -2
+	addi	r14, r14, -2
+	NEXT
+
 	DEFCODE(?dup, 0, QUESTION_DUPE)
 	lw	r2, r14, 0
 	beq	r2, zero, qdup0
@@ -637,31 +646,31 @@ spaces0:
 	PUSHDSP(r2)
 	NEXT
 
-	DEFCODE(2>r, 0, TWO_TO_R)
-	lw	r2, r14, 0
-	lw	r3, r14, 1
-	addi	r14, r14, 2
-	addi	r13, r13, -2
-	sw	r2, r13, 0
-	sw	r3, r13, 1
-	NEXT
-
-	DEFCODE(2r>, 0, TWO_FROM_R)
-	lw	r2, r13, 0
-	lw	r3, r13, 1
-	addi	r13, r13, 2
-	addi	r14, r14, -2
-	sw	r2, r14, 0
-	sw	r3, r14, 1
-	NEXT
-
-	DEFCODE(2r@, 0, TWO_R_FETCH)
-	lw	r2, r13, 0
-	lw	r3, r13, 1
-	addi	r14, r14, -2
-	sw	r2, r14, 0
-	sw	r3, r14, 1
-	NEXT
+dnl 	DEFCODE(2>r, 0, TWO_TO_R)
+dnl 	lw	r2, r14, 0
+dnl 	lw	r3, r14, 1
+dnl 	addi	r14, r14, 2
+dnl 	addi	r13, r13, -2
+dnl 	sw	r2, r13, 0
+dnl 	sw	r3, r13, 1
+dnl 	NEXT
+dnl 
+dnl 	DEFCODE(2r>, 0, TWO_FROM_R)
+dnl 	lw	r2, r13, 0
+dnl 	lw	r3, r13, 1
+dnl 	addi	r13, r13, 2
+dnl 	addi	r14, r14, -2
+dnl 	sw	r2, r14, 0
+dnl 	sw	r3, r14, 1
+dnl 	NEXT
+dnl 
+dnl 	DEFCODE(2r@, 0, TWO_R_FETCH)
+dnl 	lw	r2, r13, 0
+dnl 	lw	r3, r13, 1
+dnl 	addi	r14, r14, -2
+dnl 	sw	r2, r14, 0
+dnl 	sw	r3, r14, 1
+dnl 	NEXT
 
 	DEFCODE(rsp@, 0, RSPFETCH)
 	PUSHDSP(r13)	

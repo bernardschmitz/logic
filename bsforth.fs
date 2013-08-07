@@ -37,6 +37,16 @@ progress
 
 : char+ 1+ ;
 
+: 2! swap over ! cell+ ! ;
+
+: 2@ dup cell+ @ swap @ ;
+
+: 2>r r> -rot swap >r >r >r ;
+
+: 2r> r> r> r> swap rot >r ;
+
+: 2r@ r> r> r> 2dup >r >r swap rot >r ;
+ 
 progress
 
 : mod /mod drop ;
