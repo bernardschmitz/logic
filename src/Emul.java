@@ -54,7 +54,7 @@ public class Emul {
 	static final short INS_BEQ = 0x0b;
 	static final short INS_BNE = 0x0c;
 	static final short INS_SLT = 0x0d;
-	static final short INS_SLTI = 0x0e;
+	static final short INS_SLTU = 0x0e;
 	static final short INS_AND = 0x0f;
 	static final short INS_ANDI = 0x10;
 	static final short INS_OR = 0x11;
@@ -247,8 +247,10 @@ public class Emul {
 			this.clock += 2;
 			break;
 
-		case INS_SLTI:
-			this.reg[this.rd] = (short) ((this.reg[this.rs] - this.op & 0x8000) >> 15);
+		case INS_SLTU:
+			this.reg[this.rd] = (short) ((~this.reg[this.rs]
+					& this.reg[this.rt] | (~this.reg[this.rs] | this.reg[this.rt])
+					& this.reg[this.rs] - this.reg[this.rt] & 0x8000) >> 15);
 			this.clock += 2;
 			break;
 
