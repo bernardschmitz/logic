@@ -106,7 +106,7 @@ my @dis = (
 	'beq',
 	'bne',
 	'slt',
-	'slti',
+	'sltu',
 	'and',
 	'andi',
 	'or',
@@ -438,9 +438,16 @@ sub init() {
 	};
 
 	$instruction{0x0e} = sub() {
-#		print STDERR "slti\n";	
+#		print STDERR "sltu\n";	
 
-		$reg[$rd] = (($reg[$rs]-$op) & 0x8000)>>15;
+		my $x = $reg[$rs] & 0xffff;
+		my $y = $reg[$rt] & 0xffff;
+
+		my $r = (~$x & $y) | ((~$x | $y) & ($x - $y));
+
+		$reg[$rd] = ($r & 0x8000)>>15;
+
+		#$reg[$rd] = (($reg[$rs]-$op) & 0x8000)>>15;
 
 #		if(sign_extend($reg[$rs]) < sign_extend($op)) {
 #			$reg[$rd] = 1;
@@ -572,17 +579,17 @@ sub mon_reg {
 
 	print "\n";
 
-	print "data stack:\n";
-
-	mon_dump($reg[14], 0x8000 - 1 - $reg[14]) if $reg[14] < 0x8000;
-
-	print "\n";
-
-	print "return stack:\n";
-
-	mon_dump($reg[13], 0x9000 - 1 - $reg[13]) if $reg[13] < 0x9000;
-
-	print "\n";
+#	print "data stack:\n";
+#
+#	mon_dump($reg[14], 0x8000 - 1 - $reg[14]) if $reg[14] < 0x8000;
+#
+#	print "\n";
+#
+#	print "return stack:\n";
+#
+#	mon_dump($reg[13], 0x9000 - 1 - $reg[13]) if $reg[13] < 0x9000;
+#
+#	print "\n";
 
 }
 

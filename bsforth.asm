@@ -400,6 +400,18 @@ lt0:
 	sw	r2, r14, 0
 	NEXT
 
+	DEFCODE(u<, 0, UNSIGNED_LESS_THAN)
+	lw	r3, r14, 0
+	lw	r4, r14, 1
+	li	r2, 0xffff
+	sltu	at, r4, r3
+	bne	at, zero, ult0
+	clear	r2
+ult0:
+	inc	r14
+	sw	r2, r14, 0
+	NEXT
+
 	DEFCODE(>, 0, GREATER_THAN)
 	lw	r3, r14, 0
 	lw	r4, r14, 1
@@ -407,6 +419,18 @@ lt0:
 	bgt	r4, r3, gt0
 	clear	r2
 gt0:
+	inc	r14
+	sw	r2, r14, 0
+	NEXT
+
+	DEFCODE(u>, 0, UNSIGNED_GREATER_THAN)
+	lw	r3, r14, 0
+	lw	r4, r14, 1
+	li	r2, 0xffff
+	sltu	at, r3, r4
+	bne	at, zero, ugt0
+	clear	r2
+ugt0:
 	inc	r14
 	sw	r2, r14, 0
 	NEXT

@@ -58,6 +58,7 @@ my $grammar = <<'_EOGRAMMAR_';
 		| 'sllv'
 		| 'srlv'
 		| 'srav'
+		| 'sltu'
 		| 'slt'
 		| 'and'
 		| 'or'
@@ -70,7 +71,6 @@ my $grammar = <<'_EOGRAMMAR_';
 		| 'sra'
 		| 'beq'
 		| 'bne'
-		| 'slti'
 		| 'andi'
 		| 'ori'
 		| 'lw'
@@ -225,7 +225,7 @@ my %instructions = (
         beq => { op => 11, size => 2, type => 2, mnemonic => 'beq' },
         bne => { op => 12, size => 2, type => 2, mnemonic => 'bne' },
         slt => { op => 13, size => 2, type => 0, mnemonic => 'slt' },
-        slti => { op => 14, size => 2, type => 1, mnemonic => 'slti' },
+        sltu => { op => 14, size => 2, type => 0, mnemonic => 'sltu' },
         and => { op => 15, size => 2, type => 0, mnemonic => 'and' },
         andi => { op => 16, size => 2, type => 1, mnemonic => 'andi' },
         or => { op => 17, size => 2, type => 0, mnemonic => 'or' },
