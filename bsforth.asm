@@ -292,10 +292,10 @@ qdup0:
 	lw	r4, r14, 2
 	lw	r5, r14, 3
 
-	add	r6, r2, r4
-	sltu	r7, r6, r2
-	add	r7, r7, r3
-	add	r7, r7, r5
+	add	r7, r3, r5
+	sltu	r6, r7, r3
+	add	r6, r6, r2
+	add	r6, r6, r4
 
 	addi	r14, r14, 2
 	sw	r6, r14, 0
@@ -316,10 +316,10 @@ qdup0:
 	lw	r4, r14, 2
 	lw	r5, r14, 3
 
-	sub	r6, r4, r2
 	sub	r7, r5, r3
-	sltu	at, r4, r2
-	sub	r7, r7, at
+	sub	r6, r4, r2
+	sltu	at, r5, r3
+	sub	r6, r6, at
 
 	addi	r14, r14, 2
 	sw	r6, r14, 0
