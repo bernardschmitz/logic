@@ -175,6 +175,8 @@ progress
 \ : u> 2dup u< -rot = or invert ;
 
 
+true 1 rshift invert constant high-bit
+
 
 : 4hex. <# # # # # #> type ;
 

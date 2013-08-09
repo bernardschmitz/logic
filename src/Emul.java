@@ -217,7 +217,7 @@ public class Emul {
 			break;
 
 		case INS_SRLV:
-			this.reg[this.rd] = (short) (this.reg[this.rs] >> (this.reg[this.rt] & 0xf));
+			this.reg[this.rd] = (short) ((this.reg[this.rs] & 0xffff) >>> (this.reg[this.rt] & 0xf));
 			this.clock += 2;
 			break;
 
