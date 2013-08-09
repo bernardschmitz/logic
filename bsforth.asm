@@ -335,6 +335,21 @@ qdup0:
 	sw	r2, r14, 0
 	NEXT
 
+	DEFCODE(m*, 0, M_STAR)
+	lw	r2, r14, 0
+	lw	r3, r14, 1
+
+	mul	r2, r3
+	mfhi	r2
+	mflo	r3
+
+	sw	r2, r14, 0
+	sw	r3, r14, 1
+	NEXT
+
+
+
+
 	DEFCODE(/, 0, SLASH)
 	lw	r2, r14, 0
 	lw	r3, r14, 1
