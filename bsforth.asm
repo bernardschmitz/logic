@@ -1612,6 +1612,8 @@ dnl;
 	; : literal ['] lit , , ; immediate
 	.word	LIT, LIT, COMMA, COMMA, EXIT
 
+	; : 2literal swap ['] lit dup , swap , , , ; 
+
 	DEFCODE(litstring, 0, LITSTRING)
 	lw	r2, r10, 0	; length of string
 	inc	r10		; advance to string address
@@ -1622,7 +1624,7 @@ dnl;
  	NEXT
 
 	DEFWORD(sliteral, f_immediate, SLITERAL)
-	; sliteral ( addr count -- ) ['] sliteral , dup , here swap 2dup + dp ! move exit ; immediate
+	; sliteral ( addr count -- ) ['] litstring , dup , here swap 2dup + dp ! move exit ; immediate
 	.word	LIT, LITSTRING, COMMA, DUPE, COMMA
 	.word	HERE, SWAP, TWO_DUPE, PLUS, DP, STORE, MOVE, EXIT
 
