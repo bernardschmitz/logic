@@ -196,11 +196,15 @@ true 1 rshift invert constant high-bit
 	8 * over + swap do i (dump) cr 8 +loop
 	r> base ! ;
 
-
+: forth-name s" bsforth" ;
+: forth-version s" esyscmd({echo -n "$(git describe)"})" ;
+: forth-compiled s" esyscmd({echo -n "$(date -R)"})" ;
 
 : welcome 
-	cr ." bsforth version " version u. cr
-	unused u. ." cells free" cr cr
+	cr
+	forth-name type space forth-version type space forth-compiled type cr
+	unused u. ." cells free" cr 
+	cr
 	;
 
 progress

@@ -662,7 +662,6 @@ var_$3:	.word	$4
 	NEXT
 	})dnl
 
-	DEFCONST(version, 0, VERSION, 1)
 	DEFCONST(r0, 0, RZ, return_stack)
 	DEFCONST(sp0, 0, SPZ, data_stack)
 	DEFCONST(_docol, 0, _DOCOL, DOCOL)
@@ -1767,7 +1766,8 @@ start_dp:
 code:
 	.string |
 
-undivert(bsforth.fs)
+include(bsforth.fs)
+dnl undivert(bsforth.fs)
 
 |
 
