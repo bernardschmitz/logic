@@ -67,16 +67,14 @@
 ;	.org	0x10
 	.align
 DOCOL:
-	PUSHRSP(r10)
-	;inc	r11
-	;move	r10, r11
-	lw	r10, r11, 1
+	PUSHRSP(r10)		; push ip to rsp
+	lw	r10, r11, 1	; ip = [w+1]
 _NEXT:
-	lw	r11, r10, 0
-	inc	r10
+	lw	r11, r10, 0	; w = [ip]
+	inc	r10		; ip++
 _RUN:
-	lw	r12, r11, 0
-	jr	r12
+	lw	r12, r11, 0	; x = [w]
+	jr	r12		; jump to code at x
 
 
 	define(DEFWORD, {
