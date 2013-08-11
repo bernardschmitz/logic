@@ -17,17 +17,24 @@ public class Forth {
 		this.primitives[0] = new Lit();
 		this.primitives[1] = new Emit();
 		this.primitives[2] = new Halt();
+		this.primitives[3] = new Plus();
 	}
 
 	{
 		this.memory[10] = 0;
 		this.memory[11] = 1;
 		this.memory[12] = 2;
+		this.memory[13] = 3;
 
 		this.memory[100] = 10;
 		this.memory[101] = '*';
 		this.memory[102] = 11;
-		this.memory[103] = 12;
+		this.memory[103] = 10;
+		this.memory[104] = 1;
+		this.memory[105] = 10;
+		this.memory[106] = 2;
+		this.memory[107] = 13;
+		this.memory[108] = 12;
 	}
 
 	public static void main(final String[] args) {
@@ -121,6 +128,17 @@ public class Forth {
 		public void exec() {
 			System.err.println("Halt");
 			System.exit(1);
+		}
+	}
+
+	private final class Plus implements Primitive {
+
+		@Override
+		public void exec() {
+			System.err.println("Plus");
+			int a = popDs();
+			int b = popDs();
+			pushDs(a+b);
 		}
 	}
 
