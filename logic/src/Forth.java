@@ -6,17 +6,30 @@ public class Forth {
 	private static final int MEMORY_SIZE = 2000;
 	private static final int RETURN_SIZE = 32;
 
-	private final int memory[] = new int[MEMORY_SIZE];
+	private final static int memory[] = new int[MEMORY_SIZE];
 
-	private final List<String> strings = new ArrayList<String>();
+	private static final List<String> strings = new ArrayList<String>();
 
-	private final int returnStackAddr = 0;
-	private final int dataStackAddr = 1;
-	private final int instructionAddr = 2;
-	private final int wordAddr = 3;
-	private final int execAddr = 4;
+	static final List<Primitive> primitives = new ArrayList<Primitive>();
 
-	private final List<Primitive> primitives = new ArrayList<Primitive>();
+	private final static int returnStackAddr = 0;
+	private final static int dataStackAddr = 1;
+	private final static int instructionAddr = 2;
+	private final static int wordAddr = 3;
+	private final static int execAddr = 4;
+
+	private static int here = 1000;
+	private final static int prev = 0;
+
+	static final int ENTER = defcode("enter", 0, new Enter());
+	static final int EXIT = defcode("exit", 0, new Exit());
+	static final int LIT = defcode("lit", 0, new Lit());
+	static final int EMIT = defcode("emit", 0, new Emit());
+	static final int PLUS = defcode("+", 0, new Plus());
+	static final int HALT = defcode("halt", 0, new Halt());
+
+	static final int STAR = defword("star", 0, LIT, '*', EMIT, EXIT);
+	static final int K = defword("k", 0, STAR, STAR, STAR, STAR, EXIT);
 
 	public static void main(final String[] args) {
 
@@ -27,10 +40,9 @@ public class Forth {
 		super();
 	}
 
-	private int[] defcode(int prev, int here, String name, int flags,
-			Primitive code) {
+	private static int defcode(String name, int flags, Primitive code) {
 
-		int back = here;
+		// int back = here;
 		memory[here++] = prev;
 		memory[here++] = flags;
 		strings.add(name);
@@ -38,38 +50,48 @@ public class Forth {
 		// memory[here++] = back;
 
 		int cfa = here;
-		// memory[here] = here + 1;
-		// here++;
 		primitives.add(code);
 		memory[here++] = primitives.size() - 1;
 
-		return new int[] { back, cfa, here };
+		return cfa;
+	}
+
+	private static int defword(String name, int flags, int... words) {
+
+		// int back = here;
+		memory[here++] = prev;
+		memory[here++] = flags;
+		strings.add(name);
+		memory[here++] = strings.size() - 1;
+		// memory[here++] = back;
+
+		int cfa = here;
+
+		memory[here++] = 0;
+		memory[here] = here + 1;
+		here++;
+
+		for (int i : words) {
+			memory[here++] = i;
+		}
+
+		return cfa;
 	}
 
 	private void init() {
 
-		this.memory[this.returnStackAddr] = MEMORY_SIZE - 1;
-		this.memory[this.dataStackAddr] = MEMORY_SIZE - RETURN_SIZE;
-		this.memory[this.instructionAddr] = 100;
+		Forth.memory[Forth.returnStackAddr] = MEMORY_SIZE - 1;
+		Forth.memory[Forth.dataStackAddr] = MEMORY_SIZE - RETURN_SIZE;
+		Forth.memory[Forth.instructionAddr] = 100;
 
-		int[] code = defcode(0, 10, "lit", 0, new Lit());
-		int LIT = code[1];
-		code = defcode(code[0], code[2], "emit", 0, new Emit());
-		int EMIT = code[1];
-		code = defcode(code[0], code[2], "+", 0, new Plus());
-		int PLUS = code[1];
-		code = defcode(code[0], code[2], "halt", 0, new Halt());
-		int HALT = code[1];
-
-		this.memory[100] = LIT;
-		this.memory[101] = '*';
-		this.memory[102] = EMIT;
-		this.memory[103] = LIT;
-		this.memory[104] = 1;
-		this.memory[105] = LIT;
-		this.memory[106] = 2;
-		this.memory[107] = PLUS;
-		this.memory[108] = HALT;
+		Forth.memory[100] = STAR;
+		Forth.memory[101] = LIT;
+		Forth.memory[102] = 1;
+		Forth.memory[103] = LIT;
+		Forth.memory[104] = 2;
+		Forth.memory[105] = PLUS;
+		Forth.memory[106] = K;
+		Forth.memory[107] = HALT;
 
 		loop();
 	}
@@ -83,86 +105,108 @@ public class Forth {
 
 	private void next() {
 
-		int ip = this.memory[this.instructionAddr];
-		final int w = this.memory[ip];
+		int ip = Forth.memory[Forth.instructionAddr];
+		final int w = Forth.memory[ip];
 		ip++;
-		this.memory[this.instructionAddr] = ip;
-		this.memory[this.wordAddr] = w;
-		final int x = this.memory[w];
-		this.memory[this.execAddr] = x;
-		this.primitives.get(x).exec();
+		Forth.memory[Forth.instructionAddr] = ip;
+		Forth.memory[Forth.wordAddr] = w;
+		final int x = Forth.memory[w];
+		Forth.memory[Forth.execAddr] = x;
+		Forth.primitives.get(x).exec();
 	}
 
-	private void pushRs(final int v) {
-		final int sp = this.memory[this.returnStackAddr] - 1;
-		this.memory[this.returnStackAddr] = sp;
-		this.memory[sp] = v;
+	private static void pushRs(final int v) {
+		final int sp = Forth.memory[Forth.returnStackAddr] - 1;
+		Forth.memory[Forth.returnStackAddr] = sp;
+		Forth.memory[sp] = v;
 	}
 
-	private int popRs() {
-		final int sp = this.memory[this.returnStackAddr];
-		final int v = this.memory[sp];
-		this.memory[this.returnStackAddr] = sp + 1;
+	private static int popRs() {
+		final int sp = Forth.memory[Forth.returnStackAddr];
+		final int v = Forth.memory[sp];
+		Forth.memory[Forth.returnStackAddr] = sp + 1;
 		return v;
 	}
 
-	private void pushDs(final int v) {
-		final int sp = this.memory[this.dataStackAddr] - 1;
-		this.memory[this.dataStackAddr] = sp;
-		this.memory[sp] = v;
+	private static void pushDs(final int v) {
+		final int sp = memory[dataStackAddr] - 1;
+		memory[dataStackAddr] = sp;
+		memory[sp] = v;
 	}
 
-	private int popDs() {
-		final int sp = this.memory[this.dataStackAddr];
-		final int v = this.memory[sp];
-		this.memory[this.dataStackAddr] = sp + 1;
+	private static int popDs() {
+		final int sp = Forth.memory[Forth.dataStackAddr];
+		final int v = Forth.memory[sp];
+		Forth.memory[Forth.dataStackAddr] = sp + 1;
 		return v;
 	}
 
-	interface Primitive {
+	public interface Primitive {
 
 		void exec();
 	}
 
-	private final class Lit implements Primitive {
+	public static final class Lit implements Primitive {
 
 		@Override
 		public void exec() {
-			System.err.println("Lit");
-			int ip = Forth.this.memory[Forth.this.instructionAddr];
-			final int v = Forth.this.memory[ip];
-			Forth.this.pushDs(v);
+			// System.err.println("Lit");
+			int ip = memory[instructionAddr];
+			final int v = memory[ip];
+			pushDs(v);
 			ip++;
-			Forth.this.memory[Forth.this.instructionAddr] = ip;
+			memory[instructionAddr] = ip;
 		}
 	}
 
-	private final class Emit implements Primitive {
+	public static final class Emit implements Primitive {
 
 		@Override
 		public void exec() {
-			System.err.println("Emit");
-			final int v = Forth.this.popDs();
+			// System.err.println("Emit");
+			final int v = popDs();
 			System.out.print((char) v);
 		}
 	}
 
-	private final class Halt implements Primitive {
+	public static final class Halt implements Primitive {
 		@Override
 		public void exec() {
-			System.err.println("Halt");
+			// System.err.println("Halt");
 			System.exit(1);
 		}
 	}
 
-	private final class Plus implements Primitive {
+	public static final class Plus implements Primitive {
 
 		@Override
 		public void exec() {
-			System.err.println("Plus");
+			// System.err.println("Plus");
 			int a = popDs();
 			int b = popDs();
 			pushDs(a + b);
+		}
+	}
+
+	public static final class Enter implements Primitive {
+
+		@Override
+		public void exec() {
+			// System.err.println("Enter");
+			int ip = memory[instructionAddr];
+			pushRs(ip);
+			int w = memory[wordAddr];
+			memory[instructionAddr] = memory[w + 1];
+		}
+	}
+
+	public static final class Exit implements Primitive {
+
+		@Override
+		public void exec() {
+			// System.err.println("Exit");
+			int ip = popRs();
+			memory[instructionAddr] = ip;
 		}
 	}
 
