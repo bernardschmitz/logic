@@ -20,12 +20,15 @@ public class Forth {
 
 	private static int here = 1000;
 	private final static int prev = 0;
+	
 
 	static final int ENTER = defcode("enter", 0, new Enter());
 	static final int EXIT = defcode("exit", 0, new Exit());
 	static final int LIT = defcode("lit", 0, new Lit());
 	static final int EMIT = defcode("emit", 0, new Emit());
 	static final int PLUS = defcode("+", 0, new Plus());
+//	static final int DEFINE = defcode("define", 0, new Define());
+	
 	static final int HALT = defcode("halt", 0, new Halt());
 
 	static final int STAR = defword("star", 0, LIT, '*', EMIT, EXIT);
@@ -43,10 +46,17 @@ public class Forth {
 	private static int defcode(String name, int flags, Primitive code) {
 
 		// int back = here;
+		
 		memory[here++] = prev;
 		memory[here++] = flags;
 		strings.add(name);
 		memory[here++] = strings.size() - 1;
+
+//		memory[here++] = name.length();
+//		for (int i=0; i<name.length();i++) {
+//			memory[here++] = name.charAt(i);
+//		}
+		
 		// memory[here++] = back;
 
 		int cfa = here;
@@ -63,11 +73,18 @@ public class Forth {
 		memory[here++] = flags;
 		strings.add(name);
 		memory[here++] = strings.size() - 1;
+
+//		memory[here++] = name.length();
+//		for (int i=0; i<name.length();i++) {
+//			memory[here++] = name.charAt(i);
+//		}
+
+		
 		// memory[here++] = back;
 
 		int cfa = here;
 
-		memory[here++] = 0;
+		memory[here++] = 0;  // ENTER primitive
 		memory[here] = here + 1;
 		here++;
 
@@ -207,6 +224,15 @@ public class Forth {
 			// System.err.println("Exit");
 			int ip = popRs();
 			memory[instructionAddr] = ip;
+		}
+	}
+
+	public static final class Define implements Primitive {
+
+		@Override
+		public void exec() {
+			// System.err.println("Exit");
+	
 		}
 	}
 
