@@ -1,0 +1,10 @@
+org/plump/forth/primitive/Lit.class
+org/plump/forth/Header.class
+Emul.class
+org/plump/forth/Context.class
+org/plump/forth/primitive/Halt.class
+org/plump/forth/primitive/Plus.class
+org/plump/forth/Forth.class
+org/plump/forth/primitive/Emit.class
+org/plump/forth/primitive/Define.class
+org/plump/forth/primitive/Primitive.class
